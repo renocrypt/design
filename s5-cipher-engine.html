@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S5 — The Cipher Engine · RenoCrypt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,300..500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f12;
+    --bg-2: #14161a;
+    --bone: #ece7da;
+    --bone-55: color-mix(in oklch, var(--bone) 55%, var(--bg));
+    --bone-30: color-mix(in oklch, var(--bone) 30%, var(--bg));
+    --bone-12: color-mix(in oklch, var(--bone) 12%, var(--bg));
+    --amber: #ffb454;
+    --brass: #b08d57;
+    --display: "Clash Display", system-ui, sans-serif;
+    --serif: "Newsreader", Georgia, serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--bone); font-family: var(--display); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  ::selection { background: var(--amber); color: var(--bg); }
+
+  .mono { font-family: var(--mono); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; }
+  .dim { color: var(--bone-55); }
+  .acc { color: var(--amber); }
+
+  #stage { position: fixed; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; }
+  .grain { position: fixed; inset: -50%; width: 200%; height: 200%; pointer-events: none; z-index: 90; opacity: .07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  header.top {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.4rem clamp(1.25rem, 3.5vw, 3rem);
+  }
+  .top .brand { font-family: var(--display); font-weight: 600; font-size: 1.05rem; letter-spacing: -.01em; color: var(--bone); }
+  .top .brand .dot { color: var(--amber); }
+  .top nav { display: flex; gap: 1.6rem; }
+  .top nav a { font-family: var(--mono); font-size: .64rem; letter-spacing: .16em; text-transform: uppercase; color: var(--bone-55); text-decoration: none; transition: color .25s; }
+  .top nav a:hover, .top nav a[aria-current="page"] { color: var(--amber); }
+
+  main { position: relative; z-index: 2; pointer-events: none; }
+  main a { pointer-events: auto; }
+  .chapter { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: 0 clamp(1.25rem, 5vw, 5rem); }
+  .chapter .inner { max-width: 26rem; }
+  .chapter.right .inner { margin-left: auto; text-align: right; }
+  .chapter .k { color: var(--amber); display: flex; align-items: center; gap: .7rem; margin-bottom: 1.1rem; }
+  .chapter .k::before { content: ""; width: 2rem; height: 1px; background: var(--amber); }
+  .chapter.right .k { flex-direction: row-reverse; }
+  .chapter h2 { font-weight: 600; text-transform: uppercase; letter-spacing: -.03em; font-size: clamp(2.2rem, 5.5vw, 4.6rem); line-height: .96; }
+  .chapter h2 em { font-family: var(--serif); font-style: italic; font-weight: 400; text-transform: none; color: var(--amber); }
+  .chapter p { margin-top: 1.1rem; font-family: var(--serif); font-style: italic; font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.55; color: var(--bone-55); }
+  .chapter p b { color: var(--amber); font-weight: 500; }
+
+  .chapter.hero { justify-content: flex-end; padding-bottom: clamp(3.5rem, 8vh, 5.5rem); }
+  .hero .inner { max-width: none; }
+  h1.word { font-weight: 600; text-transform: uppercase; letter-spacing: -.04em; font-size: clamp(2.9rem, 10.5vw, 10rem); line-height: .88; user-select: none; }
+  h1.word .row { display: block; overflow: hidden; }
+  h1.word .row > span { display: inline-block; transform: translateY(112%); animation: rise 1.1s cubic-bezier(.22,1,.36,1) forwards; }
+  h1.word .row:nth-child(2) > span { animation-delay: .12s; }
+  h1.word em { font-family: var(--serif); font-style: italic; font-weight: 340; text-transform: none; color: var(--amber); }
+  @keyframes rise { to { transform: translateY(0) } }
+  .hero .sub { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; border-top: 1px solid var(--bone-12); margin-top: 1.4rem; padding-top: 1rem; }
+  .hero .sub .tag { font-family: var(--serif); font-style: italic; font-size: clamp(1rem, 1.8vw, 1.4rem); color: var(--bone); }
+  .hero .sub .tag b { color: var(--amber); font-weight: 400; }
+
+  /* live cipher readout */
+  .readout {
+    position: fixed; z-index: 40; left: 50%; bottom: clamp(4.2rem, 9vh, 5.4rem); transform: translateX(-50%);
+    display: flex; gap: 2.4rem; align-items: baseline;
+    font-family: var(--mono); letter-spacing: .18em; text-transform: uppercase;
+    opacity: 0; transition: opacity .5s; pointer-events: none; white-space: nowrap;
+  }
+  .readout.on { opacity: 1; }
+  .readout .lbl { font-size: .58rem; color: var(--bone-30); }
+  .readout .val { font-size: clamp(.95rem, 2vw, 1.3rem); color: var(--amber); font-weight: 700; }
+  .readout .val.dim2 { color: var(--bone-55); font-weight: 400; }
+
+  footer.fin { position: relative; z-index: 2; min-height: 55svh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 clamp(1.25rem, 5vw, 5rem) 1.8rem; pointer-events: none; }
+  footer.fin .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; border-top: 1px solid var(--bone-12); padding-top: 1.2rem; pointer-events: auto; }
+  footer.fin a { color: var(--bone); }
+  footer.fin a:hover { color: var(--amber); }
+
+  @media (max-width: 60rem) {
+    .top nav a:not(:first-child) { display: none; }
+    .chapter .inner { max-width: 20rem; }
+    .readout { gap: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stage"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top">
+  <span class="brand">RenoCrypt<span class="dot">.</span></span>
+  <nav>
+    <a href="s1-living-matrix.html">Matrix</a>
+    <a href="s2-platonic-drift.html">Drift</a>
+    <a href="s4-the-agent.html">Agent</a>
+    <a href="s5-cipher-engine.html" aria-current="page">Engine</a>
+    <a href="index.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ ASSEMBLED ============ -->
+  <section class="chapter hero" id="c1">
+    <div class="inner">
+      <h1 class="word">
+        <span class="row"><span>The cipher</span></span>
+        <span class="row"><span><em>engine.</em></span></span>
+      </h1>
+      <div class="sub">
+        <p class="tag">Built, not downloaded — <b>every rotor, key and lamp</b> made in code.</p>
+        <p class="mono dim">Scroll — it comes apart<br>then it takes your keys</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ANATOMY (exploded rotors) ============ -->
+  <section class="chapter right" id="c2">
+    <div class="inner">
+      <span class="k mono">Ch. 01 — anatomy</span>
+      <h2>Three rotors, <em>one secret</em></h2>
+      <p>Each ring is a fixed substitution alphabet; each keypress steps the
+      right rotor, carries like an odometer. <b>26³ starting positions,</b>
+      and the wiring is public — only the setting is secret.</p>
+    </div>
+  </section>
+
+  <!-- ============ LIVE TYPING ============ -->
+  <section class="chapter" id="c3">
+    <div class="inner">
+      <span class="k mono">Ch. 02 — live fire</span>
+      <h2>Type — <em>it encrypts</em></h2>
+      <p>Your keyboard drives the machine: a key sinks, the right rotor
+      steps, and a lamp answers with the cipher letter. <b>Real Enigma
+      wiring — I, II, III, reflector B.</b></p>
+    </div>
+  </section>
+
+  <!-- ============ PROVENANCE ============ -->
+  <section class="chapter right" id="c4">
+    <div class="inner">
+      <span class="k mono">Ch. 03 — provenance</span>
+      <h2>Made, <em>not found</em></h2>
+      <p>No stock assets in this instrument — geometry, letter rings,
+      keys, lamps and cables are generated at runtime. <b>The machine
+      is the argument.</b></p>
+    </div>
+  </section>
+</main>
+
+<div class="readout" id="readout">
+  <span><span class="lbl">plain </span><span class="val dim2" id="roPlain">—</span></span>
+  <span><span class="lbl">cipher </span><span class="val" id="roCipher">—</span></span>
+  <span><span class="lbl">rotors </span><span class="val" id="roRotors">A A A</span></span>
+</div>
+
+<footer class="fin">
+  <div class="row mono dim">
+    <span>Design study S5 — “The Cipher Engine”</span>
+    <span>Procedural build · <a href="https://github.com/renocrypt/design">source ↗</a></span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+gsap.registerPlugin(ScrollTrigger);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ================================================================
+   THE ENIGMA CORE — real wiring: rotors I, II, III, reflector B
+   ================================================================ */
+const AZ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const ROTORS = [
+  "EKMFLGDQVZNTOWYHXUSPAIBRCJ",   // I
+  "AJDKSIRUXBLHWTMCQGZNPYFVOE",   // II
+  "BDFHJLCPRTXVZNYEIWGAKMUSQO",   // III
+];
+const REFLECTOR = "YRUHQSLDPXNGOKMIEBFZCWVJAT";  // B
+const pos = [0, 0, 0];                            // left, mid, right
+
+function subForward(wiring, letter, p) {
+  const i = (AZ.indexOf(letter) + p) % 26;
+  return wiring[i];
+}
+function subBackward(wiring, letter, p) {
+  const i = wiring.indexOf(letter);
+  return AZ[(i - p + 26) % 26];
+}
+function encrypt(letter) {
+  // step (odometer): right, carry to mid, then left
+  pos[2] = (pos[2] + 1) % 26;
+  if (pos[2] === 0) { pos[1] = (pos[1] + 1) % 26; if (pos[1] === 0) pos[0] = (pos[0] + 1) % 26; }
+  let c = letter;
+  c = subForward(ROTORS[2], c, pos[2]);
+  c = subForward(ROTORS[1], c, pos[1]);
+  c = subForward(ROTORS[0], c, pos[0]);
+  c = REFLECTOR[AZ.indexOf(c)];
+  c = subBackward(ROTORS[0], c, pos[0]);
+  c = subBackward(ROTORS[1], c, pos[1]);
+  c = subBackward(ROTORS[2], c, pos[2]);
+  return c;
+}
+
+/* ================================================================
+   SCENE — studio
+   ================================================================ */
+const canvas = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0e0f12);
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+const camera = new THREE.PerspectiveCamera(34, 1, 0.05, 100);
+
+const key = new THREE.DirectionalLight(0xfff2df, 2.6);
+key.position.set(4, 7, 3);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.near = 0.5; key.shadow.camera.far = 30;
+key.shadow.camera.left = key.shadow.camera.bottom = -6;
+key.shadow.camera.right = key.shadow.camera.top = 6;
+key.shadow.bias = -0.0004;
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x8fb4ff, 1.3);
+rim.position.set(-5, 4, -4);
+scene.add(rim);
+scene.add(new THREE.AmbientLight(0x2a2e38, 0.8));
+
+const floor = new THREE.Mesh(
+  new THREE.CircleGeometry(18, 64),
+  new THREE.MeshStandardMaterial({ color: 0x0e0f12, roughness: 0.9 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+/* ================================================================
+   MATERIALS
+   ================================================================ */
+const M = {
+  crinkle: new THREE.MeshStandardMaterial({ color: 0x191a1d, roughness: 0.82, metalness: 0.25 }),
+  brass: new THREE.MeshStandardMaterial({ color: 0xb08d57, roughness: 0.35, metalness: 0.9 }),
+  cream: new THREE.MeshStandardMaterial({ color: 0xe8e2d0, roughness: 0.55, metalness: 0.05 }),
+  darkKey: new THREE.MeshStandardMaterial({ color: 0x222327, roughness: 0.5, metalness: 0.3 }),
+  lampOff: new THREE.MeshStandardMaterial({ color: 0x3a2f1d, roughness: 0.4, metalness: 0.1 }),
+  cable: new THREE.MeshStandardMaterial({ color: 0x8c2f24, roughness: 0.6, metalness: 0.1 }),
+};
+
+/* text texture helper */
+function textTexture(text, { w = 256, h = 256, font = "700 150px 'JetBrains Mono'", fg = "#e8e2d0", bg = null } = {}) {
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h); }
+  ctx.fillStyle = fg;
+  ctx.font = font;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, w / 2, h / 2);
+  const t = new THREE.CanvasTexture(c);
+  t.anisotropy = 8;
+  return t;
+}
+/* letter ring texture: 26 letters in a row (wraps a cylinder) */
+function ringTexture() {
+  const c = document.createElement("canvas");
+  c.width = 26 * 64; c.height = 128;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#101114";
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.fillStyle = "#ffb454";
+  ctx.font = "700 84px 'JetBrains Mono'";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (let i = 0; i < 26; i++) ctx.fillText(AZ[i], i * 64 + 32, 66);
+  const t = new THREE.CanvasTexture(c);
+  t.anisotropy = 8;
+  return t;
+}
+
+/* ================================================================
+   THE MACHINE — procedural build
+   ================================================================ */
+const machine = new THREE.Group();
+machine.position.x = 1.1;
+scene.add(machine);
+
+/* base body */
+const body = new THREE.Mesh(new THREE.BoxGeometry(4.4, 1.6, 3.2), M.crinkle);
+body.position.y = 0.8;
+body.castShadow = body.receiveShadow = true;
+machine.add(body);
+/* sloped front fascia the keys sit on */
+const fascia = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.1, 1.4), M.crinkle);
+fascia.rotation.x = 0.42;
+fascia.position.set(0, 1.18, 1.5);
+fascia.castShadow = fascia.receiveShadow = true;
+machine.add(fascia);
+
+/* brass plate */
+const plate = new THREE.Mesh(
+  new THREE.BoxGeometry(2.0, 0.34, 0.04),
+  M.brass
+);
+plate.position.set(0, 0.62, 1.62);
+machine.add(plate);
+const plateTex = new THREE.Mesh(
+  new THREE.PlaneGeometry(1.9, 0.28),
+  new THREE.MeshBasicMaterial({ map: textTexture("RENOCRYPT  M-26", { w: 1024, h: 160, font: "700 96px 'JetBrains Mono'", fg: "#191a1d" }) })
+);
+plateTex.position.set(0, 0.62, 1.645);
+machine.add(plateTex);
+
+/* ---------- rotors (explodable) ---------- */
+const rotorGroup = new THREE.Group();
+rotorGroup.position.set(0, 1.98, -0.85);
+machine.add(rotorGroup);
+const ringTex = ringTexture();
+const rotorMeshes = [];
+for (let r = 0; r < 3; r++) {
+  const g = new THREE.Group();
+  const cyl = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.52, 0.52, 0.34, 52, 1, false),
+    [new THREE.MeshStandardMaterial({ map: ringTex, roughness: 0.5, metalness: 0.2 }), M.brass, M.brass]
+  );
+  cyl.rotation.z = Math.PI / 2;
+  cyl.castShadow = true;
+  g.add(cyl);
+  /* flanges */
+  for (const s of [-0.22, 0.22]) {
+    const f = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.58, 0.06, 52), M.crinkle);
+    f.rotation.z = Math.PI / 2;
+    f.position.x = s;
+    g.add(f);
+  }
+  g.position.x = (r - 1) * 0.85;
+  rotorGroup.add(g);
+  rotorMeshes.push(g);
+}
+/* axle */
+const axle = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 3.2, 24), M.brass);
+axle.rotation.z = Math.PI / 2;
+axle.position.copy(rotorGroup.position);
+machine.add(axle);
+
+/* ---------- keyboard: 26 keys, 3 rows ---------- */
+const ROW_LAYOUT = [
+  { letters: "QWERTYUIOP", z: 1.05, y: 1.56 },
+  { letters: "ASDFGHJKL", z: 1.45, y: 1.38 },
+  { letters: "ZXCVBNM", z: 1.85, y: 1.2 },
+];
+const keys = {};         // letter -> {mesh, baseY, pressedT}
+const keyMeshes = [];
+ROW_LAYOUT.forEach(({ letters, z, y }, ri) => {
+  const rowW = letters.length * 0.44;
+  [...letters].forEach((ch, i) => {
+    if (ch === " ") return;
+    const x = -rowW / 2 + i * 0.44 + 0.22;
+    const kg = new THREE.Group();
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.17, 0.19, 0.16, 24),
+      M.cream
+    );
+    cap.castShadow = true;
+    kg.add(cap);
+    const label = new THREE.Mesh(
+      new THREE.CircleGeometry(0.13, 24),
+      new THREE.MeshBasicMaterial({ map: textTexture(ch, { fg: "#191a1d" }), transparent: true })
+    );
+    label.rotation.x = -Math.PI / 2;
+    label.position.y = 0.085;
+    label.rotation.z = 0;
+    kg.add(label);
+    kg.position.set(x, y, z);
+    kg.rotation.x = 0.42;
+    machine.add(kg);
+    keys[ch] = { mesh: kg, baseY: y, t: 0 };
+    keyMeshes.push(kg);
+  });
+});
+
+/* ---------- lampboard: 26 lamps ---------- */
+const lamps = {};
+ROW_LAYOUT.forEach(({ letters }, ri) => {
+  const z = -0.12 + ri * 0.42;
+  const y = 1.64;
+  const rowW = letters.length * 0.44;
+  [...letters].forEach((ch, i) => {
+    if (ch === " ") return;
+    const x = -rowW / 2 + i * 0.44 + 0.22;
+    const lampMat = new THREE.MeshStandardMaterial({ color: 0x3a2f1d, roughness: 0.35, emissive: 0xffb454, emissiveIntensity: 0 });
+    const lamp = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.17, 0.08, 24), lampMat);
+    lamp.position.set(x, y, z);
+    machine.add(lamp);
+    const lbl = new THREE.Mesh(
+      new THREE.CircleGeometry(0.1, 24),
+      new THREE.MeshBasicMaterial({ map: textTexture(ch, { w: 128, h: 128, font: "700 74px 'JetBrains Mono'", fg: "#e8e2d0" }), transparent: true, opacity: 0.55 })
+    );
+    lbl.rotation.x = -Math.PI / 2;
+    lbl.position.set(x, y + 0.045, z);
+    machine.add(lbl);
+    lamps[ch] = { mat: lampMat, t: 0 };
+  });
+});
+
+/* ---------- plugboard + cables ---------- */
+const plugPanel = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.7, 0.1), M.darkKey);
+plugPanel.position.set(0, 0.5, 1.63);
+plugPanel.rotation.x = 0.1;
+machine.add(plugPanel);
+const socketGeo = new THREE.CylinderGeometry(0.055, 0.055, 0.06, 16);
+const socketPts = [];
+for (let r = 0; r < 2; r++) for (let i = 0; i < 6; i++) {
+  const s = new THREE.Mesh(socketGeo, M.crinkle);
+  const px = -1.05 + i * 0.42, py = 0.62 - r * 0.28;
+  s.position.set(px, py, 1.69);
+  s.rotation.x = Math.PI / 2;
+  machine.add(s);
+  socketPts.push(new THREE.Vector3(px, py, 1.72));
+}
+for (const [a, b] of [[1, 8], [4, 10], [2, 7]]) {
+  const p1 = socketPts[a], p2 = socketPts[b];
+  const mid = p1.clone().lerp(p2, 0.5).add(new THREE.Vector3(0, -0.5, 0.35));
+  const curve = new THREE.CatmullRomCurve3([p1, mid, p2]);
+  const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 32, 0.028, 8), M.cable);
+  machine.add(tube);
+}
+
+/* ================================================================
+   INPUT — physical keys + raycast clicks
+   ================================================================ */
+const roPlain = document.getElementById("roPlain");
+const roCipher = document.getElementById("roCipher");
+const roRotors = document.getElementById("roRotors");
+const readout = document.getElementById("readout");
+let plainLog = "", cipherLog = "";
+
+function press(letter) {
+  if (!keys[letter]) return;
+  const cipher = encrypt(letter);
+  keys[letter].t = 1;
+  if (lamps[cipher]) lamps[cipher].t = 1;
+  /* rotors visual step (right rotor + its carries) */
+  rotorMeshes[2].userData.targetRot = -pos[2] * (Math.PI * 2 / 26);
+  rotorMeshes[1].userData.targetRot = -pos[1] * (Math.PI * 2 / 26);
+  rotorMeshes[0].userData.targetRot = -pos[0] * (Math.PI * 2 / 26);
+  plainLog = (plainLog + letter).slice(-10);
+  cipherLog = (cipherLog + cipher).slice(-10);
+  roPlain.textContent = plainLog;
+  roCipher.textContent = cipherLog;
+  roRotors.textContent = pos.map((p) => AZ[p]).join(" ");
+}
+addEventListener("keydown", (e) => {
+  const l = e.key.toUpperCase();
+  if (/^[A-Z]$/.test(l)) { press(l); readout.classList.add("on"); }
+});
+
+const ray = new THREE.Raycaster();
+const ptr = new THREE.Vector2();
+addEventListener("pointerdown", (e) => {
+  ptr.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const hits = ray.intersectObjects(keyMeshes, true);
+  if (hits.length) {
+    let g = hits[0].object;
+    while (g.parent && g.parent !== machine) g = g.parent;
+    const letter = Object.keys(keys).find((k) => keys[k].mesh === g);
+    if (letter) { press(letter); readout.classList.add("on"); }
+  }
+});
+
+/* ================================================================
+   CHOREOGRAPHY
+   ================================================================ */
+const cam = { angle: -0.5, radius: 7.4, height: 2.4, lookY: 1.1, explode: 0 };
+const look = new THREE.Vector3();
+
+gsap.timeline({
+  scrollTrigger: { trigger: "main", start: "top top", end: "bottom bottom", scrub: 1.1 },
+})
+  .to(cam, { angle: 0.55, radius: 6.6, height: 2.0, duration: 1 }, 0)                      // assembled orbit
+  .to(cam, { angle: 0.25, radius: 4.2, height: 4.6, lookY: 1.9, explode: 1, duration: 1.2 }, 1)  // top-down + explode
+  .to(cam, { angle: -0.15, radius: 4.6, height: 1.6, lookY: 1.0, explode: 0, duration: 1 }, 2.2)  // keyboard level
+  .to(cam, { angle: 2.9, radius: 8.2, height: 2.6, lookY: 1.0, duration: 1.2 }, 3.2);            // pull back
+
+let last = performance.now();
+
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize);
+resize();
+
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+
+  /* explode: rotors spread + lift */
+  rotorMeshes.forEach((g, i) => {
+    const targetX = (i - 1) * (0.85 + cam.explode * 1.5);
+    g.position.x += (targetX - g.position.x) * 0.08;
+    g.position.y += ((cam.explode * 0.55) - g.position.y) * 0.08;
+    const targetRot = g.userData.targetRot ?? 0;
+    g.rotation.x += (targetRot - g.rotation.x) * 0.12;
+  });
+
+  /* key press anim */
+  for (const k of Object.values(keys)) {
+    if (k.t > 0) {
+      k.t = Math.max(0, k.t - dt * 3.2);
+      const dip = Math.sin(Math.min(k.t, 1) * Math.PI) * 0.07;
+      k.mesh.position.y = k.baseY - dip;
+    }
+  }
+  /* lamp glow anim */
+  for (const l of Object.values(lamps)) {
+    if (l.t > 0) {
+      l.t = Math.max(0, l.t - dt * 0.55);
+      l.mat.emissiveIntensity = Math.sin(Math.min(l.t, 1) * Math.PI) * 2.4;
+    }
+  }
+
+  camera.position.set(
+    Math.sin(cam.angle) * cam.radius,
+    cam.height,
+    Math.cos(cam.angle) * cam.radius
+  );
+  look.set(0, cam.lookY, 0);
+  camera.lookAt(look);
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
