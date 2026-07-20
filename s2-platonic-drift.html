@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S2 — Platonic Drift · RenoCrypt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f2ecdf;
+    --paper-2: #eae2d0;
+    --ink: #1c1b16;
+    --ink-60: color-mix(in oklch, var(--ink) 60%, var(--paper));
+    --ink-30: color-mix(in oklch, var(--ink) 30%, var(--paper));
+    --line: color-mix(in oklch, var(--ink) 16%, var(--paper));
+    --verm: #c73e2a;
+    --blue: #2745c9;
+    --display: "Clash Display", system-ui, sans-serif;
+    --serif: "Newsreader", Georgia, serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--display); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  ::selection { background: var(--verm); color: var(--paper); }
+
+  .mono { font-family: var(--mono); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; }
+  .dim { color: var(--ink-60); }
+
+  .grain { position: fixed; inset: -50%; width: 200%; height: 200%; pointer-events: none; z-index: 90; opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  #stage { position: fixed; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; }
+
+  header.top {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.3rem clamp(1.25rem, 3.5vw, 3rem);
+    mix-blend-mode: difference; color: #fff;
+  }
+  .top .brand { font-family: var(--mono); font-size: .74rem; letter-spacing: .18em; }
+  .top nav { display: flex; gap: 1.8rem; }
+  .top nav a { font-family: var(--mono); font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: #ffffffaa; text-decoration: none; }
+  .top nav a:hover { color: #fff; }
+
+  main { position: relative; z-index: 2; }
+  .chapter { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: 0 clamp(1.25rem, 6vw, 7rem); pointer-events: none; }
+  .chapter .inner { max-width: 34rem; }
+  .chapter.right .inner { margin-left: auto; text-align: right; }
+  .chapter .k { display: inline-flex; align-items: center; gap: .7rem; color: var(--verm); margin-bottom: 1.2rem; }
+  .chapter .k::before { content: ""; width: 2rem; height: 1px; background: var(--verm); }
+  .chapter.right .k { flex-direction: row-reverse; }
+  .chapter h2 { font-weight: 600; text-transform: uppercase; letter-spacing: -.03em; font-size: clamp(2.4rem, 6.5vw, 5.6rem); line-height: .96; }
+  .chapter h2 em { font-family: var(--serif); font-style: italic; font-weight: 400; text-transform: none; color: var(--blue); }
+  .chapter h2 .v { color: var(--verm); }
+  .chapter p { margin-top: 1.2rem; font-family: var(--serif); font-style: italic; font-size: clamp(1rem, 1.6vw, 1.25rem); line-height: 1.55; color: var(--ink-60); }
+  .chapter p b { color: var(--verm); font-weight: 500; }
+
+  /* progress rail */
+  .rail { position: fixed; left: clamp(1.25rem, 3vw, 2.4rem); top: 50%; transform: translateY(-50%); z-index: 50; display: grid; gap: .9rem; }
+  .rail a { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--ink-30); font-family: var(--mono); font-size: .6rem; letter-spacing: .14em; }
+  .rail a::before { content: ""; width: 1.4rem; height: 1px; background: var(--ink-30); transition: width .3s, background .3s; }
+  .rail a.on { color: var(--verm); }
+  .rail a.on::before { width: 2.2rem; background: var(--verm); }
+
+  footer.fin { position: relative; z-index: 2; min-height: 70svh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 clamp(1.25rem, 6vw, 7rem) 2rem; }
+  footer.fin .big { font-weight: 600; text-transform: uppercase; letter-spacing: -.04em; font-size: clamp(3rem, 12vw, 11rem); line-height: .86; color: transparent; -webkit-text-stroke: 1.5px var(--ink); user-select: none; }
+  footer.fin .big .fill { color: var(--verm); -webkit-text-stroke: 0; }
+  footer.fin .meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; padding-top: 1.2rem; border-top: 1px solid var(--line); }
+  footer.fin a { color: var(--ink); }
+
+  @media (max-width: 60rem) {
+    .rail { display: none; }
+    .top nav a:not(:first-child) { display: none; }
+    .chapter .inner { max-width: 22rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stage"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top">
+  <span class="brand">RENOCRYPT<span style="color:#ff6b57">_</span></span>
+  <nav>
+    <a href="#c1">Models</a>
+    <a href="#c2">Math</a>
+    <a href="#c3">Ciphers</a>
+  </nav>
+</header>
+
+<div class="rail" aria-hidden="true">
+  <a href="#c1" data-c="c1"></a>
+  <a href="#c2" data-c="c2"></a>
+  <a href="#c3" data-c="c3"></a>
+</div>
+
+<main>
+  <section class="chapter" id="c1">
+    <div class="inner">
+      <span class="k mono">Ch. 01 — the models</span>
+      <h2>Learning is <em>structure</em></h2>
+      <p>Every neural network is a graph before it is an algorithm —
+      <b>nodes, weights, and the geometry between them.</b> We write about
+      that geometry with the math attached.</p>
+    </div>
+  </section>
+  <section class="chapter right" id="c2">
+    <div class="inner">
+      <span class="k mono">Ch. 02 — the mathematics</span>
+      <h2>Five perfect <em>solids</em></h2>
+      <p>Plato counted them; Euclid proved there could be no sixth.
+      <b>First principles are not a style</b> — they are the constraint that
+      makes the work hold up.</p>
+    </div>
+  </section>
+  <section class="chapter" id="c3">
+    <div class="inner">
+      <span class="k mono">Ch. 03 — the ciphers</span>
+      <h2>Through the <span class="v">tunnel</span></h2>
+      <p>Security research with working code — protocols, proofs,
+      <b>and the flight through the encrypted middle.</b></p>
+    </div>
+  </section>
+</main>
+
+<footer class="fin">
+  <p class="big">Matrix <span class="fill">Alchemy</span></p>
+  <div class="meta mono dim">
+    <span>Design study S2 — “Platonic Drift”</span>
+    <span><a href="https://renocrypt.com">renocrypt.com ↗</a></span>
+  </div>
+</footer>
+
+<script src="/switcher.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- renderer / scene ---------- */
+const canvas = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf2ecdf);
+scene.fog = new THREE.Fog(0xf2ecdf, 30, 110);
+const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 400);
+
+const INK = 0x1c1b16, VERM = 0xc73e2a, BLUE = 0x2745c9;
+
+/* ---------- ch1: the node web ---------- */
+const web = new THREE.Group();
+{
+  const pts = [];
+  const rand = (a, b) => a + Math.random() * (b - a);
+  for (let i = 0; i < 42; i++) {
+    const v = new THREE.Vector3().setFromSphericalCoords(rand(6, 16), Math.acos(rand(-1, 1)), rand(0, Math.PI * 2));
+    pts.push(v);
+  }
+  const nodeGeo = new THREE.SphereGeometry(0.22, 12, 12);
+  const nodeMat = new THREE.MeshBasicMaterial({ color: INK });
+  const nodes = new THREE.InstancedMesh(nodeGeo, nodeMat, pts.length);
+  const d = new THREE.Object3D();
+  pts.forEach((p, i) => { d.position.copy(p); d.updateMatrix(); nodes.setMatrixAt(i, d.matrix); });
+  web.add(nodes);
+  const linePts = [];
+  for (let i = 0; i < pts.length; i++)
+    for (let j = i + 1; j < pts.length; j++)
+      if (pts[i].distanceTo(pts[j]) < 7.5) linePts.push(pts[i], pts[j]);
+  const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts);
+  web.add(new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: 0.42 })));
+  const coreGeo = new THREE.SphereGeometry(0.5, 16, 16);
+  web.add(new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: VERM })));
+}
+web.position.x = 9;
+scene.add(web);
+
+/* ---------- ch2: five platonic solids ---------- */
+const solids = new THREE.Group();
+{
+  const geos = [
+    new THREE.TetrahedronGeometry(2.6),
+    new THREE.BoxGeometry(3.4, 3.4, 3.4),
+    new THREE.OctahedronGeometry(2.8),
+    new THREE.DodecahedronGeometry(2.6),
+    new THREE.IcosahedronGeometry(2.8),
+  ];
+  geos.forEach((g, i) => {
+    const a = (i / geos.length) * Math.PI * 2;
+    const edges = new THREE.EdgesGeometry(g);
+    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: i === 4 ? VERM : INK }));
+    line.position.set(Math.cos(a) * 11, Math.sin(a * 2) * 2.4, Math.sin(a) * 11);
+    line.userData.spin = 0.2 + i * 0.08;
+    solids.add(line);
+  });
+}
+scene.add(solids);
+
+/* ---------- ch3: the tunnel ---------- */
+const tunnel = new THREE.Group();
+{
+  const RINGS = 26, PER = 14;
+  const geo = new THREE.BoxGeometry(1, 1, 1);
+  const mat = new THREE.MeshBasicMaterial();
+  const inst = new THREE.InstancedMesh(geo, mat, RINGS * PER);
+  const d = new THREE.Object3D();
+  const cInk = new THREE.Color(INK), cVerm = new THREE.Color(VERM), cBlue = new THREE.Color(BLUE);
+  let i = 0;
+  for (let r = 0; r < RINGS; r++) {
+    for (let k = 0; k < PER; k++) {
+      const a = (k / PER) * Math.PI * 2 + r * 0.16;
+      d.position.set(Math.cos(a) * 8, Math.sin(a) * 8, -r * 6);
+      d.rotation.z = a;
+      d.updateMatrix();
+      inst.setMatrixAt(i, d.matrix);
+      const pick = Math.random();
+      inst.setColorAt(i, pick > 0.93 ? cVerm : pick > 0.85 ? cBlue : cInk);
+      i++;
+    }
+  }
+  tunnel.add(inst);
+}
+tunnel.position.z = -20;
+scene.add(tunnel);
+
+/* ---------- choreography ---------- */
+const cam = { x: 0, y: 0, z: 58, tx: 0, ty: 0, tz: 0, webO: 1, solO: 0, tunO: 0 };
+const look = new THREE.Vector3();
+
+const tl = gsap.timeline({
+  scrollTrigger: { trigger: "main", start: "top top", end: "bottom bottom", scrub: 1.2 },
+});
+/* ch1: approach the web */
+tl.to(cam, { z: 26, y: 2, duration: 1 }, 0)
+  .to(cam, { webO: 1, duration: .5 }, 0)
+/* ch1→2: swing out to the solids */
+  .to(cam, { z: 34, y: 4, webO: 0, solO: 1, duration: 1 }, 1)
+  .to(cam, { x: 0, duration: 1 }, 1)
+/* ch2→3: enter the tunnel */
+  .to(cam, { z: 4, y: 0, solO: 0, tunO: 1, duration: 1 }, 2)
+  .to(cam, { z: -116, duration: 2.2 }, 2.6)      // the flight through
+/* ch3→footer: rise out */
+  .to(cam, { z: -140, y: 10, tunO: 0, duration: 1 }, 4.4);
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = 0, last = performance.now();
+
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize);
+resize();
+
+function setGroupOpacity(group, o) {
+  group.traverse((n) => {
+    if (n.material) { n.material.transparent = o < 1; n.material.opacity = o; }
+  });
+  group.visible = o > 0.02;
+}
+
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (!reduce) t += dt;
+
+  web.rotation.y = t * 0.12;
+  web.rotation.x = Math.sin(t * 0.1) * 0.15;
+  solids.children.forEach((s, i) => { s.rotation.x = t * s.userData.spin; s.rotation.y = t * s.userData.spin * 0.7; });
+  solids.rotation.y = t * 0.05;
+  tunnel.rotation.z = t * 0.04;
+
+  setGroupOpacity(web, cam.webO);
+  setGroupOpacity(solids, cam.solO);
+  setGroupOpacity(tunnel, cam.tunO);
+
+  camera.position.set(cam.x, cam.y, cam.z);
+  look.set(cam.tx, cam.ty, cam.tz + cam.z - 30);
+  camera.lookAt(cam.x, cam.y, cam.z - 30);
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* rail state */
+const railLinks = document.querySelectorAll(".rail a");
+["c1", "c2", "c3"].forEach((id, i) => {
+  ScrollTrigger.create({
+    trigger: "#" + id, start: "top 60%", end: "bottom 60%",
+    onToggle: (self) => railLinks[i].classList.toggle("on", self.isActive),
+  });
+});
+</script>
+</body>
+</html>

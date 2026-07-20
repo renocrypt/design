@@ -1,8 +1,9 @@
 /* Direction switcher — fixed bottom pill; jumps + arrow keys. Include once per page. */
 (() => {
   const items = [
-    { href: "/r1-proof-sheet.html", label: "R1 · Proof Sheet" },
-    { href: "/r2-signal-cabinet.html", label: "R2 · Signal Cabinet" },
+    { href: "/s1-living-matrix.html", label: "S1 · Living Matrix" },
+    { href: "/s2-platonic-drift.html", label: "S2 · Platonic Drift" },
+    { href: "/s3-riso-almanac.html", label: "S3 · Riso Almanac" },
   ];
   const here = location.pathname;
   const idx = items.findIndex((i) => here.endsWith(i.href));
@@ -40,4 +41,22 @@
       if (target) location.href = target.href;
     }
   });
+
+/* compact mode for small screens: arrows + active label only */
+addEventListener("DOMContentLoaded", () => {
+  const bar = document.querySelector('nav[aria-label="Direction switcher"]');
+  if (!bar) return;
+  const apply = () => {
+    const small = matchMedia("(max-width: 40rem)").matches;
+    const links = [...bar.querySelectorAll("a")];
+    links.forEach((a, i) => {
+      const isArrow = i === 0 || i === links.length - 1;
+      const isActive = a.style.background !== "";
+      a.style.display = small && !isArrow && !isActive ? "none" : "";
+    });
+  };
+  apply();
+  matchMedia("(max-width: 40rem)").addEventListener("change", apply);
+});
+
 })();

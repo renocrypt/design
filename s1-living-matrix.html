@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S1 — The Living Matrix · RenoCrypt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,300..500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06070c;
+    --bg-2: #0b0d14;
+    --bone: #e9edf2;
+    --bone-55: color-mix(in oklch, var(--bone) 55%, var(--bg));
+    --bone-30: color-mix(in oklch, var(--bone) 30%, var(--bg));
+    --bone-12: color-mix(in oklch, var(--bone) 12%, var(--bg));
+    --acc: #6ee7ff;
+    --acc-2: #8f7bff;
+    --display: "Clash Display", system-ui, sans-serif;
+    --serif: "Newsreader", Georgia, serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--bone); font-family: var(--display); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  ::selection { background: var(--acc); color: var(--bg); }
+
+  .mono { font-family: var(--mono); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; }
+  .dim { color: var(--bone-55); }
+  .acc { color: var(--acc); }
+
+  .grain { position: fixed; inset: -50%; width: 200%; height: 200%; pointer-events: none; z-index: 90; opacity: .06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  /* ---------- chrome ---------- */
+  header.top {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.3rem clamp(1.25rem, 3.5vw, 3rem);
+    mix-blend-mode: difference;
+  }
+  .top .brand { font-family: var(--mono); font-size: .74rem; letter-spacing: .18em; color: var(--bone); }
+  .top .brand .dot { color: var(--acc); }
+  .top nav { display: flex; gap: 1.8rem; }
+  .top nav a { font-family: var(--mono); font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--bone-55); text-decoration: none; }
+  .top nav a:hover { color: var(--acc); }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; height: 100svh; overflow: hidden; }
+  #matrix { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .hero .ui {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 clamp(1.25rem, 3.5vw, 3rem) clamp(1.6rem, 4vh, 3rem);
+  }
+  .hero .issue { position: absolute; top: clamp(4.5rem, 10vh, 6.5rem); left: clamp(1.25rem, 3.5vw, 3rem); right: clamp(1.25rem, 3.5vw, 3rem); display: flex; justify-content: space-between; }
+  h1.word {
+    font-weight: 600; text-transform: uppercase; letter-spacing: -.04em;
+    font-size: clamp(3rem, 12.5vw, 12.5rem); line-height: .86; user-select: none;
+  }
+  h1.word .row { display: block; overflow: hidden; }
+  h1.word .row > span { display: inline-block; transform: translateY(112%); animation: rise 1.1s cubic-bezier(.22,1,.36,1) forwards; }
+  h1.word .row:nth-child(2) > span { animation-delay: .12s; }
+  h1.word em { font-family: var(--serif); font-style: italic; font-weight: 340; text-transform: none; color: var(--acc); }
+  @keyframes rise { to { transform: translateY(0) } }
+  .hero .sub {
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem;
+    border-top: 1px solid var(--bone-12); margin-top: clamp(1.2rem, 3vh, 2rem); padding-top: 1.1rem;
+  }
+  .hero .sub .tag { font-family: var(--serif); font-style: italic; font-size: clamp(1.05rem, 2vw, 1.6rem); color: var(--bone); }
+  .hero .sub .tag b { color: var(--acc); font-weight: 340; }
+  .hero .readout {
+    position: absolute; right: clamp(1.25rem, 3.5vw, 3rem); top: 42%;
+    text-align: right; display: grid; gap: .4rem; justify-items: end;
+  }
+  .hero .readout .row { display: flex; gap: .8rem; align-items: baseline; }
+  .hero .readout .k { color: var(--bone-30); }
+  .hero .readout .v { color: var(--acc); }
+
+  /* ---------- content ---------- */
+  main { position: relative; z-index: 2; background: var(--bg); }
+  section { border-top: 1px solid var(--bone-12); }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; padding: clamp(3rem, 7vh, 5rem) clamp(1.25rem, 3.5vw, 3rem) 2rem; }
+  .section-head .n { color: var(--acc); }
+
+  .threads { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .thread {
+    padding: 0 clamp(1.25rem, 3vw, 3rem) clamp(3rem, 7vh, 4.5rem);
+    text-decoration: none; color: var(--bone);
+    border-left: 1px solid var(--bone-12);
+    transition: background .3s;
+  }
+  .thread:first-child { border-left: 0; }
+  .thread:hover { background: var(--bg-2); }
+  .thread .glyph { font-family: var(--serif); font-size: 2rem; color: var(--acc); display: block; margin-bottom: 1.2rem; }
+  .thread h3 { font-weight: 600; text-transform: uppercase; font-size: clamp(1.4rem, 2.6vw, 2.1rem); letter-spacing: -.02em; }
+  .thread h3 em { font-family: var(--serif); font-style: italic; font-weight: 340; text-transform: none; color: var(--acc); }
+  .thread p { margin-top: .6rem; font-family: var(--serif); font-style: italic; font-size: .95rem; line-height: 1.55; color: var(--bone-55); }
+
+  .feed .f-rows { border-top: 1px solid var(--bone-12); }
+  .f-row {
+    display: grid; grid-template-columns: 7rem 1fr auto; gap: 1.2rem; align-items: baseline;
+    padding: 1.15rem clamp(1.25rem, 3.5vw, 3rem); border-bottom: 1px solid var(--bone-12);
+    text-decoration: none; color: var(--bone); transition: background .3s;
+  }
+  .f-row:hover { background: var(--bg-2); }
+  .f-row .date { font-family: var(--mono); font-size: .66rem; color: var(--bone-30); }
+  .f-row .title { font-weight: 500; font-size: clamp(1.1rem, 2.2vw, 1.6rem); letter-spacing: -.01em; }
+  .f-row .title em { font-family: var(--serif); font-style: italic; font-weight: 340; color: var(--acc); }
+  .f-row .tag { font-family: var(--mono); font-size: .6rem; letter-spacing: .14em; text-transform: uppercase; color: var(--acc-2); }
+
+  footer { padding: clamp(4rem, 10vh, 7rem) 0 1.8rem; border-top: 1px solid var(--bone-12); }
+  footer .ghost {
+    font-weight: 600; text-transform: uppercase; letter-spacing: -.04em;
+    font-size: clamp(3.4rem, 14.5vw, 14rem); line-height: .82; text-align: center;
+    color: transparent; -webkit-text-stroke: 1px var(--bone-12); user-select: none;
+  }
+  footer .ghost .fill { color: var(--acc); -webkit-text-stroke: 0; }
+  footer .meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: clamp(2rem, 5vh, 3rem); padding: 1.2rem clamp(1.25rem, 3.5vw, 3rem) 0; border-top: 1px solid var(--bone-12); }
+  footer a { color: var(--bone); text-decoration: none; }
+  footer a:hover { color: var(--acc); }
+
+  @media (max-width: 60rem) {
+    .threads { grid-template-columns: 1fr; }
+    .thread { border-left: 0; border-top: 1px solid var(--bone-12); padding-top: 2rem; }
+    .hero .readout { display: none; }
+    .top nav a:not(:first-child) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    h1.word .row > span { animation: none; transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top">
+  <span class="brand">RENOCRYPT<span class="dot">_</span></span>
+  <nav>
+    <a href="#threads">Threads</a>
+    <a href="#feed">Feed</a>
+    <a href="https://renocrypt.com">Live site</a>
+  </nav>
+</header>
+
+<!-- ============ HERO: the living matrix ============ -->
+<section class="hero">
+  <canvas id="matrix"></canvas>
+  <div class="ui">
+    <div class="issue mono dim">
+      <span>Matrix Alchemy</span>
+      <span>Vol. 01 — <span class="acc">the model, made visible</span></span>
+    </div>
+    <div class="readout mono">
+      <div class="row"><span class="k">grid</span><span class="v" id="ro-grid">64×64</span></div>
+      <div class="row"><span class="k">heads</span><span class="v">03</span></div>
+      <div class="row"><span class="k">attn</span><span class="v" id="ro-attn">0.000</span></div>
+    </div>
+    <h1 class="word">
+      <span class="row"><span>The living</span></span>
+      <span class="row"><span><em>matrix</em></span></span>
+    </h1>
+    <div class="sub">
+      <p class="tag">Attention is geometry — <b>watch it think.</b></p>
+      <p class="mono dim">Long-form ML · systems · security<br>scroll ↓</p>
+    </div>
+  </div>
+</section>
+
+<main>
+  <!-- ============ THREADS ============ -->
+  <section id="threads">
+    <div class="section-head mono dim">
+      <span>The three threads</span>
+      <span class="n">(standing)</span>
+    </div>
+    <div class="threads">
+      <a class="thread" href="#feed">
+        <span class="glyph">Ξ</span>
+        <h3>The <em>models</em></h3>
+        <p>How modern machine learning actually works — from attention and transformers to evaluation that holds up.</p>
+      </a>
+      <a class="thread" href="#feed">
+        <span class="glyph">Ω</span>
+        <h3>The <em>machines</em></h3>
+        <p>Systems engineering as a craft — pipelines, deployment, and the discipline of running things well.</p>
+      </a>
+      <a class="thread" href="#feed">
+        <span class="glyph">Ψ</span>
+        <h3>The <em>ciphers</em></h3>
+        <p>Security research with working code — protocols, proofs, and adversarial thinking.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ FEED ============ -->
+  <section class="feed" id="feed">
+    <div class="section-head mono dim">
+      <span>From the journal</span>
+      <span class="n">verified, cited</span>
+    </div>
+    <div class="f-rows">
+      <a class="f-row" href="#"><span class="date">07·14</span><span class="title">Softmax temperature as a <em>geometric prior</em></span><span class="tag">models</span></a>
+      <a class="f-row" href="#"><span class="date">06·30</span><span class="title">Benchmark harnesses that <em>survive reality</em></span><span class="tag">machines</span></a>
+      <a class="f-row" href="#"><span class="date">06·18</span><span class="title">A one-page proof of the <em>padding oracle</em></span><span class="tag">ciphers</span></a>
+      <a class="f-row" href="#"><span class="date">06·02</span><span class="title">What transformers actually <em>memorize</em></span><span class="tag">models</span></a>
+      <a class="f-row" href="#"><span class="date">05·21</span><span class="title">MLX models as <em>Unix citizens</em></span><span class="tag">machines</span></a>
+    </div>
+  </section>
+
+  <footer>
+    <p class="ghost">RENO<span class="fill">CRYPT</span></p>
+    <div class="meta mono dim">
+      <span>Design study S1 — “The Living Matrix”</span>
+      <span><a href="https://renocrypt.com">renocrypt.com ↗</a></span>
+    </div>
+  </footer>
+</main>
+
+<script src="/switcher.js"></script>
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+const canvas = document.getElementById("matrix");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x06070c);
+scene.fog = new THREE.Fog(0x06070c, 60, 150);
+
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 500);
+
+/* lights: emissive carries most of it; a key light for form */
+scene.add(new THREE.AmbientLight(0x223044, 1.2));
+const key = new THREE.DirectionalLight(0x6ee7ff, 1.4);
+key.position.set(20, 40, 10);
+scene.add(key);
+
+/* the lattice: N×N instanced cells */
+const N = 64, GAP = 1.35;
+const geo = new THREE.BoxGeometry(1, 1, 1);
+const mat = new THREE.MeshStandardMaterial({ roughness: 0.35, metalness: 0.55 });
+const mesh = new THREE.InstancedMesh(geo, mat, N * N);
+mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+scene.add(mesh);
+
+const dummy = new THREE.Object3D();
+const cA = new THREE.Color(0x101a2e);   // deep cell
+const cB = new THREE.Color(0x6ee7ff);   // phosphor crest
+const cC = new THREE.Color(0x8f7bff);   // violet hotspot
+const tmpC = new THREE.Color();
+
+/* three wandering "query heads" — gaussian hotspots */
+const heads = [
+  { r: 14, s: 0.22, p: 0 },
+  { r: 22, s: -0.16, p: 2.1 },
+  { r: 30, s: 0.11, p: 4.2 },
+];
+
+let mx = 0, my = 0;
+addEventListener("pointermove", (e) => {
+  mx = (e.clientX / innerWidth - 0.5) * 2;
+  my = (e.clientY / innerHeight - 0.5) * 2;
+}, { passive: true });
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const roAttn = document.getElementById("ro-attn");
+let t = 0, last = performance.now(), orbit = 0;
+
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize);
+resize();
+
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (!reduce) t += dt;
+
+  const hp = heads.map((h) => {
+    const a = h.p + t * h.s * Math.PI * 2;
+    return [Math.cos(a) * h.r, Math.sin(a) * h.r];
+  });
+
+  let i = 0, peak = 0;
+  for (let x = 0; x < N; x++) {
+    for (let z = 0; z < N; z++) {
+      const gx = (x - N / 2) * GAP, gz = (z - N / 2) * GAP;
+      /* base interference waves */
+      let hgt = 0.5
+        + 0.32 * Math.sin(x * 0.31 + t * 1.1) * Math.cos(z * 0.27 + t * 0.8)
+        + 0.18 * Math.sin((x + z) * 0.13 - t * 0.6);
+      /* query-head hotspots */
+      let hot = 0, hotV = 0;
+      for (let k = 0; k < hp.length; k++) {
+        const dx = gx - hp[k][0] * GAP * 0.9, dz = gz - hp[k][1] * GAP * 0.9;
+        const d2 = dx * dx + dz * dz;
+        const g = Math.exp(-d2 / 90) * (1.7 + 0.5 * Math.sin(t * 2 + k));
+        hot += g;
+        if (k === 2) hotV += g;
+      }
+      hgt += hot;
+      if (hot > peak) peak = hot;
+
+      dummy.position.set(gx, hgt / 2, gz);
+      dummy.scale.set(1, hgt, 1);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+
+      const crest = Math.min(hgt / 2.6, 1);
+      tmpC.copy(cA).lerp(cB, crest * crest);
+      if (hotV > 0.25) tmpC.lerp(cC, Math.min(hotV * 0.7, 0.55));
+      mesh.setColorAt(i, tmpC);
+      i++;
+    }
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+
+  /* slow orbit + mouse parallax */
+  orbit += dt * 0.045;
+  const R = 68;
+  camera.position.set(
+    Math.cos(orbit) * R + mx * 6,
+    34 + my * -6,
+    Math.sin(orbit) * R
+  );
+  camera.lookAt(0, 0, 0);
+
+  if (roAttn) roAttn.textContent = (peak / 2.2).toFixed(3);
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
