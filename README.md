@@ -11,14 +11,14 @@ prototypes. Directions are judged rendered, not described.
 - `assets/imagery/` — verified free imagery + a contact sheet (every image in
   this pool has been visually inspected — never wire an unverified URL)
 - `references/` — study notes from award-site research (what winners actually do)
-- `directions/` — single-file rendered direction studies (r*.html). Open the
-  index: `python3 -m http.server 8642` in this folder, then
-  http://127.0.0.1:8642/directions/
+- root — the flat direction set: `index.html` is the picker, `r*.html` are
+  the studies, `switcher.js` links them all. Preview:
+  `python3 -m http.server 8642` in this folder → http://127.0.0.1:8642/
 
 ## Workflow
 
 1. Study references (visually — screenshots, not summaries).
-2. Build direction studies as single-file HTML in `directions/` — CDN
+2. Build direction studies as single-file HTML at the repo root — CDN
    libraries welcome (Three.js, GSAP, KaTeX); performance is the only rule.
    Every page must include the switcher: `<script src="/switcher.js"></script>`
    (update the items list when adding a direction).

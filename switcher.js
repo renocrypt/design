@@ -1,8 +1,8 @@
 /* Direction switcher — fixed bottom pill; jumps + arrow keys. Include once per page. */
 (() => {
   const items = [
-    { href: "/directions/r1-proof-sheet.html", label: "R1 · Proof Sheet" },
-    { href: "/directions/r2-signal-cabinet.html", label: "R2 · Signal Cabinet" },
+    { href: "/r1-proof-sheet.html", label: "R1 · Proof Sheet" },
+    { href: "/r2-signal-cabinet.html", label: "R2 · Signal Cabinet" },
   ];
   const here = location.pathname;
   const idx = items.findIndex((i) => here.endsWith(i.href));
