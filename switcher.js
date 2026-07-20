@@ -3,8 +3,7 @@
   const items = [
     { href: "/s1-living-matrix.html", label: "S1 · Living Matrix" },
     { href: "/s2-platonic-drift.html", label: "S2 · Platonic Drift" },
-    { href: "/s3-riso-almanac.html", label: "S3 · Riso Almanac" },
-    { href: "/s4-machine-mind.html", label: "S4 · Machine Mind" },
+    { href: "/s4-the-agent.html", label: "S4 · The Agent" },
   ];
   const here = location.pathname;
   const idx = items.findIndex((i) => here.endsWith(i.href));
