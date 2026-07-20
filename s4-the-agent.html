@@ -139,15 +139,16 @@
 <span class="callout c2" id="co2">Servo torso, 12 DOF</span>
 <span class="callout c3" id="co3">Policy core — eval loop</span>
 
-<div class="fieldnote f1" id="fn1"><img src="/assets/imagery/chrome-knot.jpg" alt="Liquid chrome"><span>field note — the medium hardens</span></div>
-<div class="fieldnote f2" id="fn2"><img src="/assets/imagery/arch-shadow.jpg" alt="Architectural shadows"><span>field note — structure first</span></div>
+<div class="fieldnote f1" id="fn1"><img src="assets/imagery/chrome-knot.jpg" alt="Liquid chrome"><span>field note — the medium hardens</span></div>
+<div class="fieldnote f2" id="fn2"><img src="assets/imagery/arch-shadow.jpg" alt="Architectural shadows"><span>field note — structure first</span></div>
 
 <header class="top">
   <span class="brand">RenoCrypt<span class="dot">.</span></span>
   <nav>
-    <a href="#c2">Anatomy</a>
-    <a href="#c3">Training</a>
-    <a href="#c4">Production</a>
+    <a href="s1-living-matrix.html">Matrix</a>
+    <a href="s2-platonic-drift.html">Drift</a>
+    <a href="s4-the-agent.html" aria-current="page">Agent</a>
+    <a href="index.html">About</a>
   </nav>
 </header>
 
@@ -160,7 +161,7 @@
         <span class="row"><span><em>agent.</em></span></span>
       </h1>
       <div class="sub">
-        <p class="tag">Not a chatbot — <b>a machine with a policy.</b></p>
+        <p class="tag">Not a chatbot — <b>a system that holds a policy.</b></p>
         <p class="mono dim">Scroll — it starts<br>to move</p>
       </div>
     </div>
@@ -171,9 +172,9 @@
     <div class="inner">
       <span class="k mono">State 02 — anatomy</span>
       <h2>Opened, <em>not described</em></h2>
-      <p>Every capability claim in this journal comes with the mechanism
-      exposed — <b>twelve degrees of freedom and an evaluation loop,</b>
-      not vibes.</p>
+      <p>Capability claims should arrive with the mechanism exposed —
+      <b>skills with enumerated permissions, tools with edges,</b>
+      and nothing running on vibes.</p>
     </div>
   </section>
 
@@ -182,8 +183,9 @@
     <div class="inner">
       <span class="k mono">State 03 — training</span>
       <h2>Loops make it <em>honest</em></h2>
-      <p>Walk a thousand steps, score every one. <b>Iteration is the only
-      credential</b> a system earns.</p>
+      <p>Walk a thousand steps, score every one; feed the score back into
+      the next run. <b>Iteration is the only credential</b> a system earns —
+      that is the evaluation loop.</p>
     </div>
   </section>
 
@@ -192,8 +194,8 @@
     <div class="inner">
       <span class="k mono">State 04 — production</span>
       <h2>Then it <em>dances</em></h2>
-      <p>Research-grade, shipped, and running on its own feet —
-      <b>the only review that matters.</b></p>
+      <p>Research-grade ideas hardened into dependable, repeatable systems —
+      <b>shipped and running on their own feet,</b> the only review that matters.</p>
     </div>
   </section>
 </main>
@@ -212,7 +214,7 @@
   </div>
 </footer>
 
-<script src="/switcher.js"></script>
+<script src="switcher.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script type="importmap">
@@ -282,7 +284,7 @@ let mixer = null;
 const actions = {};
 let current = null;
 
-new GLTFLoader().load("/assets/models/robot-expressive.glb", (g) => {
+new GLTFLoader().load("assets/models/robot-expressive.glb", (g) => {
   const model = g.scene;
   model.traverse((n) => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
   // model renders ~2 units tall at native scale (bones carry a baked shrink);
