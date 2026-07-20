@@ -1,0 +1,25 @@
+/* RenoCrypt design tokens — color
+   Two registers: Proof (light, paper) and Signal (dark, phosphor).
+   Rule: warm neutrals, one accent per register, accents on <5% of pixels. */
+
+:root {
+  /* Proof register (light) */
+  --proof-paper: #f7f3ea;
+  --proof-paper-2: #efe9da;
+  --proof-ink: #171a17;
+  --proof-ink-60: color-mix(in oklch, var(--proof-ink) 60%, var(--proof-paper));
+  --proof-line: color-mix(in oklch, var(--proof-ink) 16%, var(--proof-paper));
+  --proof-accent: #1f4fd8;   /* theorem blue */
+  --proof-pen: #c0392b;      /* marginalia red */
+}
+
+:root[data-register="signal"] {
+  /* Signal register (dark) */
+  --signal-bg: #08090b;
+  --signal-bg-2: #0f1114;
+  --signal-bone: #e8e4d8;
+  --signal-bone-55: color-mix(in oklch, var(--signal-bone) 55%, var(--signal-bg));
+  --signal-line: color-mix(in oklch, var(--signal-bone) 14%, var(--signal-bg));
+  --signal-accent: #62e6c8;  /* phosphor */
+  --signal-amber: #ffb454;   /* rotor amber */
+}

@@ -1,0 +1,28 @@
+/* RenoCrypt design tokens — type + motion.
+   Math and code are first-class: serif for argument, grotesque for structure,
+   mono for labels, KaTeX for the derivations themselves. */
+
+:root {
+  --font-display: "Clash Display", system-ui, sans-serif;   /* headlines, structure */
+  --font-serif: "Newsreader", Georgia, serif;                /* argument, lede, quotes */
+  --font-serif-alt: "Playfair Display", Georgia, serif;      /* display italic moments */
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;    /* labels, code, metadata */
+
+  /* fluid scale */
+  --fs-hero: clamp(3rem, 10vw, 9rem);
+  --fs-h2: clamp(2rem, 5vw, 4rem);
+  --fs-lede: clamp(1.1rem, 2vw, 1.5rem);
+  --fs-body: 1rem;
+  --fs-mono: 0.68rem;
+
+  /* motion: stage, don't decorate */
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-io: cubic-bezier(.65, 0, .35, 1);
+  --dur-reveal: .9s;
+  --dur-hover: .35s;
+}
+
+/* Motion rules (brand-wide):
+   - reveals are staged and selective, never fade-up-on-everything
+   - scroll choreography may pin, never hijack velocity
+   - prefers-reduced-motion collapses everything to instant */
