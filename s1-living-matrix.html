@@ -48,8 +48,8 @@
   .top nav a:hover { color: var(--acc); }
 
   /* ---------- hero ---------- */
-  .hero { position: relative; height: 100svh; overflow: hidden; }
-  #matrix { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .hero { position: relative; height: 100svh; overflow: hidden; z-index: 2; }
+  #matrix { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; display: block; }
   .hero .ui {
     position: absolute; inset: 0; z-index: 3; pointer-events: none;
     display: flex; flex-direction: column; justify-content: flex-end;
@@ -80,7 +80,12 @@
   .hero .readout .v { color: var(--acc); }
 
   /* ---------- content ---------- */
-  main { position: relative; z-index: 2; background: var(--bg); }
+  main { position: relative; z-index: 2; }
+  main section, main footer {
+    background: color-mix(in oklch, var(--bg) 52%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
   section { border-top: 1px solid var(--bone-12); }
   .section-head { display: flex; justify-content: space-between; align-items: baseline; padding: clamp(3rem, 7vh, 5rem) clamp(1.25rem, 3.5vw, 3rem) 2rem; }
   .section-head .n { color: var(--acc); }
@@ -220,6 +225,8 @@
 </main>
 
 <script src="/switcher.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
@@ -235,7 +242,7 @@ const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 500);
 
 /* lights: emissive carries most of it; a key light for form */
 scene.add(new THREE.AmbientLight(0x223044, 1.2));
-const key = new THREE.DirectionalLight(0x6ee7ff, 1.4);
+const key = new THREE.DirectionalLight(0x6ee7ff, 1.6);
 key.position.set(20, 40, 10);
 scene.add(key);
 
@@ -269,6 +276,17 @@ addEventListener("pointermove", (e) => {
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const roAttn = document.getElementById("ro-attn");
 let t = 0, last = performance.now(), orbit = 0;
+
+/* scroll journey: orbit wide → graze the cells → top-down heatmap → pull back */
+const journey = { y: 34, r: 68, tilt: 1, violet: 0 };
+gsap.registerPlugin(ScrollTrigger);
+gsap.timeline({
+  scrollTrigger: { trigger: "main", start: "top bottom", end: "bottom bottom", scrub: 1.2 },
+})
+  .to(journey, { y: 9, r: 46, duration: 1.2 }, 0)      /* threads: graze */
+  .to(journey, { y: 88, r: 26, duration: 1.4 }, 1.4)   /* feed: top-down */
+  .to(journey, { violet: 1, duration: 1 }, 1.6)        /* hue shift at feed */
+  .to(journey, { y: 30, r: 74, duration: 1.2 }, 3.2);  /* footer: pull back */
 
 function resize() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -326,13 +344,12 @@ function frame(now) {
 
   /* slow orbit + mouse parallax */
   orbit += dt * 0.045;
-  const R = 68;
   camera.position.set(
-    Math.cos(orbit) * R + mx * 6,
-    34 + my * -6,
-    Math.sin(orbit) * R
+    Math.cos(orbit) * journey.r + mx * 6,
+    journey.y + my * -6,
+    Math.sin(orbit) * journey.r
   );
-  camera.lookAt(0, 0, 0);
+  camera.lookAt(0, journey.y < 20 ? 0 : -6, 0);
 
   if (roAttn) roAttn.textContent = (peak / 2.2).toFixed(3);
 
