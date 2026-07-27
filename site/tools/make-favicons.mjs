@@ -1,7 +1,6 @@
 // Favicon set generator — rasterises the mark to PNG/ICO without any image
 // library (this machine has none: no PIL, no cairosvg, no ImageMagick, no
-// rsvg). The mark is three rounded bars on an ink square — the hub's rail,
-// which is the one thing that reads at 16px.
+// rsvg). The mark is the hub's own: three rounded bars on cream paper.
 //
 //   node tools/make-favicons.mjs
 //
@@ -18,11 +17,11 @@ import { dirname, join } from 'node:path';
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 
 // The mark, in a 32-unit square — same geometry as favicon.svg.
-const INK = [0x0e, 0x0d, 0x0b];
+const GROUND = [0xf5, 0xef, 0xe6]; // cream paper
 const BARS = [
-  { y: 5, fill: [0x00, 0x72, 0xe3] }, // cobalt — 01
-  { y: 13, fill: [0xff, 0x4c, 0x24] }, // vermilion — 02
-  { y: 21, fill: [0xab, 0x54, 0xf7] }, // violet — 03
+  { y: 6, fill: [0xe3, 0xe1, 0xdc] }, // pale
+  { y: 13, fill: [0x1a, 0x1c, 0x1c] }, // ink
+  { y: 20, fill: [0xe5, 0x26, 0x2c] }, // red
 ];
 
 /** Signed distance to a rounded rect, negative inside. */
@@ -53,8 +52,8 @@ function render(size) {
   const px = new Uint8Array(size * size * 4);
 
   const shapes = [
-    { fill: INK, sd: (u, v) => sdRoundRect(u, v, 0, 0, 32, 32, 7) },
-    ...BARS.map((b) => ({ fill: b.fill, sd: (u, v) => sdRoundRect(u, v, 6, b.y, 20, 6, 3) })),
+    { fill: GROUND, sd: (u, v) => sdRoundRect(u, v, 0, 0, 32, 32, 7) },
+    ...BARS.map((b) => ({ fill: b.fill, sd: (u, v) => sdRoundRect(u, v, 7, b.y, 18, 5, 2.5) })),
   ];
 
   for (let y = 0; y < size; y++) {
