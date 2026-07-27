@@ -311,3 +311,15 @@ Built to the critic-amended spec (`docs/specs/04-pulse.json`): zero-scroll click
 **Also**: the `worlds.` dot went red → cobalt (user: red reads as a telecom logo — and red belongs to lane 04); `research/shots/` is now gitignored, evidence stays local while `NOTES.md` carries the findings.
 
 Verified on the built output (`python3 -m http.server` over `dist/`): 14/14 routes 200 incl. archive assets and CNAME; registry-rendered doors and cards correct at 1440 and 390; archive exit pill present on all five pages. The studies' WebGL still can't create a context here (no GPU — same standing limitation as the worlds' centerpieces), so their live render needs the phone.
+
+## Favicon — why the archive had none, and the general fix — 2026-07-27
+
+Symptom: the icon looked gone site-wide after the merge. Measured: `/favicon.svg` returns 200 and is declared by the hub, the four worlds and `/type/` — but **0 of the 5 `/lab/` pages declared any icon**, and `/favicon.ico` was **404**. On an archive page the browser finds no declaration, falls back to `/favicon.ico`, gets nothing; Safari is strictest here and caches the miss per-domain, so pages that DO declare one keep showing blank.
+
+Root cause is the same class of bug as the analytics tag: files under `public/` never pass through Vite's html pipeline, so anything declared in a template misses them. The old lab repo also never had a favicon at all, so nothing was inherited.
+
+Fix, generalised rather than patched: `vite-plugin-google-tag.ts` became **`vite-plugin-head-tags.ts`**, which stamps analytics *and* the icon set into every dist page at `closeBundle`, only where absent (idempotent; a page declaring its own icon keeps it, and gets topped up if it lacks the Safari/home-screen entries). The six templates' hand-written `<link rel="icon">` lines were removed so the plugin is the single source. Verified: 11/11 built pages carry all four icon refs + the tag.
+
+Assets: this machine has **no image tooling at all** (no PIL, cairosvg, ImageMagick, rsvg), so `tools/make-favicons.mjs` writes the PNG/ICO bytes directly — SDF rounded-rect rasteriser with 4×4 supersampled coverage, src-over compositing, hand-rolled CRC32 + zlib `deflateSync` for the PNG chunks, and an ICO container wrapping PNG payloads. Emits `favicon.ico` (16+32), `apple-touch-icon.png` (180), `icon-512.png`. Verified by decoding in the browser (naturalWidth 32/180/512) and eyeballing a proof sheet at 8× nearest-neighbour.
+
+The mark changed while fixing it: the old cream-ground / red-ink-pale-bar SVG went to **ink ground + the three lane bars** (cobalt/vermilion/violet) — the rail itself, which is the one thing that survives the shrink to 16px. Geometry is duplicated in `favicon.svg` and `make-favicons.mjs`; both files say so.
