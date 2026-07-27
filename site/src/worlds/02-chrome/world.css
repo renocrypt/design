@@ -1,0 +1,654 @@
+/* World 02 — Chrome. Slab law: zero vertical gaps, radius 0 everywhere,
+   Zodiak 400 on the vw ladder, Switzer 500 ≤14px for UI, ONE bezier. */
+
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-VariableItalic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/Switzer-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.slab {
+  position: relative;
+  min-height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* ── Display type: Zodiak 400, lh 0.9, −2%, the vw ladder ── */
+
+.h-display,
+.statement {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+.h-582 { font-size: 5.82vw; }
+.h-436 { font-size: 4.36vw; }
+.h-400 { font-size: 4vw; }
+
+.statement {
+  font-size: 3.27vw; /* NOT the 5.82 step — nothing outrenders the metal */
+}
+
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em; /* serif descenders stay inside the mask */
+  margin-bottom: -0.08em;
+}
+
+.line-inner {
+  display: block;
+}
+
+.body {
+  font-size: 14px;
+  line-height: 1.3;
+  max-width: 36ch;
+}
+
+.eyebrow {
+  margin: 0 0 1.4rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 6px 10px;
+  background: var(--pistachio);
+  color: #181818; /* pistachio keeps ink text in both modes */
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Buttons: 28px, radius 0, the jade slide ── */
+
+.btn,
+.sq-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.btn-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--jade);
+  transform: translateX(-101%);
+  /* The ONE permitted CSS transform transition — GSAP never touches .btn-fill. */
+  transition: transform 0.525s var(--ease-chrome);
+}
+
+.btn:hover .btn-fill,
+.sq-btn:hover .btn-fill {
+  transform: translateX(0);
+}
+
+.btn-label,
+.sq-label,
+.btn-arrow,
+.sq-arrow {
+  position: relative;
+  z-index: 1;
+  transition: color 0.525s var(--ease-chrome);
+}
+
+.btn-arrow,
+.sq-arrow {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.btn-arrow--back {
+  transform: rotate(225deg);
+}
+
+.btn--pistachio {
+  background: var(--pistachio);
+  color: #181818;
+}
+
+.btn--ink {
+  background: #181818;
+  color: #eae9e6;
+}
+
+.btn--ink:hover .btn-label,
+.btn--ink:hover .btn-arrow {
+  color: #181818;
+}
+
+.btn--vermilion {
+  background: var(--vermilion);
+  color: #181818;
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 2rem 0 0;
+}
+
+/* ── Fixed page chrome ── */
+
+.chrome-tl {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  mix-blend-mode: difference;
+  color: #eae9e6;
+}
+
+.chrome-tr {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+.sq-btn {
+  background: #181818;
+  color: #eae9e6;
+}
+
+.sq-btn:hover .sq-label,
+.sq-btn:hover .sq-arrow {
+  color: #181818;
+}
+
+.theme-toggle {
+  width: 28px;
+  padding: 0;
+  justify-content: center;
+}
+
+.theme-toggle svg {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  z-index: 1;
+  transition:
+    opacity 0.525s var(--ease-chrome),
+    color 0.525s var(--ease-chrome);
+}
+
+.theme-toggle .glyph-moon {
+  opacity: 0;
+}
+
+:root[data-theme='night'] .theme-toggle .glyph-sun {
+  opacity: 0;
+}
+
+:root[data-theme='night'] .theme-toggle .glyph-moon {
+  opacity: 1;
+}
+
+:root[data-theme='night'] .sq-btn {
+  background: #eae9e6;
+  color: #181818;
+}
+
+/* ── S1 — Masthead ── */
+
+.s1 {
+  display: flex;
+  flex-direction: column;
+}
+
+.masthead-wrap {
+  position: relative;
+  width: 100%;
+  height: clamp(160px, 17.4vw, 300px); /* the measured strip band, flush top */
+}
+
+.masthead-wrap canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Rung-3 artwork: painted behind the canvas from first paint; masthead.ts
+   hides it as soon as a live/still frame exists. */
+.masthead-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.masthead-wrap.is-live .masthead-fallback {
+  display: none;
+}
+
+.fb-word {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 13vw;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  background: linear-gradient(
+    180deg,
+    #fbfbf9 0%,
+    #d8d7d3 20%,
+    #8f8e8a 46%,
+    #232322 54%,
+    #c9c8c4 60%,
+    #efeeea 82%,
+    #fafaf8 100%
+  );
+  background-size: 100% 220%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: fb-sweep 1.2s var(--ease-chrome) 1;
+}
+
+.fb-o {
+  width: 0.78em;
+  height: 0.78em;
+  margin: 0 0.02em;
+}
+
+@keyframes fb-sweep {
+  from {
+    background-position: 0 -110%;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+.copy {
+  padding: 4vh clamp(20px, 5vw, 72px) 0;
+  max-width: 72ch;
+}
+
+.copy .sub {
+  margin: 1.6rem 0 0;
+  max-width: 34ch;
+}
+
+/* ── Stickers ── */
+
+.sticker {
+  position: absolute;
+  z-index: 2;
+}
+
+.sticker svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sticker--asterisk {
+  width: 96px;
+  height: 96px;
+  top: 4vw;
+  right: 6vw;
+}
+
+.sticker--drop {
+  width: 72px;
+  height: 72px;
+  left: 22%;
+  bottom: 8%;
+}
+
+.sticker--ampersand {
+  width: 128px;
+  height: 128px;
+  left: 44%;
+  top: 38%;
+  z-index: 3;
+}
+
+.sticker--ingot {
+  width: 88px;
+  height: 88px;
+  top: 6vh;
+  right: 6vw;
+}
+
+/* ── S2 — Assay wall ── */
+
+.s2 {
+  display: flex;
+  gap: 4vw;
+  padding: 12vh clamp(20px, 5vw, 72px);
+}
+
+.assays-copy {
+  width: 34vw;
+  flex: none;
+  position: sticky;
+  top: 12vh;
+  align-self: flex-start;
+  z-index: 2; /* the serif bleeds OVER the plate field — the reference's own move */
+}
+
+.assays-copy .h-display {
+  pointer-events: none; /* plates under the bleed stay hoverable */
+}
+
+.assays-copy .body {
+  margin-top: 1.6rem;
+}
+
+.plate-field {
+  position: relative;
+  width: 58vw;
+  height: 86vh;
+  flex: none;
+}
+
+.par {
+  position: absolute;
+  inset: 0;
+}
+
+.plate {
+  position: absolute;
+  width: 12vw;
+  aspect-ratio: 0.8;
+  /* NO border, NO shadow, NO radius — rotation alone does the polaroid cue */
+}
+
+.plate--pair {
+  border: 2px solid var(--pistachio); /* the founders-pair exception */
+}
+
+.plate canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── S3 — Foundry flip (250vh runway, sticky stage, counter-slab) ── */
+
+.s3 {
+  height: 250vh;
+  margin: 0;
+}
+
+.foundry-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: var(--counter);
+  color: var(--counter-ink);
+  perspective: 1200px;
+  padding: 12vh clamp(20px, 5vw, 72px) 0;
+  transition:
+    background-color var(--flip),
+    color var(--flip);
+}
+
+.fan {
+  position: relative;
+  height: 60vh;
+  margin-top: 4vh;
+}
+
+.fcard {
+  position: absolute;
+  left: 50%;
+  top: 8vh;
+  width: 39vw;
+  height: 43vh;
+  margin-left: -19.5vw;
+  padding: 2vw;
+  color: #181818; /* the light cards hold their ink text in both modes */
+}
+
+.fcard--jade { background: var(--jade); z-index: 1; }
+.fcard--white { background: #ffffff; z-index: 3; }
+.fcard--pistachio { background: var(--pistachio); z-index: 2; }
+
+.fcard-idx {
+  position: absolute;
+  top: 1.4vw;
+  right: 2vw;
+  font-family: var(--font-serif);
+  font-size: 2.9vw;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: rgb(24 24 24 / 30%);
+}
+
+.fcard-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 2.9vw;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+.fcard-body {
+  margin: 1.4rem 0 0;
+  font-size: 13px;
+  line-height: 1.3;
+  max-width: 30ch;
+}
+
+/* ── S4 — The scale ── */
+
+.s4 {
+  background: var(--specimen);
+  padding: 12vh clamp(20px, 5vw, 72px);
+  transition: background-color var(--flip);
+}
+
+.ladder {
+  margin-top: 2vh;
+}
+
+.lad-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-block: 1.2vh;
+  border-top: 1px solid var(--ink-15);
+}
+
+.lad-row[data-size='582'] .lad-word { font-size: 5.82vw; }
+.lad-row[data-size='436'] .lad-word { font-size: 4.36vw; }
+.lad-row[data-size='400'] .lad-word { font-size: 4vw; }
+.lad-row[data-size='327'] .lad-word { font-size: 3.27vw; }
+.lad-row[data-size='290'] .lad-word { font-size: 2.9vw; }
+
+.lad-word {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+.lad-label {
+  flex: none;
+  max-width: 30ch;
+  text-align: right;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ease-exhibit {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-top: 6vh;
+}
+
+.ease-note {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 13px;
+}
+
+/* ── S5 — Footer vault ── */
+
+.s5 {
+  display: flex;
+  align-items: flex-end;
+  background: var(--vault);
+  color: var(--vault-ink);
+  padding: 0 clamp(20px, 5vw, 72px) 10vh;
+  transition: background-color var(--flip);
+}
+
+.vault-copy .body {
+  margin-top: 1.6rem;
+  max-width: 40ch;
+  font-size: 13px;
+}
+
+.meta {
+  margin: 4rem 0 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.4;
+}
+
+/* ── Small screens ── */
+
+@media (max-width: 820px) {
+  .copy {
+    padding: 4vh 20px 0;
+  }
+
+  .statement {
+    font-size: 6vw; /* legibility floor — at 3.27vw of a phone the serif's
+                       0.9 line-height turns to mush (ladder intact ≥821px) */
+  }
+
+  .fb-word {
+    font-size: 11vw; /* the whole word fits the strip, no mid-letter crop */
+  }
+
+  .s2 {
+    flex-direction: column;
+    padding: 10vh 20px;
+  }
+
+  .assays-copy {
+    position: static;
+    width: 100%;
+  }
+
+  .plate-field {
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6vw;
+    margin-top: 6vh;
+  }
+
+  .par {
+    position: static;
+    display: contents; /* plates join the grid directly */
+  }
+
+  .plate {
+    position: static;
+    width: 40vw;
+  }
+
+  .sticker--ampersand {
+    left: 58%;
+    top: 52%;
+    width: 96px;
+    height: 96px;
+  }
+
+  .fcard {
+    width: 78vw;
+    height: 40vh;
+    margin-left: -39vw;
+  }
+
+  .fcard-title,
+  .fcard-idx {
+    font-size: 8vw;
+  }
+
+  .sticker--asterisk {
+    width: 64px;
+    height: 64px;
+  }
+}

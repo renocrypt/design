@@ -1,0 +1,43 @@
+/* World 02 — Chrome tokens. Greige day / ink night, radius 0, THE bezier. */
+:root {
+  --paper: #eae9e6;
+  --ink: #181818;
+  --ink-15: rgb(24 24 24 / 15%);
+  --ink-85: rgb(24 24 24 / 85%);
+  --counter: #181818; /* S3 counter-slab ground (the reference's mid-page flip) */
+  --counter-ink: #eae9e6;
+  --specimen: #ffffff; /* S4 slab */
+  --vault: #2b2b2b; /* footer */
+  --vault-ink: #eae9e6;
+
+  --pistachio: #ecfdad; /* the workhorse accent — identical hex in both modes */
+  --jade: #3fae86; /* the hover slide */
+  --vermilion: #ff4c24; /* ONE use per page — the scalpel */
+
+  --font-serif: 'Zodiak', Georgia, serif;
+  --font-ui: 'Switzer', 'Helvetica Neue', sans-serif;
+  --ease-chrome: cubic-bezier(0.625, 0.05, 0, 1);
+  --flip: 800ms cubic-bezier(0.45, 0, 0.55, 1); /* matches the hub's theme flip */
+}
+
+:root[data-theme='night'] {
+  --paper: #181818;
+  --ink: #eae9e6;
+  --ink-15: rgb(234 233 230 / 15%);
+  --ink-85: rgb(234 233 230 / 85%);
+  --counter: #eae9e6; /* the counter-slab inverts the OTHER way */
+  --counter-ink: #181818;
+  --specimen: #232322;
+  --vault: #101010;
+}
+
+html {
+  background: var(--paper);
+  transition: background-color var(--flip);
+}
+
+body {
+  transition:
+    background-color var(--flip),
+    color var(--flip);
+}

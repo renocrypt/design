@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>02 — Chrome · the metal runs live</title>
+    <meta name="description" content="An editorial set in liquid chrome. The O never sets." />
+    <script>
+      // Pre-paint theme: lab-wide continuity via the shared key.
+      document.documentElement.dataset.theme =
+        localStorage.getItem('hub-theme') ??
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day');
+    </script>
+    <link rel="preload" href="/fonts/Zodiak-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Switzer-Variable.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <h1 class="vh">Chrome — lane 02 of the design lab</h1>
+
+    <!-- Fixed page chrome: 12px Switzer labels, radius-0 controls -->
+    <p class="chrome-tl">02 — CHROME</p>
+    <div class="chrome-tr">
+      <button class="sq-btn theme-toggle" type="button" aria-label="Switch between day and night">
+        <svg class="glyph-sun" viewBox="0 0 14 14" aria-hidden="true">
+          <circle cx="7" cy="7" r="3.5" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <path d="M7 0.8v1.7M7 11.5v1.7M0.8 7h1.7M11.5 7h1.7M2.6 2.6l1.2 1.2M10.2 10.2l1.2 1.2M2.6 11.4l1.2-1.2M10.2 3.8l1.2-1.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" />
+        </svg>
+        <svg class="glyph-moon" viewBox="0 0 14 14" aria-hidden="true">
+          <path d="M11.5 8.5A5 5 0 1 1 5.5 2.5a4 4 0 0 0 6 6z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+        </svg>
+      </button>
+      <a class="sq-btn btn-hub" href="/">
+        <span class="btn-fill"></span>
+        <span class="sq-label">HUB</span>
+        <svg class="sq-arrow" viewBox="0 0 14 14" aria-hidden="true">
+          <rect x="1" y="1" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <path d="M4.5 9.5l5-5M5.5 4.5h4v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" />
+        </svg>
+      </a>
+    </div>
+
+    <!-- S1 — Masthead: the pour -->
+    <section class="s1 slab" id="top">
+      <div class="masthead-wrap">
+        <div class="masthead-fallback" aria-hidden="true">
+          <span class="fb-word"
+            >CHR<svg class="fb-o" viewBox="0 0 96 96">
+              <defs>
+                <linearGradient id="ramp-fb" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#fbfbf9" />
+                  <stop offset="0.2" stop-color="#d8d7d3" />
+                  <stop offset="0.46" stop-color="#8f8e8a" />
+                  <stop offset="0.54" stop-color="#232322" />
+                  <stop offset="0.6" stop-color="#c9c8c4" />
+                  <stop offset="0.82" stop-color="#efeeea" />
+                  <stop offset="1" stop-color="#fafaf8" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M48 14c19 0 33 13 33 32s-14 34-33 34-33-15-33-34S29 14 48 14zm3 17c-11 0-19 7-19 16s8 17 19 17 19-8 19-17-8-16-19-16z"
+                fill="url(#ramp-fb)"
+                fill-rule="evenodd"
+              />
+              <circle cx="79" cy="74" r="4" fill="url(#ramp-fb)" /></svg
+            >ME</span
+          >
+        </div>
+      </div>
+
+      <div class="copy">
+        <p class="eyebrow"><span class="tag">LANE 02 — POURED LIVE</span></p>
+        <p class="statement">
+          <span class="line-mask"><span class="line-inner">Nothing here is baked.</span></span>
+          <span class="line-mask"><span class="line-inner">The metal runs live.</span></span>
+        </p>
+        <p class="sub">
+          An editorial set in liquid chrome. One studio HDRI does the lighting, marching cubes keep the O molten,
+          and the serif stays razor-calm about it.
+        </p>
+        <p class="btn-row">
+          <a class="btn btn--pistachio" href="#assays">
+            <span class="btn-fill"></span><span class="btn-label">SEE THE ASSAYS</span>
+            <svg class="btn-arrow" viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="1" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M4.5 9.5l5-5M5.5 4.5h4v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" /></svg>
+          </a>
+          <a class="btn btn--ink" href="#foundry">
+            <span class="btn-fill"></span><span class="btn-label">HOW IT'S LIT</span>
+            <svg class="btn-arrow" viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="1" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M4.5 9.5l5-5M5.5 4.5h4v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" /></svg>
+          </a>
+        </p>
+      </div>
+
+      <div class="sticker sticker--asterisk" data-sticker="asterisk" aria-hidden="true"></div>
+      <div class="sticker sticker--drop" data-sticker="drop" aria-hidden="true"></div>
+    </section>
+
+    <!-- S2 — Assay wall -->
+    <section class="s2 slab" id="assays">
+      <div class="assays-copy">
+        <p class="eyebrow"><span class="tag">THE WALL</span></p>
+        <h2 class="h-display h-582">
+          <span class="line-mask"><span class="line-inner">Print calm.</span></span>
+          <span class="line-mask"><span class="line-inner">Mirror finish.</span></span>
+          <span class="line-mask"><span class="line-inner">No photographs.</span></span>
+        </h2>
+        <p class="body">
+          We own no camera. The seven plates on this wall were drawn by a seeded machine — same seed, same plate,
+          every visit. The tilt is the only nostalgia we kept.
+        </p>
+      </div>
+      <div class="plate-field">
+        <div class="par par-a"></div>
+        <div class="par par-b"></div>
+        <div class="sticker sticker--ampersand" data-sticker="ampersand" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- S3 — Foundry flip -->
+    <section class="s3" id="foundry">
+      <div class="foundry-stage slab">
+        <p class="eyebrow"><span class="tag">THE FOUNDRY</span></p>
+        <h2 class="h-display h-436">
+          <span class="line-mask"><span class="line-inner">Three states of the metal.</span></span>
+        </h2>
+        <div class="fan">
+          <article class="fcard fcard--jade" data-fan="0">
+            <span class="fcard-idx">01</span>
+            <h3 class="fcard-title">Molten</h3>
+            <p class="fcard-body">Marching cubes at resolution 36. Five seeded charges orbit a ring and a sixth carves the counter. The O never sets.</p>
+          </article>
+          <article class="fcard fcard--white" data-fan="1">
+            <span class="fcard-idx">02</span>
+            <h3 class="fcard-title">Mirror</h3>
+            <p class="fcard-body">Metalness 1, roughness .06, one 1K studio HDRI. Zero lamps in the scene; the room does the lighting.</p>
+          </article>
+          <article class="fcard fcard--pistachio" data-fan="2">
+            <span class="fcard-idx">03</span>
+            <h3 class="fcard-title">Milled</h3>
+            <p class="fcard-body">Zodiak cut at seven hundred and extruded, bevel .05. Hairline serifs catch the horizon line.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 — The scale -->
+    <section class="s4 slab">
+      <p class="eyebrow"><span class="tag">THE RULES</span></p>
+      <div class="ladder">
+        <div class="lad-row" data-size="582"><span class="lad-word">Poured</span><span class="lad-label">5.82VW — MASTHEAD STEP</span></div>
+        <div class="lad-row" data-size="436"><span class="lad-word">Polished</span><span class="lad-label">4.36VW</span></div>
+        <div class="lad-row" data-size="400"><span class="lad-word">Pressed</span><span class="lad-label">4.00VW</span></div>
+        <div class="lad-row" data-size="327"><span class="lad-word">Plated</span><span class="lad-label">3.27VW</span></div>
+        <div class="lad-row" data-size="290"><span class="lad-word">Punched</span><span class="lad-label">2.90VW — LAST SERIF STEP; BELOW THIS, SWITZER 500 TAKES OVER</span></div>
+      </div>
+      <div class="ease-exhibit">
+        <button class="btn btn--pistachio" type="button">
+          <span class="btn-fill"></span><span class="btn-label">HOVER ME</span>
+        </button>
+        <p class="ease-note">
+          0.525 s · cubic-bezier(.625, .05, 0, 1) — the only ease in the room. Ninety-two of ninety-six transitions
+          on the reference share it. Here it is one hundred percent.
+        </p>
+      </div>
+      <div class="sticker sticker--ingot" data-sticker="ingot" aria-hidden="true"></div>
+    </section>
+
+    <!-- S5 — Footer vault -->
+    <footer class="s5 slab">
+      <div class="vault-copy">
+        <h2 class="h-display h-400">
+          <span class="line-mask"><span class="line-inner">Poured in the lab,</span></span>
+          <span class="line-mask"><span class="line-inner">set nowhere.</span></span>
+        </h2>
+        <p class="body">
+          Lane 02 of four. The chrome cools when you leave — localStorage remembers whether you left at night.
+        </p>
+        <p class="btn-row">
+          <a class="btn btn--pistachio" href="/">
+            <span class="btn-fill"></span><span class="btn-label">BACK TO THE HUB</span>
+            <svg class="btn-arrow btn-arrow--back" viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="1" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M4.5 9.5l5-5M5.5 4.5h4v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" /></svg>
+          </a>
+          <a class="btn btn--vermilion" href="/worlds/03-monument/">
+            <span class="btn-fill"></span><span class="btn-label">NEXT LANE — 03 MONUMENT</span>
+            <svg class="btn-arrow" viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="1" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M4.5 9.5l5-5M5.5 4.5h4v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" /></svg>
+          </a>
+        </p>
+        <p class="meta">ZODIAK · SWITZER · STUDIO_SMALL_08 · 6 DRAW CALLS · SEED 0x5EED02</p>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/worlds/02-chrome/main.ts"></script>
+  </body>
+</html>

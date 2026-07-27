@@ -1,0 +1,15 @@
+# Dependencies and build output — regenerated, never tracked.
+node_modules/
+dist/
+.vite/
+
+# Local research evidence: screenshots stay on disk, out of the repo.
+# The findings they support live in research/NOTES.md, which IS tracked.
+research/shots/
+
+# Tool scratch — browser session logs, editor and OS cruft.
+.playwright-mcp/
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
+*.log

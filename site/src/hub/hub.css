@@ -1,0 +1,1022 @@
+/* Hub v2 — rebuilt against the measured units.gr anatomy.
+   Measured fundamentals honored here:
+   - narrow fixed rail (~148px) of solid-color chips (r=10px), BLACK text on color, sentence case
+   - one giant rounded media/poster card (r=32px) filling the first viewport, cream display text ON it
+   - display face at ~850 weight, tight line-height (~1.0); body face quiet at 16px
+   - pill tags (r=999px, hairline border), colored marquee band (r=32px, Bunch-style items)
+   - saturated solids only on cards/chips/band — the paper itself stays cream. */
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text), system-ui, sans-serif;
+  font-weight: 450;
+}
+
+.hub {
+  display: grid;
+  grid-template-columns: var(--rail-w) 1fr;
+  gap: var(--gap);
+  padding: var(--gap);
+}
+
+/* ── Preloader: five stamps, a mark, a wipe ─────────────
+   Short by design (the pole's own intro runs long; ours is the dynamic cut).
+   CSS auto-hide covers no-JS; JS removes the node after its wipe. */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  background: var(--paper);
+  animation: pre-css-hide 0.4s ease 3s forwards; /* no-JS safety net */
+}
+
+@keyframes pre-css-hide {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.pre-shapes svg {
+  width: min(15rem, 58vw);
+  height: auto;
+}
+
+.pre-shape {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.pre-mark {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 850;
+  font-size: 1.8rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.pre-mark span {
+  color: var(--cobalt); /* matches the rail mark — the dot is never lane-red */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader {
+    display: none;
+  }
+}
+
+/* ── Mobile top bar + menu (the toy box as an overlay) ──
+   ≤760px the rail gives way to logo + menu button — the reference's mobile
+   grammar: never a horizontal chip strip, never a corpo banner. */
+
+.topbar {
+  display: none;
+}
+
+.menu {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    position: relative;
+    z-index: 55; /* the button stays reachable above the open menu */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.1rem 0;
+  }
+
+  .menu-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--r-chip);
+    background: #0e0d0b;
+    color: #fff7ec;
+    cursor: pointer;
+  }
+
+  .menu-btn svg {
+    grid-area: 1 / 1;
+    transition: opacity 0.2s ease;
+  }
+
+  .menu-btn .ico-burger {
+    width: 18px;
+    height: 12px;
+  }
+
+  .menu-btn .ico-x {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+  }
+
+  .menu-btn.is-open .ico-burger {
+    opacity: 0;
+  }
+
+  .menu-btn.is-open .ico-x {
+    opacity: 1;
+  }
+
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 5.4rem 1.1rem 1.1rem;
+    background: var(--paper);
+    visibility: hidden; /* GSAP reveals it — transforms stay GSAP-owned */
+  }
+
+  .menu .gate {
+    flex: none;
+    min-height: 4.6rem;
+  }
+
+  .menu .gate--archive {
+    min-height: 0;
+    height: 3.6rem;
+  }
+
+  .menu-util {
+    margin-top: 0.4rem;
+    height: 4.6rem;
+  }
+
+  /* beats .gate--util's desktop margin-top:auto — the foot owns the bottom. */
+  .menu .menu-util {
+    margin-top: 0.4rem;
+  }
+
+  .menu-foot {
+    margin: auto 0 0;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  body.menu-open {
+    overflow: hidden;
+  }
+}
+
+/* ── Rail: narrow chip stack, black text on solids ───── */
+
+.rail {
+  position: sticky;
+  top: var(--gap);
+  align-self: start;
+  height: calc(100dvh - 2 * var(--gap));
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.rail-mark {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 850;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  margin-bottom: 0.4rem;
+}
+
+/* Cobalt, not red — red reads as a telecom logo, and it belongs to lane 04. */
+.rail-mark-dot {
+  color: var(--cobalt);
+}
+
+.gates {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+}
+
+.gate {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-content: space-between;
+  flex: 1 1 0;
+  min-height: 7rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: var(--r-chip);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.gate-no {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.gate-arrow {
+  font-size: 0.85rem;
+}
+
+.gate-name {
+  grid-column: 1 / -1;
+  align-self: end;
+  font-weight: 550;
+  font-size: 0.95rem;
+  line-height: 1.15;
+}
+
+/* Gate hues come from the lane registry (inline style) — see src/worlds/registry.ts. */
+
+/* Non-world lanes stay compact so the four worlds keep the rail's full height;
+   the archive reads as a marker above the doors, not a fifth door. The markup
+   is identical for every lane, so the variant re-lays it out as one centred
+   row instead of the doors' number-above-name block. */
+.gate--archive {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  min-height: 0;
+  height: 3.4rem;
+}
+
+/* Source order is no · arrow · name; reorder so it reads "00  Lab      ↗". */
+.gate--archive .gate-arrow {
+  order: 1;
+}
+
+.gate--archive .gate-name {
+  margin-right: auto;
+}
+
+.gate--util {
+  grid-template-columns: 1fr auto;
+  align-content: center;
+  flex: 0 0 auto;
+  height: 3.9rem;
+  margin-top: auto;
+  background: var(--amber);
+}
+
+.gate-name--util {
+  grid-column: auto;
+  align-self: center;
+}
+
+.gate--util .gate-arrow {
+  align-self: center;
+}
+
+.rail-foot {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+/* ── Poster: the one giant rounded card ──────────────── */
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--gap) * 2.4);
+  min-width: 0;
+}
+
+.poster {
+  position: relative;
+  height: calc(100dvh - 2 * var(--gap));
+  min-height: 34rem;
+  border-radius: var(--r-card);
+  overflow: hidden;
+}
+
+/* Hosts the Sundial relief wall (sundial/scene.ts) — five brand shapes on a
+   cobalt wall under one traveling sun; day/night solstice sweep.
+   The CSS beneath is the designed no-WebGL fallback: the same poster painted
+   with positioned shapes and directional box-shadows — a mini solstice
+   (shadows swing, sun becomes crescent) driven by [data-theme] alone. */
+.poster-art {
+  position: absolute;
+  inset: 0;
+  background: #0d47a8;
+  transition: background-color 1000ms ease;
+  overflow: hidden;
+}
+
+:root[data-theme='night'] .poster-art {
+  background: #171034;
+}
+
+/* Fallback shapes (sit under the canvas; invisible once WebGL paints over). */
+.poster-art::before {
+  /* the amber sun, cropped top-right; carved to crescent at night */
+  content: '';
+  position: absolute;
+  width: 38%;
+  aspect-ratio: 1;
+  right: -12%;
+  top: -18%;
+  border-radius: 50%;
+  background: #ffb200;
+  box-shadow: -26px 34px 44px rgb(0 0 0 / 38%);
+  transition: box-shadow 1000ms ease, background-color 1000ms ease;
+}
+
+:root[data-theme='night'] .poster-art::before {
+  background: #ffb200;
+  box-shadow:
+    34px 46px 60px rgb(0 0 0 / 55%),
+    inset 38px -20px 0 6px #171034,
+    0 0 90px 12px rgb(255 233 192 / 25%);
+}
+
+.poster-art::after {
+  /* the vermilion arch rising from bottom-left + red peg, as one layer */
+  content: '';
+  position: absolute;
+  width: 30%;
+  aspect-ratio: 2 / 1;
+  left: 4%;
+  bottom: -2%;
+  border-radius: 999px 999px 0 0;
+  background: #ff4c24;
+  box-shadow: -20px 26px 38px rgb(0 0 0 / 36%);
+  transition: box-shadow 1000ms ease, background-color 1000ms ease;
+}
+
+:root[data-theme='night'] .poster-art::after {
+  background: #c73516;
+  box-shadow: 26px 38px 52px rgb(0 0 0 / 52%);
+}
+
+/* Even the no-WebGL fallback breathes: the painted shapes drift on a slow
+   loop (transform-only — box-shadow stays owned by the theme transition). */
+@media (prefers-reduced-motion: no-preference) {
+  .poster-art::before {
+    animation: css-sun-drift 16s ease-in-out infinite alternate;
+  }
+  .poster-art::after {
+    animation: css-arch-drift 20s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes css-sun-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-4%, 5%, 0); }
+}
+
+@keyframes css-arch-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(3%, -3%, 0); }
+}
+
+/* The remaining three fallback shapes (bar / ring / peg) as plain elements —
+   ::before/::after were already spent on sun and arch. Same positions as the
+   live composition; each drifts on its own clock. */
+.fb {
+  position: absolute;
+  display: block;
+  transition: background-color 1000ms ease, border-color 1000ms ease;
+}
+
+.fb-bar {
+  width: 34%;
+  height: 9%;
+  right: -4%;
+  bottom: 9%;
+  border-radius: 999px;
+  background: #0072e3;
+  transform: rotate(-3deg);
+}
+
+.fb-ring {
+  width: 15%;
+  aspect-ratio: 1;
+  left: -6%;
+  top: 31%;
+  border-radius: 50%;
+  border: clamp(12px, 3.2vh, 30px) solid #ab54f7;
+}
+
+.fb-peg {
+  width: 5%;
+  aspect-ratio: 1;
+  left: 23%;
+  bottom: 17%;
+  border-radius: 50%;
+  background: #e5262c;
+}
+
+:root[data-theme='night'] .fb-bar { background: #1258c9; }
+:root[data-theme='night'] .fb-ring { border-color: #8a46cc; }
+:root[data-theme='night'] .fb-peg { background: #b81d20; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .fb-bar { animation: css-bar-drift 22s ease-in-out infinite alternate; }
+  .fb-ring { animation: css-sun-drift 18s ease-in-out infinite alternate; }
+  .fb-peg { animation: css-arch-drift 14s ease-in-out infinite alternate; }
+}
+
+@keyframes css-bar-drift {
+  from { transform: translate3d(0, 0, 0) rotate(-3deg); }
+  to { transform: translate3d(-2.5%, -18%, 0) rotate(-3deg); }
+}
+
+.poster-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Theme toggle: glass pill, top-left 16px inset, knob slides with the sweep. */
+.theme-toggle {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  width: 64px;
+  height: 32px;
+  border: 1px solid rgb(255 247 236 / 25%);
+  border-radius: var(--r-pill);
+  background: rgb(14 13 11 / 35%);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  padding: 0;
+}
+
+.theme-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffb200;
+  transition: transform 1000ms cubic-bezier(0.45, 0, 0.55, 1), background-color 1000ms ease, box-shadow 1000ms ease;
+}
+
+:root[data-theme='night'] .theme-knob {
+  transform: translateX(32px);
+  background: #ffe9c0;
+  box-shadow: inset 6px -3px 0 1px rgb(23 16 52 / 85%);
+}
+
+/* Finish above the copy: vignette + animated film grain (normal blend at
+   ~5% — overlay would force the canvas out of the compositor fast path). */
+.poster-finish {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 120% at 50% 44%, transparent 58%, rgb(22 13 7 / 34%) 100%);
+}
+
+.poster-finish::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px;
+  opacity: 0.05;
+  animation: grain-jitter 0.36s steps(3) infinite;
+}
+
+@keyframes grain-jitter {
+  0% { background-position: 0 0; }
+  33% { background-position: -70px 40px; }
+  66% { background-position: 40px -70px; }
+  100% { background-position: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster-finish::after {
+    animation: none;
+  }
+}
+
+/* Copy block: optical centre at ~45% (poster craft — units.gr measures ~42%);
+   z-indexed between scrim and finish. Type never moves with the scene. */
+.poster-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 1.3rem;
+  padding: 2rem 2rem 9%;
+  color: var(--cream-text);
+}
+
+.poster-title {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 850;
+  font-size: clamp(2.8rem, 6.5vw, 5.2rem);
+  line-height: 1;
+  letter-spacing: -0.006em; /* on-image: halation clogs counters at paper tracking */
+}
+
+.hero-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em; /* keep the 'y' descender inside the reveal mask */
+  margin-bottom: -0.06em;
+}
+
+.hero-line > .split-inner {
+  display: block;
+}
+
+.poster-sub {
+  max-width: 30rem;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 2px rgb(24 14 7 / 45%); /* sub only — never the title */
+}
+
+.poster-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--r-pill);
+  background: #0e0d0b; /* the reference's crisp black pill — no glass here */
+  color: var(--cream-text);
+  font-size: 0.95rem;
+  font-weight: 550;
+  text-decoration: none;
+}
+
+/* ── Tags (pill, hairline) ───────────────────────────── */
+
+.tag {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid rgb(14 13 11 / 35%);
+  border-radius: var(--r-pill);
+  font-size: 0.85rem;
+}
+
+/* ── Manifesto: the Locations-grammar card ─────────────
+   One big solid card floating on paper with air beside it — the reference's
+   asymmetric move: the card is the statement, the empty cream is the pause. */
+
+.manifesto {
+  padding-inline: clamp(0.5rem, 2vw, 2rem);
+}
+
+.man-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+  max-width: 44rem;
+  min-height: min(26rem, 58vh);
+  padding: clamp(1.5rem, 2.6vw, 2.4rem);
+  border-radius: var(--r-card);
+  background: var(--cobalt);
+  color: var(--ink);
+}
+
+.man-card .tag {
+  border-color: rgb(14 13 11 / 40%);
+}
+
+.man-title {
+  margin-top: auto;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 850;
+  font-size: clamp(2rem, 3.4vw, 3.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+}
+
+.man-text {
+  max-width: 30rem;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: rgb(14 13 11 / 78%);
+}
+
+.man-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.2rem 0 0;
+}
+
+.chip {
+  padding: 0.45rem 1rem;
+  border-radius: var(--r-pill);
+  font-size: 0.85rem;
+  font-weight: 550;
+}
+
+.chip--white { background: var(--cream-text); }
+.chip--hot { background: var(--vermilion); }
+
+/* ── Band: colored marquee strip ─────────────────────── */
+
+.band {
+  overflow: hidden;
+  border-radius: var(--r-card);
+  background: var(--band);
+  padding-block: 0.6rem;
+}
+
+.ticker-track {
+  display: flex;
+  white-space: nowrap;
+  width: max-content;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 850;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--amber);
+}
+
+/* drawn ticker glyphs — clip-path silhouettes, zero downloads */
+.tick-bolt,
+.tick-dia {
+  display: inline-block;
+  background: currentcolor;
+  vertical-align: -0.08em;
+  margin: 0 0.3em;
+}
+
+.tick-bolt {
+  width: 0.62em;
+  height: 0.85em;
+  clip-path: polygon(58% 0, 12% 56%, 42% 56%, 36% 100%, 88% 38%, 56% 38%);
+}
+
+.tick-dia {
+  width: 0.62em;
+  height: 0.62em;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+/* ── Rooms: the four gates, pixel glyphs on graph grids ─
+   The units.gr "what defines us" grammar — a drawn pixel mark inside every
+   card, never text alone. Bitmaps are stamped by main.ts (stampPixels). */
+
+.rooms {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap);
+}
+
+@media (max-width: 900px) {
+  .rooms {
+    grid-template-columns: 1fr;
+  }
+}
+
+.room-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.5rem 1.6rem;
+  border-radius: var(--r-card);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.pix {
+  width: min(8.5rem, 34%);
+  height: auto;
+  align-self: flex-start;
+}
+
+/* Card anatomy per the measured units.gr bento: solid fill, black text,
+   heading + hairline-underlined list rows, ~33px radius. */
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.card-no {
+  font-size: 0.9rem;
+  font-weight: 550;
+}
+
+.card-title {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 850;
+  font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+  letter-spacing: -0.015em;
+  line-height: 1;
+}
+
+.card-kicker {
+  font-size: 0.85rem;
+  font-weight: 550;
+}
+
+.card-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-list li {
+  padding-block: 0.55rem;
+  border-bottom: 1px solid rgb(14 13 11 / 30%);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.card-cta {
+  margin-top: auto;
+  padding-top: 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 550;
+}
+
+/* Card fills come from the registry's `hue` (set inline by main.ts) — no
+   per-lane CSS rule to forget when a lane is added. */
+
+/* A non-world lane (the archive) reads as a shelf under the four doors:
+   full width, glyph and copy side by side rather than stacked. */
+.room-card--wide {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'glyph head cta' 'glyph list cta';
+  align-items: center;
+  column-gap: 1.6rem;
+  row-gap: 0.4rem;
+}
+
+.room-card--wide .pix { grid-area: glyph; width: 5.5rem; align-self: center; }
+.room-card--wide .card-head { grid-area: head; gap: 0.9rem; justify-content: flex-start; }
+.room-card--wide .card-head .card-no { order: -1; }
+.room-card--wide .card-kicker { display: none; } /* the two points carry it */
+.room-card--wide .card-list { grid-area: list; }
+.room-card--wide .card-list li { border-bottom: 0; padding-block: 0.15rem; }
+.room-card--wide .card-cta { grid-area: cta; margin: 0; padding: 0; white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .room-card--wide {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'glyph' 'head' 'list' 'cta';
+    justify-items: start;
+  }
+
+  .room-card--wide .card-cta {
+    padding-top: 0.9rem;
+  }
+}
+
+/* ── Bench: three media cards (illustration / rules / pixel sun) ──
+   The reference's "living" row: one flat drawn illustration card, one
+   cream hairline-list card, one saturated pixel-grid card. All media is
+   drawn in-repo — zero stock. */
+
+.bench {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 0.9fr;
+  gap: var(--gap);
+}
+
+@media (max-width: 1000px) {
+  .bench {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bench-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 24rem;
+  padding: 1.5rem 1.6rem;
+  border-radius: var(--r-card);
+  color: var(--ink);
+}
+
+.bench-card--shelf {
+  background: var(--amber);
+}
+
+.shelf-art {
+  width: 100%;
+  height: auto;
+  margin-block: auto;
+}
+
+.bench-cap {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 550;
+  line-height: 1.35;
+}
+
+.bench-card--rules {
+  background: #faf2e8; /* a shade lighter than the paper — the reference's cream card */
+}
+
+:root[data-theme='night'] .bench-card--rules {
+  background: #f4e9e1; /* cards keep their hues at night — hub law */
+}
+
+.tag--ink {
+  border-color: rgb(14 13 11 / 35%);
+}
+
+.rules {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rules li {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  padding-block: 0.85rem;
+  border-bottom: 1px solid rgb(14 13 11 / 22%);
+}
+
+.rules li:last-child {
+  border-bottom: 0;
+}
+
+.rule-ico {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  margin-top: 0.15rem;
+  color: var(--ink);
+}
+
+.rules h3 {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 850;
+  font-size: 1.12rem;
+  letter-spacing: -0.01em;
+}
+
+.rules p {
+  margin: 0.15rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: rgb(14 13 11 / 62%);
+}
+
+.bench-card--sun {
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  background: var(--cobalt);
+  text-align: center;
+}
+
+.pix--big {
+  width: min(12rem, 58%);
+  align-self: center;
+}
+
+.bench-cap--sun {
+  color: var(--cream-text);
+  max-width: 16rem;
+}
+
+/* ── Big CTA: the full-width black bar ────────────────── */
+
+.big-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 4.4rem;
+  border-radius: calc(var(--r-card) * 0.75);
+  background: #0e0d0b;
+  color: var(--cream-text);
+  font-size: 1.05rem;
+  font-weight: 550;
+  text-decoration: none;
+}
+
+/* ── Footer: graph paper, scattered pixels, giant mark ── */
+
+.foot {
+  position: relative;
+  min-height: min(30rem, 66vh);
+  overflow: hidden;
+  border-radius: var(--r-card);
+  background: #faf2e8;
+  color: var(--ink);
+}
+
+:root[data-theme='night'] .foot {
+  background: #f4e9e1;
+}
+
+.foot-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(14 13 11 / 9%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(14 13 11 / 9%) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.blk {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+}
+
+.blk--cobalt { background: var(--cobalt); right: 18%; top: 10%; }
+.blk--vermilion { background: var(--vermilion); right: 23%; top: 22%; }
+.blk--violet { background: var(--violet); right: 13%; top: 52%; }
+.blk--red { background: var(--red); left: 7%; top: 26%; }
+.blk--amber { background: var(--amber); left: 10.5%; top: 38%; }
+.blk--amber2 { background: var(--amber); right: 31%; bottom: 16%; }
+
+.foot-logo {
+  position: absolute;
+  left: clamp(1rem, 3vw, 2.5rem);
+  bottom: 3.4rem;
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 850;
+  font-size: clamp(4.5rem, 15vw, 13rem);
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+
+.foot-pills {
+  position: absolute;
+  right: clamp(1rem, 3vw, 2.5rem);
+  bottom: 1.3rem;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.pill-link {
+  padding: 0.45rem 1.05rem;
+  border: 1px solid rgb(14 13 11 / 35%);
+  border-radius: var(--r-pill);
+  font-size: 0.85rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.pill-link--static {
+  border-color: transparent;
+  color: rgb(14 13 11 / 55%);
+}
+
+/* ── Mobile ──────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  .hub {
+    grid-template-columns: 1fr;
+  }
+
+  .rail {
+    display: none; /* the topbar + menu overlay take over */
+  }
+
+  .poster {
+    height: 72dvh;
+  }
+
+  .man-card {
+    min-height: 20rem;
+  }
+
+  .foot-logo {
+    bottom: 4.6rem;
+  }
+
+  .foot-pills {
+    left: clamp(1rem, 3vw, 2.5rem);
+    right: auto;
+  }
+}

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>03 — Monument · to the unfinished</title>
+    <meta name="description" content="A white void, one typeface, 32 seeded exhibits. Nothing here is random." />
+    <script>
+      // Pre-paint theme: day→White, night→Night, via the lab's shared key.
+      document.documentElement.dataset.theme =
+        localStorage.getItem('hub-theme') ??
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day');
+    </script>
+    <link rel="preload" href="/fonts/LeagueGothic-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <h1 class="vh">Monument to the Unfinished — wing 03 of the design lab</h1>
+
+    <!-- Preloader: curtains + the 52.5% line + an honest counter -->
+    <div class="preloader" aria-hidden="true">
+      <div class="pre-curtain pre-curtain--top"></div>
+      <div class="pre-curtain pre-curtain--bottom"></div>
+      <div class="pre-line"></div>
+      <p class="pre-count">0 / 100</p>
+    </div>
+
+    <!-- Blackout curtains (the WHITE/NIGHT flip) -->
+    <div class="bo-curtain bo-curtain--top" aria-hidden="true"></div>
+    <div class="bo-curtain bo-curtain--bottom" aria-hidden="true"></div>
+
+    <div id="gl-holder" aria-hidden="true"></div>
+
+    <!-- Rung-3: the museum's own apology, shipped in the static HTML -->
+    <div class="plinth" id="plinth">
+      <p>EXHIBIT TEMPORARILY REMOVED FOR CONSERVATION. THE HAIRLINES REMAIN.</p>
+    </div>
+
+    <!-- Fixed corner chrome -->
+    <p class="corner corner--tl u13">03 — MONUMENT<br /><span class="dim">WING 03 OF 04</span></p>
+    <button class="corner corner--tr toggle u13" type="button" aria-pressed="false" aria-label="Switch between White and Night">
+      <span class="t-word t-word--white is-active">WHITE</span>
+      <span class="t-word t-word--night">NIGHT</span>
+    </button>
+    <p class="corner corner--bl u13 clock">00:00:00 — LOCAL</p>
+    <a class="corner corner--br back-link u13" href="/">
+      <svg viewBox="0 0 24 8" aria-hidden="true"><path d="M24 4H1M6 1 1 4l5 3" /></svg>
+      BACK TO THE HUB
+    </a>
+
+    <p class="caption u13" id="hall-caption">HALL I — THE PERMANENT COLLECTION<br /><span class="dim">NOTHING HERE IS RANDOM. EVERYTHING HERE IS SEEDED.</span></p>
+    <p class="flabel" id="formation-label" aria-live="polite"></p>
+
+    <!-- The strip: 9 viewports, hand-rolled virtual scroll -->
+    <main class="strip" id="strip">
+      <section class="vp vp--hero">
+        <div class="hero-stack">
+          <div class="hairline"></div>
+          <span class="hero-line">MONUMENT</span>
+          <div class="hairline"></div>
+          <span class="hero-line">TO THE</span>
+          <div class="hairline"></div>
+          <span class="hero-line">UNFINISHED</span>
+          <div class="hairline"></div>
+          <div class="hero-util u13">
+            <span>THE PLASTER NEVER SETS.</span>
+            <span class="dim">PERMANENT COLLECTION — 32 EXHIBITS</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="vp vp--hall" aria-label="Hall I — the permanent collection"></section>
+
+      <section class="vp vp--index">
+        <div class="index-head">
+          <div class="hairline"></div>
+          <h2 class="display-94">THE INDEX</h2>
+        </div>
+        <div class="index-table" id="index-table"></div>
+      </section>
+
+      <section class="vp vp--colophon">
+        <div class="colophon-label">
+          <p><span class="dim">WORK&nbsp;</span> MONUMENT TO THE UNFINISHED, 2026</p>
+          <p><span class="dim">MEDIUM&nbsp;</span> SEEDED CANVAS ON WEBGL. ONE TYPEFACE. NO PHOTOGRAPHS.</p>
+          <p><span class="dim">DIMENSIONS&nbsp;</span> VARIABLE (MINIMUM 1200 × ANYTHING).</p>
+          <p><span class="dim">PROVENANCE&nbsp;</span> MADE HERE. ON LOAN FROM: NO ONE.</p>
+          <p><span class="dim">CONDITION&nbsp;</span> NEVER FINISHED, BY DESIGN.</p>
+          <p><span class="dim">TYPE&nbsp;</span> LEAGUE GOTHIC, SIL OPEN FONT LICENSE 1.1.</p>
+        </div>
+        <div class="colophon-links">
+          <a class="back-link u13" href="/worlds/04-pulse/">
+            <svg viewBox="0 0 24 8" aria-hidden="true"><path d="M0 4h23M18 1l5 3-5 3" /></svg>
+            NEXT WING: 04 — PULSE
+          </a>
+          <a class="back-link u13" href="/">
+            <svg viewBox="0 0 24 8" aria-hidden="true"><path d="M24 4H1M6 1 1 4l5 3" /></svg>
+            BACK TO THE HUB
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- The Gift Shop (<1200px) -->
+    <div class="giftshop">
+      <p class="u13 dim">MUSEUM NOTICE</p>
+      <h2 class="display-94">
+        THE
+        <div class="hairline"></div>
+        MONUMENT
+        <div class="hairline"></div>
+        DOES NOT
+        <div class="hairline"></div>
+        TRAVEL
+      </h2>
+      <p class="u13">
+        THIS HALL IS HUNG AT ARCHITECTURAL SCALE — 1200 PIXELS OF IT, MINIMUM. UNTIL THEN: A POSTCARD FROM THE
+        GIFT SHOP.
+      </p>
+      <div class="postcard" id="postcard">
+        <canvas id="postcard-canvas" width="256" height="362" role="img" aria-label="Exhibit of the day, seeded poster"></canvas>
+      </div>
+      <p class="u13 dim" id="postcard-caption">EXHIBIT —</p>
+    </div>
+
+    <script type="module" src="/src/worlds/03-monument/main.ts"></script>
+  </body>
+</html>

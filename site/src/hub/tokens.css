@@ -1,0 +1,57 @@
+/* Hub identity tokens — v2, rebuilt against the MEASURED units.gr anatomy.
+   Fundamentals of the pole: cream paper, saturated toy-box solids with BLACK text,
+   two radius scales (big cards ~32px, nav chips ~10px, pills 999px),
+   white text exists ONLY on the hero media card, sentence case everywhere.
+   Gate hues are ours: each hints at its world while staying in one toy-box family. */
+:root {
+  --paper: #f4ebe0;
+  --ink: #0e0d0b;
+  --ink-soft: rgb(14 13 11 / 60%);
+  --cream-text: #fff7ec; /* hero-only */
+
+  --mint: #62e6c8; /* 00 Lab — the archive's own phosphor, kept as it was */
+  --cobalt: #0072e3; /* 01 Noir — midnight cobalt */
+  --vermilion: #ff4c24; /* 02 Chrome — heat on metal */
+  --violet: #ab54f7; /* 03 Monument — gallery violet */
+  --red: #e5262c; /* 04 Pulse — its native red */
+  --amber: #ffb200; /* the utility card + marquee items */
+  --band: #ea3737; /* marquee band ground */
+
+  /* world aliases (specimen + shared references) */
+  --gate-noir: var(--cobalt);
+  --gate-noir-text: var(--ink);
+  --gate-chrome: var(--vermilion);
+  --gate-chrome-text: var(--ink);
+  --gate-chrome-accent: var(--ink);
+  --gate-monument: var(--violet);
+  --gate-monument-text: var(--ink);
+  --gate-pulse: var(--red);
+  --gate-pulse-text: var(--ink);
+
+  --font-display: 'Cabinet Grotesk';
+  --font-text: 'General Sans';
+
+  --r-card: 32px;
+  --r-chip: 10px;
+  --r-pill: 999px;
+
+  --rail-w: 9.25rem; /* 148px — the reference rail is a narrow 142px strip */
+  --gap: 1.25rem;
+}
+
+/* Night: page and card turn as one object, centered on the sweep midpoint.
+   Toy-box chips keep their hues — only paper and ink flip. */
+:root[data-theme='night'] {
+  --paper: #171310;
+  --ink: #f4e9e1;
+  --ink-soft: rgb(244 233 225 / 60%);
+}
+
+html {
+  background: var(--paper);
+  transition: background-color 800ms cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+body {
+  transition: background-color 800ms cubic-bezier(0.45, 0, 0.55, 1), color 800ms cubic-bezier(0.45, 0, 0.55, 1);
+}

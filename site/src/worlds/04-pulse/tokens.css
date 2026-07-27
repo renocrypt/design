@@ -1,0 +1,41 @@
+/* World 04 — Pulse tokens. ONE family by weight alone; the poster is the
+   curtain; day red / night plum; the hub's 800ms flip curve. */
+:root {
+  --poster: #e5262c;
+  --hall: #4b4a53;
+  --cta-fill: #ffffff;
+  --cta-text: #e5262c;
+  --tag-cord: #302c35;
+  --flip: 800ms cubic-bezier(0.45, 0, 0.55, 1);
+  --red: #e5262c;
+  --red-svg: #e5272c;
+  --pink: #fdd2d2;
+  --pink-soft: #f9cfd1;
+  --plum: #3d3c47;
+  --plum-deep: #302c35;
+  --green: #00b870; /* exactly one moment in the whole world */
+}
+
+:root[data-theme='night'] {
+  --poster: #3d3c47;
+  --hall: #302c35;
+  --cta-fill: #e5262c;
+  --cta-text: #ffffff;
+  --tag-cord: #fdd2d2;
+}
+
+html,
+body {
+  background: var(--hall);
+  transition: background-color var(--flip);
+}
+
+#poster {
+  background: var(--poster);
+  transition: background-color var(--flip);
+}
+
+.tag-cord {
+  fill: var(--tag-cord);
+  transition: fill var(--flip);
+}

@@ -1,0 +1,112 @@
+/* Hidden working page: the hub's font audition. Not linked from the hub. */
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text), system-ui, sans-serif;
+}
+
+.specimen {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 3rem clamp(1rem, 4vw, 3rem) 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.head h1 {
+  font-family: var(--font-display), sans-serif;
+  font-size: 2rem;
+  font-weight: 620;
+}
+
+.head p {
+  margin-top: 0.6rem;
+  max-width: 42rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.cand {
+  border-top: 1px solid rgb(27 24 19 / 14%);
+  padding-top: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cand-label {
+  font-size: 0.8rem;
+  font-weight: 550;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.cand-hero {
+  font-family: var(--f), sans-serif;
+  font-size: clamp(2.4rem, 6.5vw, 5rem);
+  font-weight: 620;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.cand-gates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.cand-gates span {
+  font-family: var(--f), sans-serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius);
+  background: var(--gate-noir);
+  color: var(--gate-noir-text);
+}
+
+.cand-gates span:nth-child(2) {
+  background: var(--gate-chrome);
+  color: var(--gate-chrome-text);
+}
+
+.cand-gates span:nth-child(3) {
+  background: var(--gate-monument);
+  color: var(--gate-monument-text);
+  outline: 1px solid rgb(27 24 19 / 12%);
+  outline-offset: -1px;
+}
+
+.cand-gates span:nth-child(4) {
+  background: var(--gate-pulse);
+  color: var(--gate-pulse-text);
+}
+
+.cand-note {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+
+.text-block {
+  border-top: 1px solid rgb(27 24 19 / 14%);
+  padding-top: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.text-sample {
+  max-width: 46rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.back {
+  font-size: 0.85rem;
+  text-decoration: none;
+  color: var(--ink-soft);
+}

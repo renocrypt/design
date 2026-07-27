@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>04 — Pulse · what happens when you press a button?</title>
+    <meta name="description" content="One click's life told in five stations. No scrolling in here. Just press." />
+    <script>
+      // Blocking pre-paint theme — this world never flashes white.
+      document.documentElement.dataset.theme =
+        localStorage.getItem('hub-theme') ??
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day');
+    </script>
+    <link rel="preload" href="/fonts/Outfit-Variable.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body data-state="poster">
+    <h1 class="vh">What happens when you press a button? — world 04 of the design lab</h1>
+    <noscript>
+      <p style="color: #fff; font: 300 18px/1.5 sans-serif; padding: 2rem">
+        This world is a machine — it needs JavaScript to run.
+      </p>
+    </noscript>
+
+    <!-- z0: the machine hall -->
+    <canvas id="hall" aria-hidden="true"></canvas>
+
+    <!-- z5: the 2D diagram journey (rung-3 fallback) -->
+    <div id="diagram" hidden aria-hidden="true">
+      <svg class="dia-line" viewBox="0 0 720 8" preserveAspectRatio="none" aria-hidden="true">
+        <line x1="0" y1="4" x2="720" y2="4" stroke-width="3" stroke-dasharray="10 8" />
+      </svg>
+      <div class="dia-track">
+        <svg class="dia-glyph" data-station="1" viewBox="0 0 96 96">
+          <rect x="18" y="52" width="60" height="26" rx="8" fill="#3d3c47" />
+          <rect x="26" y="30" width="44" height="26" rx="13" fill="#e5262c" />
+          <rect x="40" y="40" width="16" height="6" rx="3" fill="#fff" />
+        </svg>
+        <svg class="dia-glyph" data-station="2" viewBox="0 0 96 96">
+          <path d="M16 78 a32 32 0 0 1 64 0" fill="none" stroke="#e5262c" stroke-width="10" stroke-linecap="round" />
+          <path d="M30 52l8-6 8 6-8 6zM50 40l8-6 8 6-8 6z" fill="#fdd2d2" />
+        </svg>
+        <svg class="dia-glyph" data-station="3" viewBox="0 0 96 96">
+          <path d="M48 16c-8 8 8 12 0 20s8 12 0 20 8 12 0 20" fill="none" stroke="#f9cfd1" stroke-width="9" stroke-linecap="round" />
+          <rect x="24" y="76" width="48" height="8" rx="4" fill="#e5262c" />
+        </svg>
+        <svg class="dia-glyph" data-station="4" viewBox="0 0 96 96">
+          <path d="M24 52 a24 14 0 0 0 48 0" fill="#f9cfd1" />
+          <circle cx="48" cy="44" r="9" fill="#fff" />
+          <circle cx="48" cy="44" r="17" fill="none" stroke="#fff" stroke-width="3" opacity="0.6" />
+          <circle cx="48" cy="44" r="25" fill="none" stroke="#fff" stroke-width="2" opacity="0.35" />
+        </svg>
+        <svg class="dia-glyph" data-station="5" viewBox="0 0 96 96">
+          <rect x="20" y="24" width="56" height="42" rx="6" fill="#3d3c47" />
+          <rect x="26" y="30" width="44" height="30" rx="3" fill="#f9cfd1" />
+          <path d="M32 38h6v6h-6zM44 44h6v6h-6zM56 38h6v6h-6z" fill="#3d3c47" />
+        </svg>
+      </div>
+      <i class="dia-pulse" aria-hidden="true"></i>
+    </div>
+
+    <!-- z10: progress dots -->
+    <nav id="dots" aria-label="Journey progress">
+      <button type="button" data-dot="1" aria-label="Station 1 — PRESS" aria-disabled="true"></button>
+      <button type="button" data-dot="2" aria-label="Station 2 — SIGNAL" aria-disabled="true"></button>
+      <button type="button" data-dot="3" aria-label="Station 3 — SPRING" aria-disabled="true"></button>
+      <button type="button" data-dot="4" aria-label="Station 4 — SETTLE" aria-disabled="true"></button>
+      <button type="button" data-dot="5" aria-label="Station 5 — SHIP" aria-disabled="true"></button>
+    </nav>
+
+    <!-- z15: the poster — also the curtain -->
+    <section id="poster">
+      <div class="poster-copy">
+        <p class="eyebrow w600">THE LAB · WORLD 04 · A GUIDED TOUR</p>
+        <h2 class="poster-h1 w800">
+          <span class="line">WHAT HAPPENS</span>
+          <span class="line line--pink">WHEN YOU PRESS</span>
+          <span class="line">A BUTTON?</span>
+        </h2>
+        <p class="poster-body w300">
+          Follow one click through the machine — five stations, sixty-ish milliseconds, one very small hero. No
+          scrolling in here. Just press.
+        </p>
+        <p class="poster-cta-row">
+          <button class="pill pill--cta w700" id="start-btn" type="button">
+            <span class="pill-label">PRESS THE BUTTON</span>
+          </button>
+        </p>
+        <p class="microcopy w300">That press is Station 01. It already counts.</p>
+      </div>
+    </section>
+
+    <!-- z20: the one reusable dialog card -->
+    <aside id="dialog" aria-live="polite" hidden>
+      <p class="d-eyebrow w600" id="d-eyebrow"></p>
+      <p class="d-title w800" id="d-title"></p>
+      <p class="d-body w300" id="d-body"></p>
+      <p class="d-cta-row">
+        <button class="pill pill--next w700" id="next-btn" type="button">
+          <span class="pill-label" id="d-next"></span>
+        </button>
+      </p>
+    </aside>
+
+    <!-- z25: the finale overlay -->
+    <section id="finale" hidden>
+      <div class="finale-copy">
+        <svg class="stamp" viewBox="0 0 96 96" aria-hidden="true">
+          <circle class="stamp-circle" cx="48" cy="48" r="40" fill="none" stroke="#00b870" stroke-width="8" stroke-linecap="round" />
+          <path class="stamp-check" d="M30 49l13 13 24-28" fill="none" stroke="#00b870" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <p class="eyebrow w600">TOUR COMPLETE</p>
+        <h2 class="poster-h1 w800">
+          <span class="line">THAT WAS</span>
+          <span class="line line--pink">ONE CLICK.</span>
+        </h2>
+        <p class="poster-body w300">Every tap you make today takes this exact trip. Now you know what you're asking for.</p>
+        <p class="poster-cta-row finale-pills">
+          <button class="pill pill--cta w700" id="again-btn" type="button">
+            <span class="pill-label">RUN IT AGAIN</span>
+          </button>
+          <a class="pill pill--ghost w700" href="/">
+            <span class="pill-label">BACK TO THE LAB</span>
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <!-- z30: furniture — toggle, roundel, tag, exit link -->
+    <div id="furniture">
+      <button id="theme-toggle" type="button" aria-label="Switch between day and night">
+        <svg viewBox="0 0 40 40" aria-hidden="true">
+          <defs>
+            <mask id="moon-mask">
+              <rect width="40" height="40" fill="#fff" />
+              <circle class="moon-bite" cx="26" cy="14" r="9" fill="#000" />
+            </mask>
+          </defs>
+          <g class="tg-sun">
+            <circle cx="20" cy="20" r="6" fill="#3d3c47" />
+            <g fill="#3d3c47">
+              <rect x="18.5" y="6" width="3" height="6" rx="1.5" />
+              <rect x="18.5" y="28" width="3" height="6" rx="1.5" />
+              <rect x="6" y="18.5" width="6" height="3" rx="1.5" />
+              <rect x="28" y="18.5" width="6" height="3" rx="1.5" />
+              <rect x="10.2" y="10.2" width="3" height="6" rx="1.5" transform="rotate(-45 11.7 13.2)" />
+              <rect x="26.8" y="23.8" width="3" height="6" rx="1.5" transform="rotate(-45 28.3 26.8)" />
+              <rect x="10.2" y="23.8" width="3" height="6" rx="1.5" transform="rotate(45 11.7 26.8)" />
+              <rect x="26.8" y="10.2" width="3" height="6" rx="1.5" transform="rotate(45 28.3 13.2)" />
+            </g>
+          </g>
+          <circle class="tg-moon" cx="20" cy="20" r="6" fill="#3d3c47" mask="url(#moon-mask)" />
+        </svg>
+      </button>
+
+      <button id="roundel" type="button" aria-label="Return to start">
+        <svg viewBox="0 0 149 149" aria-hidden="true">
+          <defs>
+            <path id="ringpath" d="M74.5 16.5 a58 58 0 1 1 -0.01 0" fill="none" />
+          </defs>
+          <circle cx="74.5" cy="74.5" r="74.5" fill="#e5272c" />
+          <circle cx="74.5" cy="74.5" r="70" fill="none" stroke="#fff" stroke-width="2" />
+          <g class="roundel-ring">
+            <text class="w700" fill="#fff" font-size="12" letter-spacing="2">
+              <textPath href="#ringpath" textLength="364" lengthAdjust="spacing">
+                PRESS · SIGNAL · SPRING · SETTLE · SHIP ·
+              </textPath>
+            </text>
+          </g>
+          <g class="roundel-center">
+            <rect x="52.5" y="74" width="44" height="20" rx="10" fill="#fff" />
+            <g class="roundel-arrow" fill="#fdd2d2">
+              <rect x="71" y="38" width="7" height="14" rx="3.5" />
+              <path d="M63.5 52h22L74.5 66z" stroke="#fdd2d2" stroke-width="4" stroke-linejoin="round" />
+            </g>
+          </g>
+        </svg>
+      </button>
+
+      <div id="hangtag" aria-hidden="true">
+        <svg viewBox="0 0 200 300">
+          <defs>
+            <linearGradient id="tagfill" x1="0" y1="1" x2="0" y2="0">
+              <stop class="tag-stop-a" offset="6.15%" stop-color="#e5272c" />
+              <stop class="tag-stop-b" offset="6.17%" stop-color="#fff" />
+            </linearGradient>
+          </defs>
+          <rect class="tag-cord" x="97" y="0" width="6" height="40" rx="3" />
+          <rect class="tag-cord" x="92" y="36" width="16" height="10" rx="4" />
+          <rect x="36" y="52" width="128" height="168" rx="26" fill="#fdd2d2" />
+          <circle cx="100" cy="76" r="8" fill="#3d3c47" />
+          <circle cx="100" cy="76" r="4.5" fill="#fdd2d2" />
+          <rect x="56" y="96" width="88" height="88" rx="20" fill="url(#tagfill)" />
+          <ellipse cx="100" cy="192" rx="32" ry="5" fill="#f3c1c3" />
+          <text class="w800" x="100" y="222" text-anchor="middle" font-size="13" letter-spacing="1.5" fill="#3d3c47">ONE CLICK</text>
+        </svg>
+      </div>
+
+      <a id="exit-link" class="w700" href="/">← BACK TO THE LAB</a>
+    </div>
+
+    <script type="module" src="/src/worlds/04-pulse/main.ts"></script>
+  </body>
+</html>

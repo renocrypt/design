@@ -1,0 +1,25 @@
+/* World 03 — Monument tokens. The binary: void/ink, one 0.2-alpha hairline,
+   ONE face (League Gothic), the 94/13 scale with a single 180px exception. */
+:root {
+  --void: #ffffff;
+  --ink: #000000;
+  --hairline: rgb(0 0 0 / 20%);
+  --dim: rgb(0 0 0 / 20%);
+  --curtain: #000000;
+  --curtain-ink: #ffffff;
+  --font: 'League Gothic', 'Arial Narrow', sans-serif;
+  --css-micro: 0.3s cubic-bezier(0.16, 1, 0.3, 1); /* color/filter/opacity only */
+}
+
+:root[data-theme='night'] {
+  --void: #000000;
+  --ink: #ffffff;
+  --hairline: rgb(255 255 255 / 20%);
+  --dim: rgb(255 255 255 / 20%);
+  --curtain: #ffffff;
+  --curtain-ink: #000000;
+}
+
+html {
+  background: var(--void);
+}

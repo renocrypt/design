@@ -1,33 +1,48 @@
-# RenoCrypt — Design Lab
+# design — the RenoCrypt design lab
 
-The UI/UX design surface for the RenoCrypt org. Everything here is raw material
-for the publication: tokens, assets, reference studies, and rendered direction
-prototypes. Directions are judged rendered, not described.
+Live at **[design.renocrypt.com](https://design.renocrypt.com/)**.
 
-## Structure
+One entrance opening into self-contained worlds, each built around a single hard visual idea and finished to the same bar.
+3D/WebGL is the focus; there is no backend.
 
-- `tokens/` — the brand's atomic layer: color, type, motion (CSS + notes)
-- `assets/fonts/` — verified self-hosted woff2 (all OFL/FFL)
-- `assets/imagery/` — verified free imagery + a contact sheet (every image in
-  this pool has been visually inspected — never wire an unverified URL)
-- `references/` — study notes from award-site research (what winners actually do)
-- root — the flat direction set: `index.html` is the picker, `r*.html` are
-  the studies, `switcher.js` links them all. Preview:
-  `python3 -m http.server 8642` in this folder → http://127.0.0.1:8642/
+## What's here
 
-## Workflow
+| Route | What it is |
+| --- | --- |
+| `/` | The entrance hub — warm paper, toy-box doors, a live Three.js relief hero with a day/night solstice |
+| `/worlds/01-noir/` | Dark cinema — charcoal and bone, light as the only colour |
+| `/worlds/02-chrome/` | Liquid editorial — chrome rendered live, not baked |
+| `/worlds/03-monument/` | White room — one colossal condensed face as architecture |
+| `/worlds/04-pulse/` | Guided journey — a five-station click-through, no scrolling |
+| `/lab/` | The archive — four single-file WebGL studies from 2026-07, kept exactly as authored |
+| `/type/` | Type specimen for the cast faces |
 
-1. Study references (visually — screenshots, not summaries).
-2. Build direction studies as single-file HTML at the repo root — CDN
-   libraries welcome (Three.js, GSAP, KaTeX); performance is the only rule.
-   Every page must include the switcher: `<script src="/switcher.js"></script>`
-   (update the items list when adding a direction).
-3. Preview locally, screenshot desktop + mobile, critique against references.
-4. Winner gets ported into the target site (renocrypt.com etc.) with
-   self-hosted fonts/images.
+## Layout
 
-## Brand frame
+```
+docs/          the north star: concept, inspiration, asset rules, per-world build specs
+research/      dated findings per reference site (NOTES.md); screenshots stay local
+site/          the build — one Vite app (TS + Three.js + GSAP), static output
+  index.html     the hub
+  worlds/<id>/   one HTML entry per world lane
+  src/worlds/registry.ts   the lane registry — single source of truth
+  public/lab/    the archive, copied verbatim (its own CDN-era stack, untouched)
+  tools/         build plugins and font converters
+```
 
-RenoCrypt is Matrix Alchemy: long-form technical writing on ML, systems, and
-security. Voice: authority, precision. Design values: clean typography, fast
-pages, math and code as first-class citizens.
+## Running it
+
+```sh
+cd site
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # static output in site/dist
+```
+
+## How it grows
+
+Every destination the hub opens — a world we build, a static archive, an external URL — is one row in `site/src/worlds/registry.ts`.
+The build inputs, the rail doors, the mobile menu and the room cards all generate from that array.
+The full checklist for adding one is in `docs/CONCEPT.md` § Adding a lane.
+
+Deploys run on push to `main`: GitHub Actions builds `site/` and publishes `site/dist` to Pages.

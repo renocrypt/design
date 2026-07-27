@@ -1,0 +1,482 @@
+/* World 03 — Monument. Grid law: 10px page margin, 10px gaps, 12 columns;
+   all fixed chrome at 10px insets; caption band anchored at top: 226px.
+   ONE face at ONE weight; GSAP owns every transform; CSS transitions are
+   color/filter/opacity only (cubic-bezier(0.16,1,0.3,1) 0.3s, the measured twin). */
+
+@font-face {
+  font-family: 'League Gothic';
+  src: url('/fonts/LeagueGothic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block; /* one-face world: the honest preloader covers the wait */
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden; /* virtual scroll is hand-rolled — no native scrollbar */
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── Type roles (the binary scale + the one 180px exception) ── */
+
+.u13 {
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.dim {
+  color: var(--dim);
+}
+
+.display-94 {
+  margin: 0;
+  font-size: 94px;
+  line-height: 1.05; /* League Gothic hhea line = 1.2em, cap 0.735em — the pole's
+                          0.9 collides in this face; the slice grammar is unaffected */
+  letter-spacing: -0.055em;
+}
+
+.hero-line {
+  display: block;
+  font-size: 180px;
+  line-height: 1.05; /* same honest deviation, metrics cited */
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+}
+
+/* ── The strip: one translating DOM column of 9 viewports ── */
+
+.strip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  will-change: transform;
+}
+
+.vp {
+  position: relative;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.vp--hero { height: 100dvh; }
+.vp--hall { height: 600dvh; pointer-events: none; }
+.vp--index,
+.vp--colophon {
+  background: var(--void);
+}
+
+.vp--index { height: 200dvh; } /* 32 rows at 34px don't fit one viewport */
+.vp--colophon { height: 100dvh; }
+
+/* ── Hero: the monument itself ── */
+
+.vp--hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-stack {
+  width: 100%;
+  text-align: center;
+}
+
+.hairline {
+  height: 1px;
+  background: var(--hairline);
+  transform-origin: left;
+}
+
+.hero-stack .hairline + .hero-line,
+.hero-stack .hero-line + .hairline {
+  margin-top: -7px; /* the rules slice THROUGH the letterforms — verbatim */
+}
+
+.hero-util {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 18px;
+}
+
+/* ── Fixed corner chrome (10px insets, 13px caps) ── */
+
+.corner {
+  position: fixed;
+  z-index: 3;
+}
+
+.corner--tl { top: 10px; left: 10px; }
+.corner--tr { top: 10px; right: 10px; }
+.corner--bl { bottom: 10px; left: 10px; }
+.corner--br { bottom: 10px; right: 10px; }
+
+.toggle {
+  display: flex;
+  gap: 0.5em;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.toggle .t-word {
+  color: var(--dim);
+  transition: color var(--css-micro);
+}
+
+.toggle .t-word.is-active {
+  color: var(--ink);
+}
+
+.toggle .t-word:not(.is-active):hover {
+  color: color-mix(in srgb, var(--ink) 60%, transparent);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.back-link svg {
+  width: 24px;
+  height: 8px;
+}
+
+.back-link path {
+  stroke: currentColor;
+  stroke-width: 1;
+  fill: none;
+}
+
+/* ── Hall captions ── */
+
+.caption {
+  position: fixed;
+  top: 226px; /* the measured anchor */
+  left: 10px;
+  z-index: 2;
+  transition: opacity var(--css-micro); /* GSAP never touches this element */
+}
+
+.flabel {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  white-space: nowrap;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+/* ── The Index ── */
+
+.vp--index {
+  display: flex;
+  flex-direction: column;
+  padding-top: 8vh;
+}
+
+.index-head {
+  position: relative;
+}
+
+.index-head .hairline {
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  top: 0.42em;
+  z-index: 1;
+}
+
+.index-head .display-94 {
+  position: relative;
+  z-index: 2;
+}
+
+.index-table {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0 10px;
+  margin-top: 3vh;
+}
+
+.irow {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  height: 34px;
+  border-top: 1px solid var(--hairline);
+  color: var(--dim);
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+.irow > * {
+  transition: color var(--css-micro);
+}
+
+.irow:hover > * {
+  color: var(--ink);
+}
+
+.irow .c-no { grid-column: 1; }
+.irow .c-seed { grid-column: 2 / 5; }
+.irow .c-pal { grid-column: 5 / 8; color: var(--ink); }
+.irow .c-seat { grid-column: 8 / 11; }
+.irow .c-view {
+  grid-column: 11 / 13;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* ── Colophon ── */
+
+.vp--colophon {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0 10px;
+  padding-top: 10vh;
+}
+
+.vp--colophon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10px;
+  right: 10px;
+  height: 1px;
+  background: var(--hairline);
+}
+
+.colophon-label {
+  grid-column: 1 / 7;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+.colophon-label p {
+  margin: 0;
+  padding-block: 10px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.colophon-links {
+  grid-column: 7 / 13;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 14px;
+  padding-bottom: 10vh;
+}
+
+/* ── Rung-2: the DOM strip of the same 32 posters ── */
+
+.rung2 {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  background: var(--void);
+}
+
+.rung2-track {
+  display: flex;
+  gap: 10px;
+  padding: 0 10px;
+  overflow-x: auto;
+  width: 100%;
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+
+.rung2-track canvas {
+  width: 180px;
+  height: auto;
+  flex: none;
+  filter: grayscale(1);
+  transition: filter var(--css-micro);
+}
+
+.rung2-track canvas:hover {
+  filter: grayscale(0); /* the color reveal, rung-2 register */
+}
+
+/* ── Rung-3: the empty plinth (zero-JS honesty) ── */
+
+.plinth {
+  position: fixed;
+  inset: 10px;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hairline);
+  text-align: center;
+  padding: 2rem;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+/* ── Preloader: two curtains, the 52.5% line, an honest counter ── */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.pre-curtain {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50.5%;
+  background: var(--curtain);
+}
+
+.pre-curtain--top { top: 0; }
+.pre-curtain--bottom { bottom: 0; }
+
+.pre-line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52.5%;
+  height: 1px;
+  background: var(--curtain-ink);
+  transform: translateX(-50%);
+}
+
+.pre-count {
+  position: absolute;
+  top: calc(50% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--curtain-ink);
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+/* ── Blackout curtains (the theme flip) ── */
+
+.bo-curtain {
+  position: fixed;
+  left: 0;
+  z-index: 9;
+  width: 100%;
+  height: 50.5%;
+  background: var(--curtain);
+  pointer-events: none;
+}
+
+.bo-curtain--top { top: 0; transform: translateY(-101%); }
+.bo-curtain--bottom { bottom: 0; transform: translateY(101%); }
+
+/* ── WebGL holder ── */
+
+#gl-holder,
+#gl-holder canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#gl-holder canvas {
+  display: block;
+  pointer-events: none;
+}
+
+/* ── The Gift Shop (<1200px) ── */
+
+.giftshop {
+  display: none;
+}
+
+@media (max-width: 1199px) {
+  html,
+  body {
+    overflow: auto; /* the postcard page scrolls natively */
+  }
+
+  .strip,
+  .corner--bl,
+  .caption,
+  .flabel,
+  #gl-holder,
+  .rung2,
+  .plinth {
+    display: none;
+  }
+
+  .giftshop {
+    display: flex;
+    flex-direction: column;
+    gap: 2.2rem;
+    min-height: 100dvh;
+    padding: 72px 10px 10vh;
+  }
+
+  .giftshop .display-94 {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .giftshop .display-94 .hairline {
+    margin-top: -7px;
+  }
+
+  .postcard {
+    align-self: center;
+    padding: 10px;
+    border: 1px solid var(--hairline);
+  }
+
+  .postcard canvas {
+    display: block;
+    width: 256px;
+    height: auto;
+  }
+}

@@ -1,0 +1,577 @@
+/* World 04 — Pulse. Zero scroll: the page itself is the button.
+   Weight map is law: 800 titles · 700 buttons · 600 eyebrows · 300 body.
+   400/500 never appear. All sizes px; exactly two breakpoints (960/800).
+   GSAP owns every element transform; the ONLY CSS-animated transforms are
+   the roundel ring rotation, the roundel finger press, and pill ::before. */
+
+@font-face {
+  font-family: 'Outfit';
+  src: url('/fonts/Outfit-Variable.woff2') format('woff2');
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden; /* this world never scrolls */
+  color: #fff;
+  font-family: 'Outfit', system-ui, sans-serif;
+  text-transform: uppercase;
+}
+
+.w800 { font-weight: 800; }
+.w700 { font-weight: 700; }
+.w600 { font-weight: 600; }
+.w300 { font-weight: 300; }
+
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── z layers: hall 0 · diagram 5 · dots 10 · poster 15 · dialog 20 · finale 25 · furniture 30 ── */
+
+#hall {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── The poster / curtain ── */
+
+#poster {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  overflow: hidden;
+}
+
+/* The wave strip rides the curtain's top edge — red in BOTH themes. */
+#poster::after {
+  content: '';
+  position: absolute;
+  top: -127px;
+  left: 0;
+  width: 100%;
+  height: 128px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='128' viewBox='0 0 512 128'%3E%3Cpath d='M0,128 L0,64 C42,26 86,26 128,64 S214,102 256,64 S342,26 384,64 S470,102 512,64 L512,128 Z' fill='%23e5272c'/%3E%3C/svg%3E") repeat-x;
+}
+
+.poster-copy,
+.finale-copy {
+  position: absolute;
+  left: 96px;
+  top: 50%;
+  transform: translateY(-50%); /* static CSS — GSAP animates children only */
+  /* no max-width: the 96px lines must hold on ONE row each ("WHEN YOU PRESS"
+     ≈ 720px) — the body copy carries its own 380px cap */
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 3.5px;
+  color: #fff;
+}
+
+.poster-h1 {
+  margin: 24px 0 0;
+  font-size: 96px;
+  line-height: 0.9;
+  letter-spacing: -5px;
+}
+
+.poster-h1 .line {
+  display: block;
+  color: #fff;
+}
+
+.poster-h1 .line--pink {
+  color: var(--pink);
+}
+
+.poster-body {
+  margin: 32px 0 0;
+  max-width: 380px;
+  font-size: 18px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #fff;
+}
+
+.poster-cta-row {
+  margin: 48px 0 0;
+  display: flex;
+  gap: 16px;
+}
+
+.microcopy {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: rgb(255 255 255 / 70%);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Pills: ::before scales, never the element ── */
+
+.pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  padding: 0 32px;
+  border: 0;
+  border-radius: 44px;
+  background: transparent;
+  color: var(--cta-text);
+  font-size: 16px;
+  letter-spacing: 1.4px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 44px;
+  background: var(--cta-fill);
+  transition:
+    transform 200ms ease-out,
+    background-color var(--flip);
+  transform-origin: center;
+}
+
+.pill:hover::before {
+  transform: scale(1.05);
+}
+
+.pill:active::before {
+  transform: scale(0.97);
+  transition-duration: 60ms;
+}
+
+.pill-label {
+  position: relative;
+  z-index: 1;
+}
+
+.pill--cta {
+  height: 64px; /* the measured poster size */
+}
+
+#dialog .pill--next,
+#finale .pill {
+  height: 54px;
+}
+
+.pill--ghost {
+  color: #fff;
+}
+
+.pill--ghost::before {
+  background: transparent;
+  border: 2px solid rgb(255 255 255 / 40%);
+  transition:
+    border-color 200ms ease-out,
+    transform 200ms ease-out;
+}
+
+.pill--ghost:hover::before {
+  border-color: #fff;
+  transform: none;
+}
+
+/* ── The dialog card (the constant white card) ── */
+
+#dialog {
+  position: fixed;
+  left: 48px;
+  bottom: 48px;
+  z-index: 20;
+  width: 420px;
+  padding: 32px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 48px rgb(48 44 53 / 35%);
+  color: var(--plum);
+}
+
+.d-eyebrow {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 3.5px;
+  color: var(--red);
+}
+
+.d-title {
+  margin: 12px 0 0;
+  font-size: 32px;
+  line-height: 0.95;
+  letter-spacing: -1px;
+  color: var(--plum);
+}
+
+.d-body {
+  margin: 16px 0 0;
+  font-size: 17px;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--plum);
+}
+
+.d-cta-row {
+  margin: 24px 0 0;
+}
+
+#dialog .pill--next {
+  color: #fff;
+}
+
+#dialog .pill--next::before {
+  background: var(--red);
+}
+
+/* ── Progress dots ── */
+
+#dots {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 12px;
+}
+
+#dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(253 210 210 / 40%);
+  cursor: default;
+}
+
+#dots button.is-visited {
+  background: var(--pink);
+  cursor: pointer;
+}
+
+#dots button.is-active {
+  background: #fff;
+}
+
+/* ── Finale ── */
+
+#finale {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+}
+
+.stamp {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 24px;
+}
+
+/* ── Furniture ── */
+
+#furniture {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+#furniture > * {
+  pointer-events: auto;
+}
+
+#theme-toggle {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+#theme-toggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid var(--plum);
+  transition:
+    border-color var(--flip),
+    transform 150ms ease-out;
+}
+
+:root[data-theme='night'] #theme-toggle::before {
+  border-color: rgb(255 255 255 / 20%);
+}
+
+#theme-toggle:active::before {
+  transform: scale(0.86);
+}
+
+#theme-toggle svg {
+  position: absolute;
+  inset: 7px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+#theme-toggle .tg-moon {
+  transform-origin: center;
+}
+
+:root[data-theme='night'] #theme-toggle .tg-sun {
+  opacity: 0;
+}
+
+#roundel {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 149px;
+  height: 149px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+#roundel svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* CSS owns this transform exclusively — GSAP never touches the ring. */
+.roundel-ring {
+  transform-origin: 74.5px 74.5px;
+  animation: roundel-spin 8s linear infinite;
+}
+
+@keyframes roundel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.roundel-arrow {
+  animation: finger-press 4s ease-in-out infinite;
+}
+
+@keyframes finger-press {
+  0%,
+  78%,
+  100% {
+    transform: translateY(0);
+  }
+  84% {
+    transform: translateY(3px);
+  }
+  92% {
+    transform: translateY(0);
+  }
+}
+
+#hangtag {
+  position: absolute;
+  top: 0;
+  left: 62%;
+  width: 168px;
+}
+
+#hangtag svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+#exit-link {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 20px;
+  border: 2px solid rgb(255 255 255 / 40%);
+  border-radius: 44px;
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: 1.4px;
+  text-decoration: none;
+  transition: border-color 200ms ease-out;
+}
+
+#exit-link:hover {
+  border-color: #fff;
+}
+
+/* mid-journey the tour is immersive — exits are Esc and the roundel */
+body:not([data-state='poster']):not([data-state='finale']) #exit-link {
+  display: none;
+}
+
+/* ── The diagram journey (rung-3) ── */
+
+#diagram {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dia-line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(720px, 86vw);
+  transform: translate(-50%, -50%);
+}
+
+.dia-line line {
+  stroke: var(--plum);
+}
+
+:root[data-theme='night'] .dia-line line {
+  stroke: var(--pink);
+}
+
+.dia-track {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  width: min(720px, 86vw);
+}
+
+.dia-glyph {
+  width: 96px;
+  height: 96px;
+  flex: none;
+}
+
+.dia-pulse {
+  position: absolute;
+  top: 0;
+  left: 0; /* transforms are container coords, not flow offsets */
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 18px 4px rgb(253 210 210 / 55%);
+}
+
+/* ── Focus rings (pink, 3px, offset 3) ── */
+
+.pill:focus-visible,
+#dots button:focus-visible,
+#roundel:focus-visible,
+#theme-toggle:focus-visible,
+#exit-link:focus-visible {
+  outline: 3px solid var(--pink);
+  outline-offset: 3px;
+}
+
+/* ── Breakpoints (exactly two) ── */
+
+@media (max-width: 960px) {
+  .poster-copy,
+  .finale-copy {
+    left: 64px;
+  }
+
+  .poster-h1 {
+    font-size: 72px;
+    letter-spacing: -3.5px;
+  }
+
+  .d-title {
+    font-size: 28px;
+  }
+
+  #hangtag {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .poster-copy,
+  .finale-copy {
+    left: 24px;
+    right: 24px;
+  }
+
+  .poster-h1 {
+    font-size: 56px;
+    letter-spacing: -2.5px;
+  }
+
+  .poster-body {
+    font-size: 16px;
+  }
+
+  #dialog {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: auto;
+  }
+
+  #dots {
+    top: 20px;
+    bottom: auto;
+  }
+
+  #roundel {
+    width: 96px;
+    height: 96px;
+  }
+
+  .dia-track {
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .dia-line {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roundel-ring,
+  .roundel-arrow {
+    animation: none;
+  }
+}

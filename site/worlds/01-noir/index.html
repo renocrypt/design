@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>01 — Noir</title>
+    <meta name="description" content="A night drive through WebGL — light is the only color." />
+    <link rel="preload" href="/fonts/GeneralSans-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/SometypeMono-Variable.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <div class="scene" aria-hidden="true"></div>
+
+    <header class="chrome">
+      <p class="chip chip--label">[ 01 — noir ]</p>
+      <a class="chip chip--link" href="/" data-roll>
+        <span class="roll">
+          <span class="roll-a">Back to hub</span>
+          <span class="roll-b" aria-hidden="true">Back to hub</span>
+        </span>
+      </a>
+    </header>
+
+    <main class="stage">
+      <h1 class="statement">
+        <span class="line"><span class="word">The</span> <span class="word">lights</span></span>
+        <span class="line"><span class="word">stay</span> <span class="word">low.</span></span>
+      </h1>
+      <p class="sub">A night drive, rendered live. Two colors — and whatever the headlights say.</p>
+    </main>
+
+    <footer class="chrome chrome--bottom">
+      <p class="chip chip--label">[ charcoal &amp; bone ]</p>
+      <p class="chip chip--label">[ world under construction ]</p>
+    </footer>
+
+    <script type="module" src="/src/worlds/01-noir/main.ts"></script>
+  </body>
+</html>

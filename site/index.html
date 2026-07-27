@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Worlds — a design sketchbook</title>
+    <meta name="description" content="One entrance, four worlds and an archive. Each its own vibe, all the same bar." />
+    <link rel="preload" href="/fonts/CabinetGrotesk-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/GeneralSans-Variable.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <!-- Preloader: five toy shapes stamp in, the mark rises, the panel wipes.
+         Skipped on repeat visits (sessionStorage) and for reduced-motion. -->
+    <div class="preloader" aria-hidden="true">
+      <div class="pre-shapes">
+        <svg viewBox="0 0 200 120">
+          <circle class="pre-shape" cx="34" cy="46" r="26" fill="#ffb200" />
+          <rect class="pre-shape" x="66" y="72" width="52" height="20" rx="10" fill="#0072e3" transform="rotate(-4 92 82)" />
+          <path class="pre-shape" d="M120 108 a24 24 0 0 1 48 0 l-10 0 a14 14 0 0 0 -28 0 z" fill="#ff4c24" />
+          <path class="pre-shape" d="M76 34 m-14 0 a14 14 0 1 0 28 0 a14 14 0 1 0 -28 0 M76 34 m-6 0 a6 6 0 1 1 12 0 a6 6 0 1 1 -12 0" fill="#ab54f7" fill-rule="evenodd" />
+          <circle class="pre-shape" cx="178" cy="92" r="11" fill="#e5262c" />
+        </svg>
+      </div>
+      <p class="pre-mark">worlds<span>.</span></p>
+    </div>
+
+    <!-- Mobile top bar (≤760px): logo + menu button; the rail hides. -->
+    <header class="topbar">
+      <a class="rail-mark" href="/">worlds<span class="rail-mark-dot">.</span></a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu">
+        <svg class="ico-burger" viewBox="0 0 18 12" aria-hidden="true">
+          <path class="mb-line" d="M1 1.5h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+          <path class="mb-line" d="M1 6h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+          <path class="mb-line" d="M1 10.5h10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+        </svg>
+        <svg class="ico-x" viewBox="0 0 14 14" aria-hidden="true">
+          <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+        </svg>
+      </button>
+    </header>
+
+    <!-- Mobile menu: the toy box as an overlay — doors full-width, staggered in. -->
+    <div class="menu" id="menu" aria-hidden="true">
+      <nav class="menu-gates" aria-label="Worlds"></nav>
+      <a class="gate gate--util menu-util" href="/type/">
+        <span class="gate-name gate-name--util">Type specimen</span>
+        <span class="gate-arrow" aria-hidden="true">&#8599;</span>
+      </a>
+      <p class="menu-foot">est. 2026 — a design sketchbook</p>
+    </div>
+
+    <div class="hub">
+      <aside class="rail">
+        <a class="rail-mark" href="/">worlds<span class="rail-mark-dot">.</span></a>
+
+        <nav class="gates" aria-label="Worlds"></nav>
+
+        <a class="gate gate--util" href="/type/">
+          <span class="gate-name gate-name--util">Type specimen</span>
+          <span class="gate-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+
+        <p class="rail-foot">est. 2026</p>
+      </aside>
+
+      <main class="stage">
+        <section class="poster">
+          <div class="poster-art" aria-hidden="true">
+            <i class="fb fb-bar"></i>
+            <i class="fb fb-ring"></i>
+            <i class="fb fb-peg"></i>
+          </div>
+          <button class="theme-toggle" type="button" aria-label="Switch between day and night">
+            <span class="theme-knob" aria-hidden="true"></span>
+          </button>
+          <div class="poster-copy">
+            <h1 class="poster-title">
+              <span class="hero-line">Home of the</span>
+              <span class="hero-line">wildly different.</span>
+            </h1>
+            <p class="poster-sub">
+              A personal design lab — four worlds, each built around one hard visual idea, and the
+              archive they grew out of.
+            </p>
+            <a class="poster-cta" href="#worlds">Pick a door <span aria-hidden="true">&#8595;</span></a>
+          </div>
+          <div class="poster-finish" aria-hidden="true"></div>
+        </section>
+        <!-- poster-art hosts the live Three.js sundial (src/hub/sundial/scene.ts);
+             the .fb shapes + ::before/::after are the painted no-WebGL fallback -->
+
+        <section class="manifesto">
+          <div class="man-card">
+            <span class="tag">The lab</span>
+            <h2 class="man-title">Where one idea<br />gets the whole room.</h2>
+            <p class="man-text">
+              Every world commits totally: its own typeface, its own palette, its own physics.
+              No stacked effects, no borrowed colors, no default fonts.
+              The hub only owns the warmth between them.
+            </p>
+            <p class="man-chips">
+              <span class="chip chip--white">measured, not felt</span>
+              <span class="chip chip--hot">drawn, not downloaded</span>
+            </p>
+          </div>
+        </section>
+
+        <div class="band" aria-hidden="true">
+          <div class="ticker-track">
+            <span>01 Noir <i class="tick-bolt"></i> 02 Chrome <i class="tick-dia"></i> 03 Monument <i class="tick-bolt"></i> 04 Pulse <i class="tick-dia"></i> </span
+            ><span>01 Noir <i class="tick-bolt"></i> 02 Chrome <i class="tick-dia"></i> 03 Monument <i class="tick-bolt"></i> 04 Pulse <i class="tick-dia"></i> </span>
+          </div>
+        </div>
+
+        <!-- Cards are rendered from the lane registry (src/worlds/registry.ts):
+             worlds first in a 2×2, then any non-world lane as a wide shelf. -->
+        <section class="rooms" id="worlds" aria-label="World previews"></section>
+
+        <section class="bench">
+          <div class="bench-card bench-card--shelf">
+            <span class="tag">The toy shelf</span>
+            <svg class="shelf-art" viewBox="0 0 480 420" aria-hidden="true">
+              <!-- the five sundial shapes, off-duty: flat fills, no strokes -->
+              <ellipse cx="240" cy="372" rx="170" ry="14" fill="rgb(14 13 11 / 14%)" />
+              <rect x="56" y="330" width="368" height="18" rx="9" fill="#0e0d0b" />
+              <rect x="92" y="352" width="14" height="34" rx="6" fill="#0e0d0b" />
+              <rect x="374" y="352" width="14" height="34" rx="6" fill="#0e0d0b" />
+              <!-- sun disc, cream on amber -->
+              <circle cx="132" cy="238" r="66" fill="#fff7ec" />
+              <!-- stadium bar, cobalt, tilted -->
+              <g transform="rotate(-4 240 316)">
+                <rect x="176" y="296" width="128" height="40" rx="20" fill="#0072e3" />
+              </g>
+              <!-- arch, vermilion -->
+              <path d="M282 330 a62 62 0 0 1 124 0 l-26 0 a36 36 0 0 0 -72 0 z" fill="#ff4c24" />
+              <!-- ring, violet -->
+              <path d="M120 330 m-30 0 a30 30 0 1 0 60 0 a30 30 0 1 0 -60 0 M120 330 m-12 0 a12 12 0 1 1 24 0 a12 12 0 1 1 -24 0" fill="#ab54f7" fill-rule="evenodd" />
+              <!-- peg, red -->
+              <circle cx="412" cy="308" r="22" fill="#e5262c" />
+              <!-- two sparkles -->
+              <path d="M392 178 l5 12 12 5 -12 5 -5 12 -5 -12 -12 -5 12 -5 z" fill="#0e0d0b" />
+              <path d="M70 130 l4 9 9 4 -9 4 -4 9 -4 -9 -9 -4 9 -4 z" fill="#0e0d0b" />
+            </svg>
+            <p class="bench-cap">Five shapes, one wall. The hero upstairs is these, poured in 3D.</p>
+          </div>
+
+          <div class="bench-card bench-card--rules">
+            <span class="tag tag--ink">House rules</span>
+            <ul class="rules">
+              <li>
+                <svg class="rule-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19 10 5h1.6L17 19M6.4 14h8.2M18.5 8.5v6m0 0c0 2-1.5 3-3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <div><h3>Own faces only</h3><p>Every world casts its own type — no reflex defaults.</p></div>
+              </li>
+              <li>
+                <svg class="rule-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3.5 4.4 6 7.8 6 11a6 6 0 1 1 -12 0c0-3.2 2.5-6.6 6-11z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg>
+                <div><h3>Palette is an artifact</h3><p>Derived from material references, never a ramp.</p></div>
+              </li>
+              <li>
+                <svg class="rule-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l3.2-.8L19 7.4a2.1 2.1 0 0 0 -3-3L4.2 16.2 4 20zM13.5 6l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <div><h3>Icons are drawn</h3><p>Hand-made SVG in each world's language — no stock sets.</p></div>
+              </li>
+              <li>
+                <svg class="rule-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12v9m0-9L4 7.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg>
+                <div><h3>Generated beats downloaded</h3><p>Shaders, seeded fields, live 3D — made here.</p></div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bench-card bench-card--sun">
+            <svg class="pix pix--big" data-glyph="sun" viewBox="0 0 100 100" aria-hidden="true"></svg>
+            <p class="bench-cap bench-cap--sun">Same sun, every visit — pixels seeded, not searched.</p>
+          </div>
+        </section>
+
+        <a class="big-cta" href="/worlds/01-noir/">
+          First door — 01 Noir <span aria-hidden="true">&#8599;</span>
+        </a>
+
+        <footer class="foot">
+          <div class="foot-grid" aria-hidden="true">
+            <i class="blk blk--cobalt"></i>
+            <i class="blk blk--vermilion"></i>
+            <i class="blk blk--violet"></i>
+            <i class="blk blk--red"></i>
+            <i class="blk blk--amber"></i>
+            <i class="blk blk--amber2"></i>
+          </div>
+          <p class="foot-logo">worlds<span class="rail-mark-dot">.</span></p>
+          <nav class="foot-pills" aria-label="Footer">
+            <a class="pill-link" href="/type/">Type specimen</a>
+            <a class="pill-link" href="#top">Back to top</a>
+            <span class="pill-link pill-link--static">est. 2026</span>
+          </nav>
+        </footer>
+      </main>
+    </div>
+    <script type="module" src="/src/hub/main.ts"></script>
+  </body>
+</html>

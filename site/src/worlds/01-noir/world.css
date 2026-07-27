@@ -1,0 +1,149 @@
+/* World 01 — Noir. Built to the measured lamalama.com anatomy (research/NOTES.md):
+   two colors + alpha layering, statements 700/uppercase/lh 0.80/−0.02em,
+   mono labels 10px fixed w500 uppercase, radius 4px, 16px viewport insets,
+   floating chrome on black-60% + blur. */
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-Variable.woff2') format('woff2');
+  font-weight: 200 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sometype Mono';
+  src: url('/fonts/SometypeMono-Variable.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  --canvas: #1a1c1c;
+  --bone: #f9f4eb;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--bone);
+  font-family: 'General Sans', system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+}
+
+/* ── Scene canvas fills the viewport ─────────────────── */
+
+.scene {
+  position: fixed;
+  inset: 0;
+  background: var(--canvas); /* a lost WebGL context must never flash white */
+}
+
+.scene canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Floating chrome: 16px insets, 4px radius, alpha ─── */
+
+.chrome {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 2;
+}
+
+.chrome--bottom {
+  top: auto;
+  bottom: 16px;
+}
+
+.chip {
+  padding: 11px 24px 11px 12px;
+  border-radius: 4px;
+  font-family: 'Sometype Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+.chip--label {
+  background: rgb(249 244 235 / 10%);
+  backdrop-filter: blur(24px);
+}
+
+.chip--link {
+  background: rgb(0 0 0 / 60%);
+  backdrop-filter: blur(24px);
+  color: var(--bone);
+  text-decoration: none;
+}
+
+/* Roll-over: two stacked copies, translate swap (the measured pattern). */
+.roll {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.roll-a,
+.roll-b {
+  display: block;
+}
+
+.roll-b {
+  position: absolute;
+  inset: 0;
+  transform: translateY(100%);
+}
+
+/* ── Statement ───────────────────────────────────────── */
+
+.stage {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding: 110px 40px;
+  pointer-events: none;
+}
+
+.statement {
+  font-size: clamp(3.25rem, 1.0625rem + 4.38vw, 5rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+}
+
+.line {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.06em; /* keep descenders inside the clip */
+}
+
+.word {
+  display: inline-block;
+}
+
+.sub {
+  max-width: 30rem;
+  font-size: clamp(1rem, 0.6875rem + 0.63vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.2;
+  opacity: 0.75;
+}
+
+@media (max-width: 700px) {
+  .stage {
+    padding: 90px 20px;
+  }
+}
