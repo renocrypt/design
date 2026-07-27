@@ -17,7 +17,6 @@ Research cost ladder (cheapest first) — pick the lowest rung that answers the 
 | [posts.design](https://posts.design) | Curated wall of brand social posts (292+), each linking to its original source | Card-scale graphic language: type, color, motion trends. Visited 2026-07-26 ✓ |
 | [recent.design](https://recent.design) | Daily-curated multi-category gallery (Web, Interface, Motion, 3D, Typography…) with sub-galleries for Websites, OG Images, App Screenshots, App Icons | Broadest single feed; category filters map to our sketch topics. Visited 2026-07-26 ✓. Note: 403s WebFetch — needs Playwright |
 | [mnmm.xyz](https://mnmm.xyz) ("Minimum") | Hand-curated directory of ~148 minimalist sites, mostly designer/dev portfolios (Rauch, shadcn, Paco Coursey…) | The restrained end of the spectrum; portfolio patterns |
-| noticed.com | **Unresolved** — domain redirects to a name marketplace (atom.com); searches find no gallery by that name. Ask user for the correct domain | — |
 
 ## Reference sites (single-site studies)
 
