@@ -148,7 +148,7 @@ body {
     min-height: 4.6rem;
   }
 
-  .menu .gate--archive {
+  .menu .gate--compact {
     min-height: 0;
     height: 3.6rem;
   }
@@ -241,10 +241,10 @@ body {
 /* Gate hues come from the lane registry (inline style) — see src/worlds/registry.ts. */
 
 /* Non-world lanes stay compact so the four worlds keep the rail's full height;
-   the archive reads as a marker above the doors, not a fifth door. The markup
+   00 reads as a marker above the doors, not a fifth door. The markup
    is identical for every lane, so the variant re-lays it out as one centred
    row instead of the doors' number-above-name block. */
-.gate--archive {
+.gate--compact {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -254,11 +254,11 @@ body {
 }
 
 /* Source order is no · arrow · name; reorder so it reads "00  Lab      ↗". */
-.gate--archive .gate-arrow {
+.gate--compact .gate-arrow {
   order: 1;
 }
 
-.gate--archive .gate-name {
+.gate--compact .gate-name {
   margin-right: auto;
 }
 
@@ -759,7 +759,7 @@ body {
 /* Card fills come from the registry's `hue` (set inline by main.ts) — no
    per-lane CSS rule to forget when a lane is added. */
 
-/* A non-world lane (the archive) reads as a shelf under the four doors:
+/* A non-world lane reads as a shelf under the four doors:
    full width, glyph and copy side by side rather than stacked. */
 .room-card--wide {
   grid-column: 1 / -1;

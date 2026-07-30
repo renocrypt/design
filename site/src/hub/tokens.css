@@ -23,7 +23,7 @@
      0.004 luminance, invisible on cream and load-bearing on cobalt. */
   --ink-on-hue: #000;
 
-  --mint: #62e6c8; /* 00 Lab — the archive's own phosphor, quoted from /lab/ */
+  --mint: #62e6c8; /* 00 Lab — the lab's own phosphor, quoted from /lab/ */
   --cobalt: #0072e3; /* 01 Noir — midnight cobalt */
   --vermilion: #ff4c24; /* 02 Chrome — heat on metal */
   --violet: #ab54f7; /* 03 Monument — gallery violet */
@@ -69,7 +69,7 @@
   --ink: #f4e9e1;
   --ink-soft: rgb(244 233 225 / 60%);
 
-  /* Diverges from /lab/ at night on purpose: the archive page keeps the
+  /* Diverges from /lab/ at night on purpose: that page keeps the
      undimmed #62e6c8, where it is a small accent on a #0c0c0e ground and has
      nothing to glare against. Here it fills the widest card on a lit page. */
   --mint: #189679; /* H166 S73, L 64% → 34% */

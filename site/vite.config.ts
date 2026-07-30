@@ -4,9 +4,10 @@ import { buildLanes } from './src/worlds/registry';
 import { headTags } from './tools/vite-plugin-head-tags';
 
 // One app, N static entries: hub + type specimen + one per WORLD lane.
-// 'static' lanes (the /lab archive) live in public/ and are copied verbatim —
-// they are never build inputs, which is exactly why the old CDN-era pages
-// keep working untouched alongside this bundled app.
+// 'static' lanes (world 00's /lab/ pages) live in public/ and are copied verbatim —
+// they are not build inputs today, which is why the CDN-era pages still work
+// alongside this bundled app. That is a build fact, not a freeze: any of them
+// can become an entry here when it moves onto our stack.
 export default defineConfig({
   plugins: [headTags({ gaId: 'G-6TMHBNWWB6' })],
   build: {

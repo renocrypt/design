@@ -19,6 +19,6 @@ The bar throughout: clear, organized, elegantly implemented.
 - `research/POLES.md` — measured anatomy of the five reference poles, one section per site.
 - `research/LESSONS.md` — what building against them taught us, plus this machine's limits (no GPU, no image tooling).
 - `site/` — the build: one Vite app (TS + Three.js + GSAP), hub entrance + world entries, static output.
-- `site/public/lab/` — the 2026-07 archive of single-file WebGL studies, served at `/lab/`. Copied verbatim by Vite; it keeps its own CDN-era stack, so never "modernise" it into the app.
+- `site/public/lab/` — world 00's WebGL studies, served at `/lab/`. **Live work, not an archive**: they get rebuilt and improved like any other world, may move onto our stack, and nothing here is preserved-as-authored. Files copied verbatim by Vite today is a fact about the build, not a rule about editing.
 - Adding anything the hub opens into is one row in `site/src/worlds/registry.ts` — see `docs/CONCEPT.md` § Adding a lane.
 - Deploys: push to `main` → GitHub Actions builds `site/` → Pages serves `site/dist` at design.renocrypt.com.

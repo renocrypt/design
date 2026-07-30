@@ -13,7 +13,7 @@ import { LANES, laneEntry, type Lane } from '../worlds/registry';
 function renderGates(): void {
   const make = (lane: Lane): HTMLAnchorElement => {
     const a = document.createElement('a');
-    a.className = `gate${lane.kind === 'world' ? '' : ' gate--archive'}`;
+    a.className = `gate${lane.kind === 'world' ? '' : ' gate--compact'}`;
     a.href = laneEntry(lane);
     a.style.background = lane.hue;
     a.innerHTML = `<span class="gate-no">${lane.num}</span><span class="gate-arrow" aria-hidden="true">&#8599;</span><span class="gate-name">${lane.name}</span>`;
@@ -26,13 +26,13 @@ function renderGates(): void {
 function renderRooms(): void {
   const host = document.querySelector('.rooms');
   if (!host) return;
-  // Worlds fill the 2×2; anything else (the archive) takes a full-width shelf
-  // below them, so the four worlds keep the section's rhythm.
+  // Worlds fill the 2×2; anything else takes a full-width shelf below them, so
+  // the four worlds keep the section's rhythm.
   //
   // This deliberately inverts the rail, where 00 sits FIRST as a compact marker
   // above the doors. The two surfaces answer different questions: the rail is an
   // index, so it runs in numeral order and 00 precedes 01; the grid is a pitch,
-  // so the worlds lead and the archive closes as a footnote. Same lane, both
+  // so the worlds lead and a non-world lane closes the section. Same lane, both
   // ends — by choice, not by accident.
   const ordered = [...LANES].sort((a, b) =>
     a.kind === b.kind ? 0 : a.kind === 'world' ? -1 : 1,
@@ -48,7 +48,7 @@ function renderRooms(): void {
         `<div class="card-head"><h3 class="card-title">${lane.name}</h3><span class="card-no">${lane.num}</span></div>` +
         `<p class="card-kicker">${lane.kicker}</p>` +
         `<ul class="card-list">${lane.points.map((p) => `<li>${p}</li>`).join('')}</ul>` +
-        `<span class="card-cta">${lane.kind === 'world' ? 'Enter' : 'Open the archive'} <span aria-hidden="true">&#8599;</span></span>`;
+        `<span class="card-cta">${lane.kind === 'world' ? 'Enter' : 'Open the lab'} <span aria-hidden="true">&#8599;</span></span>`;
       return a;
     }),
   );
@@ -167,7 +167,7 @@ const GLYPHS: Record<string, string[]> = {
     '....XX....',
     '..........',
   ],
-  // 00 Lab — four stacked slabs: the archive's four studies, seen edge-on.
+  // 00 Lab — four stacked slabs: the studies, seen edge-on.
   stack: [
     '..........',
     '.XXXXXXXX.',

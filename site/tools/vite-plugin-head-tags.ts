@@ -4,11 +4,11 @@ import type { Plugin } from 'vite';
 
 // Head tags every page must carry — analytics and the icon set — stamped into
 // EVERY html file in dist at the end of the build: the bundled entries (hub,
-// type, worlds) and the verbatim-copied archive under /lab alike.
+// type, worlds) and the verbatim-copied pages under /lab alike.
 //
 // Doing it here rather than in transformIndexHtml is the whole point: files in
 // public/ never pass through Vite's html pipeline, so template-level tags miss
-// them silently. That is exactly how the archive shipped with no favicon —
+// them silently. That is exactly how the /lab/ pages shipped with no favicon —
 // browsers fell back to /favicon.ico, which did not exist, and showed nothing.
 //
 // Each tag is inserted only if that page lacks it, so hand-authored pages keep
@@ -36,7 +36,7 @@ export function headTags({ gaId, icons = true }: HeadTagOptions): Plugin {
 `
     : '';
 
-  // Absolute paths: the archive lives at /lab/, so relative hrefs would miss.
+  // Absolute paths: those pages live at /lab/, so relative hrefs would miss.
   // .ico last as the legacy fallback; Safari wants the apple-touch-icon named.
   const iconTags = `    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />

@@ -1,9 +1,13 @@
 // The lane registry — single source of truth for everything the hub opens into.
 //
 // A lane is any destination the entrance can hand you: a world we build here
-// ('world'), a static archive Vite copies verbatim ('static'), or something
-// living at another URL entirely ('external'). Only 'world' lanes become build
-// entries; the rest are doors the hub renders identically and links elsewhere.
+// ('world'), a static page Vite copies verbatim ('static'), or something living
+// at another URL entirely ('external'). Only 'world' lanes become build entries;
+// the rest are doors the hub renders identically and links elsewhere.
+//
+// `kind` says where a lane's files sit, never how finished or how editable it is.
+// Nothing in this repo is frozen — a 'static' lane is live work that happens not
+// to compile yet, and may move onto our stack whenever it earns it.
 //
 // ADDING A LANE (the whole checklist lives in docs/CONCEPT.md § Adding a lane):
 // 1. Add a row here. `hue` accepts a token reference ('var(--cobalt)') or a hex.
@@ -23,7 +27,7 @@ export interface Lane {
   name: string; // display name, e.g. 'Noir'
   hue: string; // door background: 'var(--cobalt)' or '#62e6c8'
   kind: 'world' | 'static' | 'external';
-  status: 'live' | 'building' | 'archive';
+  status: 'live' | 'building';
   href?: string; // required for 'static' and 'external'; ignored for 'world'
   glyph: string; // pixel-glyph key (GLYPHS in src/hub/main.ts)
   kicker: string; // room-card kicker line
@@ -37,11 +41,11 @@ export const LANES: Lane[] = [
     name: 'Lab',
     hue: 'var(--mint)', // quotes the lab's own accent — see tokens.css --mint
     kind: 'static',
-    status: 'archive',
+    status: 'live',
     href: '/lab/',
     glyph: 'stack',
-    kicker: 'The archive',
-    points: ['Four single-file WebGL studies', 'Where this all started, kept intact'],
+    kicker: 'The workshop',
+    points: ['WebGL studies, still in progress', 'Where this began, and keeps going'],
   },
   {
     id: '01-noir',

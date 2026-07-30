@@ -14,7 +14,7 @@ One entrance opening into self-contained worlds, each built around a single hard
 | `/worlds/02-chrome/` | Liquid editorial — chrome rendered live, not baked |
 | `/worlds/03-monument/` | White room — one colossal condensed face as architecture |
 | `/worlds/04-pulse/` | Guided journey — a five-station click-through, no scrolling |
-| `/lab/` | The archive — an entrance of its own (dark, phosphor mint) opening into four single-file WebGL studies from 2026-07, kept exactly as authored |
+| `/lab/` | The lab — an entrance of its own (dark, phosphor mint) opening into the WebGL studies this all grew from; live work, rebuilt as their turn comes |
 | `/type/` | Type specimen for the cast faces |
 
 ## Layout
@@ -26,7 +26,7 @@ site/          the build — one Vite app (TS + Three.js + GSAP), static output
   index.html     the hub
   worlds/<id>/   one HTML entry per world lane
   src/worlds/registry.ts   the lane registry — single source of truth
-  public/lab/    the archive, copied verbatim (its own CDN-era stack, untouched)
+  public/lab/    world 00's studies, copied verbatim by Vite (live work, not an archive)
   tools/         build plugins and font converters
 ```
 
@@ -41,7 +41,7 @@ npm run build    # static output in site/dist
 
 ## How it grows
 
-Every destination the hub opens — a world we build, a static archive, an external URL — is one row in `site/src/worlds/registry.ts`.
+Every destination the hub opens — a world we build, a static page, an external URL — is one row in `site/src/worlds/registry.ts`.
 The build inputs, the rail doors, the mobile menu and the room cards all generate from that array.
 The full checklist for adding one is in `docs/CONCEPT.md` § Adding a lane.
 
