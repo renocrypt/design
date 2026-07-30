@@ -37,10 +37,52 @@ Google Fonts is allowed only as a deliberate pick for a specific reason (e.g. a 
 CDN = the foundry's own or Google Fonts' css API with a pinned version URL; never a third-party mirror.
 The pairing bar does not move: unique and elegant per world, two families max.
 
+## Heavy media — delivery ruling (2026-07-30)
+
+Fonts are self-hosted by default (see § Type).
+**Video and audio are the opposite: never commit them.**
+A video in git is in history permanently, Pages is not a video host, and the repo has already had to drop 41 MB of dead assets once.
+
+Which delivery is allowed depends on what the media does:
+
+- **Plain `<video>` or `<audio>` playback** — a remote URL is fine. Prefer a host with stable URLs; treat stock-site hotlinks as breakable, because they rotate paths and several forbid hotlinking outright.
+- **Video as a WebGL texture** — the response MUST send `Access-Control-Allow-Origin` and the element MUST set `crossOrigin`, or the texture is silently unusable. Check before designing around an asset: `curl -sSI -H "Origin: https://design.renocrypt.com" <url> | grep -i access-control`. Verified 2026-07-30: `archive.org` sends `*`; a stock CDN we tested sent nothing.
+- **Short UI sound** (a key click, a detent) — a few KB of audio is the rare case worth committing, since it must be instant and cannot depend on a third party staying up.
+
+And the standing preference still wins: generate motion with a shader or canvas rather than sourcing footage.
+Generated has no license, no CORS problem, no weight, and no dead link in a year.
+
 ## Photos
 
 - **Unsplash** (unsplash.com) — still the default for elegant photography, but degrading at the edges: filter out paid "Unsplash+" results and watch for AI-generated uploads creeping in. Prefer named photographers.
 - **Pexels** (pexels.com) — same class, includes video clips (nice for video-texture experiments). Same AI-creep caution.
+
+### Public-domain archives — for anything historical
+
+Stock photography is the wrong tool for a real object; museum scans are better, free, and CC0.
+
+- **Smithsonian Open Access** (si.edu/openaccess) — ~4.5M CC0 items with an API, including instruments and machines photographed properly.
+- **The Met Open Access** (metmuseum.org/art/collection) — CC0 for public-domain works, excellent photography, clean API.
+- **Rijksmuseum** / **Library of Congress** / **NASA Image Library** — institutional, public domain, high resolution.
+- **Rawpixel public domain** (rawpixel.com/public-domain) — curated and restored PD scans; good for period print texture. Free tier gates some downloads.
+- **The Public Domain Review** (publicdomainreview.org) — editorially curated rather than exhaustive; the best place to *find* the odd thing.
+
+## Video
+
+Read § Heavy media first — none of these get committed.
+
+- **Pexels Video** / **Coverr** / **Mixkit** — free, no-attribution clips; Coverr and Mixkit are the more designed end. Check CORS per asset if it will become a texture.
+- **Internet Archive** (archive.org) — public-domain and period footage, and **verified to send `Access-Control-Allow-Origin: *`**, which makes it the one dependable source for cross-origin video textures.
+- **Videvo** / **Mazwai** — mixed licenses, read per clip.
+
+## Audio
+
+Not decoration: on anything mechanical, a click or a detent does more for believability than another shader pass.
+
+- **Freesound** (freesound.org) — the cornerstone. Named contributors, per-sound CC0 / CC-BY filtering, deep catalogue of switches, relays, typewriters and mechanisms.
+- **BBC Sound Effects** (sound-effects.bbcrewind.co.uk) — 33,000+ clips, free for personal and educational use, which is exactly this project's tier. Superb archival recordings; re-check the licence before anything commercial.
+- **Zapsplat** (zapsplat.com) — large and well-tagged, free tier requires attribution.
+- Generated first where it fits: a filtered noise burst with a fast envelope is a convincing mechanical click and weighs nothing.
 
 ## Icons & SVG
 

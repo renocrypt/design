@@ -3,22 +3,33 @@
 Exploring beautiful, elegant websites; 3D/WebGL is the focus, backend is out of scope.
 The bar throughout: clear, organized, elegantly implemented.
 
-## Conventions
+## Laws
 
-- Markdown prose: one sentence per line, no column wrapping — keeps grep, diffs, and edits sentence-granular.
-- Research cost ladder: search → fetch (WebFetch, or curl/python static analysis of HTML/CSS/JS) → DOM snapshot → screenshot → runtime probe. Use the cheapest rung that answers; the browser is one shared instance on constrained hardware — Playwright rungs are last resort, sequential, never parallel.
-- Browser hygiene (any MCP — Playwright, Chrome DevTools, …): one shared instance, sequential use, and when a session is done close the tab/page — no dangling pages eating memory.
-- Screenshots are filed as `research/shots/<site>/<date>-<what>.png`, never left in the repo root — and `research/shots/` is **gitignored**: evidence stays on disk, the findings it supports go in `research/POLES.md`, which is tracked. Keep the tracked tree tight; if a file is regenerable or is raw evidence, it does not belong in the repo.
-- Research files are **current state, not a journal**: a re-visit that overturns a measurement deletes the old one instead of appending a dated correction, and per-version build narrative stays in git rather than in `research/`.
+These are the ones that cost us when broken; everything else lives behind a pointer below.
 
-## Layout
+- Markdown prose: one sentence per line, no column wrapping — grep, diffs and edits stay sentence-granular.
+- Take the cheapest research rung that answers the question — the ladder is in `docs/INSPIRATION.md`.
+- The browser is one shared instance on constrained hardware: sequential use, never parallel, and close the page when done.
+- Measure before claiming, and probe rather than eyeball — a number in a commit message must come from a run, not an estimate.
+- Tracked files are current state, not a journal: a correction deletes what it overturns, and per-version narrative stays in git.
+- Nothing in this repo is frozen, world 00 included — see `docs/CONCEPT.md` § The shape.
+- Keep the tracked tree tight: `research/shots/` is gitignored, and anything regenerable or raw stays out.
 
-- `docs/CONCEPT.md` — the north star: one entrance hub opening into distinct-vibe worlds; identity rules (type, palette, motion).
-- `docs/INSPIRATION.md` — inspiration hubs + single-site reference studies.
-- `docs/ASSETS.md` — asset sources; additions must pass its slop filter.
-- `research/POLES.md` — measured anatomy of the five reference poles, one section per site.
-- `research/LESSONS.md` — what building against them taught us, plus this machine's limits (no GPU, no image tooling).
-- `site/` — the build: one Vite app (TS + Three.js + GSAP), hub entrance + world entries, static output.
-- `site/public/lab/` — world 00's WebGL studies, served at `/lab/`. **Live work, not an archive**: they get rebuilt and improved like any other world, may move onto our stack, and nothing here is preserved-as-authored. Files copied verbatim by Vite today is a fact about the build, not a rule about editing.
-- Adding anything the hub opens into is one row in `site/src/worlds/registry.ts` — see `docs/CONCEPT.md` § Adding a lane.
-- Deploys: push to `main` → GitHub Actions builds `site/` → Pages serves `site/dist` at design.renocrypt.com.
+## Map
+
+- `docs/CONCEPT.md` — the north star: the hub-and-worlds shape, identity rules, stack, deploy, and the add-a-lane checklist.
+- `docs/INSPIRATION.md` — where ideas come from: curation hubs, reference sites, the research cost ladder.
+- `docs/ASSETS.md` — where material comes from: type, photo, 3D and texture sources, each past its slop filter.
+- `docs/specs/` — per-world build specs, written before the world.
+- `research/POLES.md` — measured anatomy of the reference poles, one section per site.
+- `research/LESSONS.md` — what building taught us, plus this machine's limits (no GPU, no image tooling).
+- `site/` — the build: one Vite app (TS + Three.js + GSAP), static output.
+- `site/public/lab/` — world 00's studies, served at `/lab/`; live work like any other world.
+- `site/src/worlds/registry.ts` — the lane registry; adding anything the hub opens is one row here.
+
+## Commands
+
+```sh
+cd site && npm run dev      # http://localhost:5173
+cd site && npm run build    # static output in site/dist
+```
