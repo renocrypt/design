@@ -5,16 +5,23 @@
    Gate hues are ours: each hints at its world while staying in one toy-box family. */
 :root {
   --paper: #f4ebe0;
-  --ink: #0e0d0b;
+  --ink: #0e0d0b; /* on paper — flips with the theme */
   --ink-soft: rgb(14 13 11 / 60%);
   --cream-text: #fff7ec; /* hero-only */
 
-  --mint: #62e6c8; /* 00 Lab — the archive's own phosphor, kept as it was */
+  /* Ink for anything painted on a toy-box solid or a cream card. Those fills do
+     NOT flip at night, so their text must not either — it stays black in both
+     themes, which is also the pole's law (saturated solid + black text). Use
+     --ink only where the surface underneath is --paper. */
+  --ink-on-hue: #0e0d0b;
+
+  --mint: #62e6c8; /* 00 Lab — the archive's own phosphor, quoted from /lab/ */
   --cobalt: #0072e3; /* 01 Noir — midnight cobalt */
   --vermilion: #ff4c24; /* 02 Chrome — heat on metal */
   --violet: #ab54f7; /* 03 Monument — gallery violet */
   --red: #e5262c; /* 04 Pulse — its native red */
   --amber: #ffb200; /* the utility card + marquee items */
+  --amber-fill: var(--amber); /* amber as a large area — night-tuned below */
   --band: #ea3737; /* marquee band ground */
 
   /* world aliases (specimen + shared references) */
@@ -40,11 +47,22 @@
 }
 
 /* Night: page and card turn as one object, centered on the sweep midpoint.
-   Toy-box chips keep their hues — only paper and ink flip. */
+   Paper and ink flip; the toy-box hues stay themselves. The two exceptions are
+   the fills bright enough to glare against a #171310 page — mint (L 0.63) and
+   amber (L 0.53) sat ~3× above the cobalt/violet/red band, and mint carries the
+   widest card on the page. Both are darkened at the same hue and saturation, to
+   land inside that band; small accents (ticker text, the pixel blocks) keep the
+   undimmed hue, since area is what glares. */
 :root[data-theme='night'] {
   --paper: #171310;
   --ink: #f4e9e1;
   --ink-soft: rgb(244 233 225 / 60%);
+
+  /* Diverges from /lab/ at night on purpose: the archive page keeps the
+     undimmed #62e6c8, where it is a small accent on a #0c0c0e ground and has
+     nothing to glare against. Here it fills the widest card on a lit page. */
+  --mint: #189679; /* H166 S73, L 64% → 34% */
+  --amber-fill: #ad7900; /* H42 S100, L 50% → 34% */
 }
 
 html {

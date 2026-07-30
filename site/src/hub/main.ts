@@ -28,6 +28,12 @@ function renderRooms(): void {
   if (!host) return;
   // Worlds fill the 2×2; anything else (the archive) takes a full-width shelf
   // below them, so the four worlds keep the section's rhythm.
+  //
+  // This deliberately inverts the rail, where 00 sits FIRST as a compact marker
+  // above the doors. The two surfaces answer different questions: the rail is an
+  // index, so it runs in numeral order and 00 precedes 01; the grid is a pitch,
+  // so the worlds lead and the archive closes as a footnote. Same lane, both
+  // ends — by choice, not by accident.
   const ordered = [...LANES].sort((a, b) =>
     a.kind === b.kind ? 0 : a.kind === 'world' ? -1 : 1,
   );
@@ -46,6 +52,29 @@ function renderRooms(): void {
       return a;
     }),
   );
+}
+
+// The band names the worlds and only the worlds: it is a marquee of
+// destinations, and 00 is a door to another entrance rather than one of them.
+// Generated all the same, so that stays a rule the filter states out loud
+// instead of a gap in hand-written markup.
+function renderTicker(): void {
+  const track = document.querySelector<HTMLElement>('.ticker-track');
+  if (!track) return;
+  const half = LANES.filter((l) => l.kind === 'world')
+    .map((l, i) => `${l.num} ${l.name} <i class="${i % 2 ? 'tick-dia' : 'tick-bolt'}"></i> `)
+    .join('');
+  // Two identical halves — startTicker slides one half's width to loop seamlessly.
+  track.innerHTML = `<span>${half}</span><span>${half}</span>`;
+}
+
+// The closing call to action points at the first world, whichever that becomes.
+function renderFirstDoor(): void {
+  const cta = document.querySelector<HTMLAnchorElement>('.big-cta');
+  const first = LANES.find((l) => l.kind === 'world');
+  if (!cta || !first) return;
+  cta.href = laneEntry(first);
+  cta.innerHTML = `First door — ${first.num} ${first.name} <span aria-hidden="true">&#8599;</span>`;
 }
 
 // ── Mobile menu: the toy box as an overlay ──
@@ -313,6 +342,8 @@ function enter(): void {
 
   renderGates();
   renderRooms();
+  renderTicker();
+  renderFirstDoor();
   stampPixels(); // after renderRooms — the cards' glyph SVGs must exist first
   initMenu(reduced);
   startTicker();

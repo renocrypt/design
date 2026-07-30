@@ -17,6 +17,13 @@ They are kept exactly as authored — CDN libraries, no build step — because t
 Mechanically this is why the merge is frictionless: `site/public/` is copied verbatim by Vite, so the archive's own stack never meets ours.
 It is a lane like any other (registry `kind: 'static'`), which is the general shape for anything the hub should open but not compile.
 
+**00 is itself an entrance, not a file listing** (recorded 2026-07-30) — the lab makes six designed surfaces here, not five.
+`site/public/lab/index.html` is a hub with its own complete identity: near-black `#0c0c0e` ground, bone text, phosphor mint `#62e6c8` accent, a three-face cast (Clash Display + Newsreader italic + JetBrains Mono), hairline-ruled rows, "Pick a *direction*".
+It opens into S1, S2, S4 and S5 — the gap is authentic, S3 was cut during the original run — and each study carries its own nav plus `switcher.js`, which injects the one link back up to `/`.
+So the lab is a nested hub, and the lab has three levels: entrance → lab entrance → studies.
+It is the one surface with no reference pole, because it predates the mapping below (built ~2026-07-19 from `research/award-study-2026-07.md`); that is history, not an omission to backfill.
+This is also why the hub's `--mint` exists: the 00 lane hue quotes the lab's own accent.
+
 ## The mapping (decided 2026-07-26)
 
 Each design target takes one reference pole — original styles described truthfully in `research/NOTES.md`, then rebuilt with our identity, faces, and content.
@@ -30,6 +37,7 @@ Each design target takes one reference pole — original styles described truthf
 | **04 — Pulse** | blood-donation.com | Saturated single-hue red poster, one variable font by weight, flat-vector charm over a WebGPU click-through journey (XState-staged, not scroll) |
 
 Working names are ours and renameable.
+The table covers the five poled targets only — 00 sits above, self-directed.
 Five poles, zero overlap: warm toy-box, dark cinema, chrome editorial, white type-monument, red flat-pop journey — proof that worlds may differ radically as long as each commits totally.
 Runtime-3D truth per pole (what we verified, not what it looks like): lamalama real WebGL; hildenkaira **pre-rendered** chrome (zero runtime 3D — our version goes live-3D); obys real Three.js; blood-donation Three.js on the WebGPU renderer.
 
@@ -64,7 +72,9 @@ Other runtime assets (HDRI, models, textures) stay self-hosted in-repo per their
 The lab is built to grow past four worlds. One checklist, in order:
 
 1. **Registry row** — add to `LANES` in `site/src/worlds/registry.ts` (`id`, `num`, `name`, `hue`, `kind`, `status`, `glyph`, `kicker`, `points`).
-   The vite build inputs, the rail doors, the mobile menu **and the room-card grid** all generate from this list; the lane now exists, is linked, and has a card.
+   The vite build inputs, the rail doors, the mobile menu, the room-card grid, **the marquee band and the closing call to action** all generate from this list; the lane now exists, is linked, and has a card.
+   Six consumers, and two of them filter: the band and the CTA speak for `kind: 'world'` only, so a `'static'` or `'external'` lane joins the doors and the grid but stays out of the marquee — by rule, in `renderTicker`/`renderFirstDoor`, not by hand-written markup.
+   Where a lane lands in the two navigations is also deliberate: the rail is an index, so it runs in numeral order (00 first, as a compact marker); the grid is a pitch, so worlds lead and non-world lanes close as a wide shelf.
    `kind` decides the rest: `'world'` becomes a build entry under `worlds/<id>/`; `'static'` lives in `site/public/<path>/` and just needs an `href`; `'external'` is an absolute URL.
 2. **World folder** — `site/worlds/<id>/index.html` + `site/src/worlds/<id>/main.ts` + `world.css` (+ optional `scene.ts`).
    World pages are self-contained identities: own tokens, own faces, own motion law — never import another world's CSS.

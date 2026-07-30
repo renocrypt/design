@@ -217,7 +217,7 @@ body {
   min-height: 7rem;
   padding: 0.7rem 0.8rem;
   border-radius: var(--r-chip);
-  color: var(--ink);
+  color: var(--ink-on-hue);
   text-decoration: none;
 }
 
@@ -268,7 +268,7 @@ body {
   flex: 0 0 auto;
   height: 3.9rem;
   margin-top: auto;
-  background: var(--amber);
+  background: var(--amber-fill);
 }
 
 .gate-name--util {
@@ -592,7 +592,7 @@ body {
   padding: clamp(1.5rem, 2.6vw, 2.4rem);
   border-radius: var(--r-card);
   background: var(--cobalt);
-  color: var(--ink);
+  color: var(--ink-on-hue);
 }
 
 .man-card .tag {
@@ -695,7 +695,7 @@ body {
   gap: 0.9rem;
   padding: 1.5rem 1.6rem;
   border-radius: var(--r-card);
-  color: var(--ink);
+  color: var(--ink-on-hue);
   text-decoration: none;
 }
 
@@ -812,11 +812,11 @@ body {
   min-height: 24rem;
   padding: 1.5rem 1.6rem;
   border-radius: var(--r-card);
-  color: var(--ink);
+  color: var(--ink-on-hue);
 }
 
 .bench-card--shelf {
-  background: var(--amber);
+  background: var(--amber-fill);
 }
 
 .shelf-art {
@@ -869,7 +869,7 @@ body {
   height: 22px;
   flex: none;
   margin-top: 0.15rem;
-  color: var(--ink);
+  color: var(--ink-on-hue);
 }
 
 .rules h3 {
@@ -928,7 +928,7 @@ body {
   overflow: hidden;
   border-radius: var(--r-card);
   background: #faf2e8;
-  color: var(--ink);
+  color: var(--ink-on-hue);
 }
 
 :root[data-theme='night'] .foot {
@@ -967,7 +967,7 @@ body {
   font-size: clamp(4.5rem, 15vw, 13rem);
   line-height: 0.9;
   letter-spacing: -0.035em;
-  color: var(--ink);
+  color: var(--ink-on-hue);
 }
 
 .foot-pills {
@@ -983,7 +983,7 @@ body {
   border: 1px solid rgb(14 13 11 / 35%);
   border-radius: var(--r-pill);
   font-size: 0.85rem;
-  color: var(--ink);
+  color: var(--ink-on-hue);
   text-decoration: none;
 }
 

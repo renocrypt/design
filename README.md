@@ -14,7 +14,7 @@ One entrance opening into self-contained worlds, each built around a single hard
 | `/worlds/02-chrome/` | Liquid editorial — chrome rendered live, not baked |
 | `/worlds/03-monument/` | White room — one colossal condensed face as architecture |
 | `/worlds/04-pulse/` | Guided journey — a five-station click-through, no scrolling |
-| `/lab/` | The archive — four single-file WebGL studies from 2026-07, kept exactly as authored |
+| `/lab/` | The archive — an entrance of its own (dark, phosphor mint) opening into four single-file WebGL studies from 2026-07, kept exactly as authored |
 | `/type/` | Type specimen for the cast faces |
 
 ## Layout

@@ -12,8 +12,10 @@
 //    kind 'external' → set `href` to the absolute URL
 // 3. Add the lane's token(s) to src/hub/tokens.css if you referenced new ones.
 // 4. Draw the pixel `glyph` in src/hub/main.ts GLYPHS if it isn't there yet.
-// The vite build inputs, the rail gates, the mobile menu AND the room cards all
-// generate from this array — no other file needs touching for a lane to exist.
+// The vite build inputs, the rail gates, the mobile menu, the room cards, the
+// marquee band and the closing call to action all generate from this array — no
+// other file needs touching for a lane to exist. Two of those consumers filter:
+// the band and the CTA speak for `kind: 'world'` only.
 
 export interface Lane {
   id: string; // directory name / slug, e.g. '01-noir'
@@ -33,7 +35,7 @@ export const LANES: Lane[] = [
     id: '00-lab',
     num: '00',
     name: 'Lab',
-    hue: 'var(--mint)',
+    hue: 'var(--mint)', // quotes the lab's own accent — see tokens.css --mint
     kind: 'static',
     status: 'archive',
     href: '/lab/',

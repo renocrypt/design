@@ -105,11 +105,10 @@
           </div>
         </section>
 
+        <!-- Marquee halves are rendered from the lane registry (renderTicker) —
+             empty here by design, like the room grid below. -->
         <div class="band" aria-hidden="true">
-          <div class="ticker-track">
-            <span>01 Noir <i class="tick-bolt"></i> 02 Chrome <i class="tick-dia"></i> 03 Monument <i class="tick-bolt"></i> 04 Pulse <i class="tick-dia"></i> </span
-            ><span>01 Noir <i class="tick-bolt"></i> 02 Chrome <i class="tick-dia"></i> 03 Monument <i class="tick-bolt"></i> 04 Pulse <i class="tick-dia"></i> </span>
-          </div>
+          <div class="ticker-track"></div>
         </div>
 
         <!-- Cards are rendered from the lane registry (src/worlds/registry.ts):
@@ -172,9 +171,8 @@
           </div>
         </section>
 
-        <a class="big-cta" href="/worlds/01-noir/">
-          First door — 01 Noir <span aria-hidden="true">&#8599;</span>
-        </a>
+        <!-- Label and href come from the first world lane (renderFirstDoor). -->
+        <a class="big-cta"></a>
 
         <footer class="foot">
           <div class="foot-grid" aria-hidden="true">
