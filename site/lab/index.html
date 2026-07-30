@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RenoCrypt — Design Lab</title>
+    <meta
+      name="description"
+      content="The workshop behind the worlds: four WebGL studies monitored as channels on one phosphor console."
+    />
+  </head>
+  <body>
+    <header class="top">
+      <span class="brand">RENOCRYPT<i>_</i>DESIGN LAB</span>
+      <span class="readouts">
+        <span id="ro-clock">00:00:00</span>
+        <span class="online"><i class="pip" aria-hidden="true"></i>CH 1–4 online</span>
+      </span>
+    </header>
+
+    <main>
+      <section class="scope" aria-label="Console screen: live signature trace of the selected channel">
+        <canvas id="hero" aria-hidden="true"></canvas>
+        <div class="hud hud--tl" id="ro-ch">CH1 · S1 — LIVING MATRIX</div>
+        <div class="hud hud--tr" id="ro-mode">SEQ · 3 HEADS</div>
+        <div class="hud hud--br">
+          <div id="ro-extra">—</div>
+          <div id="ro-state" class="dim">AUTO · SWEEP 5S</div>
+        </div>
+        <div class="hero-copy">
+          <h1>Select a <em>channel.</em></h1>
+          <p class="sub">
+            One agentic system, four readings — a living lattice, a camera path, the agent itself,
+            and a cipher engine.
+          </p>
+        </div>
+      </section>
+
+      <ul class="channels">
+        <li>
+          <a href="s1-living-matrix.html">
+            <canvas class="mini" aria-hidden="true"></canvas>
+            <span class="idx">S1</span>
+            <span class="name">Living <em>Matrix</em></span>
+            <span class="meta">WebGL attention lattice · orbit camera · dark</span>
+            <span class="go" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="s2-platonic-drift.html">
+            <canvas class="mini" aria-hidden="true"></canvas>
+            <span class="idx">S2</span>
+            <span class="name">Platonic <em>Drift</em></span>
+            <span class="meta">scroll camera path · five solids · light WebGL</span>
+            <span class="go" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="s4-the-agent.html">
+            <canvas class="mini" aria-hidden="true"></canvas>
+            <span class="idx">S4</span>
+            <span class="name">The <em>Agent</em></span>
+            <span class="meta">rigged robot · four animation states · orbit camera</span>
+            <span class="go" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href="s5-cipher-engine.html">
+            <canvas class="mini" aria-hidden="true"></canvas>
+            <span class="idx">S5</span>
+            <span class="name">Cipher <em>Engine</em></span>
+            <span class="meta">hand-built enigma · type to encrypt · exploded rotors</span>
+            <span class="go" aria-hidden="true">↗</span>
+          </a>
+        </li>
+      </ul>
+    </main>
+
+    <footer class="bottom">
+      <a href="/">← worlds</a>
+      <span>renocrypt/design</span>
+      <a href="https://github.com/renocrypt/design">source ↗</a>
+    </footer>
+
+    <script type="module" src="/src/lab/entrance/main.ts"></script>
+  </body>
+</html>

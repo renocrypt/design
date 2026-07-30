@@ -9,13 +9,14 @@ const PUBLIC_DIR = resolve(__dirname, 'public');
 /**
  * Dev-only: serve `public/<dir>/index.html` for a request to `<dir>/`.
  *
- * `lab/` exists in the project root too — it holds the one study that has moved
- * onto our stack — but it has no index.html. So Vite's static middleware found
- * the directory, found no index, and the SPA fallback answered `/lab/` with the
- * HUB. The lab picker was never gone; it was unreachable at the only URL that
- * links to it. Pages resolves `/lab/` to `/lab/index.html` and always worked,
- * which is exactly why nobody caught it: the dev server was lying about a live
- * page. This makes dev answer the way the deployed site does.
+ * When only the studies lived under `public/lab/`, the project-root `lab/`
+ * (the stack-native pages) had no index.html, so Vite's static middleware
+ * found the directory, found no index, and the SPA fallback answered `/lab/`
+ * with the HUB. Pages resolves `/lab/` to `/lab/index.html` and always
+ * worked, which is exactly why nobody caught it: the dev server was lying
+ * about a live page. This makes dev answer the way the deployed site does.
+ * The entrance has since moved onto the stack too, so for `/lab/` this no
+ * longer fires — it guards any future public/ dir without a root twin.
  */
 const publicDirIndex = (): Plugin => ({
   name: 'public-dir-index',
@@ -46,9 +47,10 @@ export default defineConfig({
       input: {
         hub: resolve(__dirname, 'index.html'),
         type: resolve(__dirname, 'type/index.html'),
-        // World 00's first study to move onto our stack. It keeps its URL —
-        // dist/lab/s5-cipher-engine.html — while the other three stay copied
-        // from public/, so the two must never both provide that filename.
+        // World 00's stack-native pages. They keep their URLs — dist/lab/index.html,
+        // dist/lab/s5-cipher-engine.html — while s1/s2/s4 stay copied from
+        // public/, so public/ and lab/ must never both provide the same filename.
+        lab: resolve(__dirname, 'lab/index.html'),
         cipher: resolve(__dirname, 'lab/s5-cipher-engine.html'),
         ...Object.fromEntries(
           buildLanes().map((l) => [l.id, resolve(__dirname, `worlds/${l.id}/index.html`)]),
