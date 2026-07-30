@@ -158,3 +158,48 @@ export function brushedBump(size = 512): HTMLCanvasElement {
   }
   return c;
 }
+
+/**
+ * Wood grain for the plinth: long bands of varying tightness along x, with a
+ * few knots. The carrying box was stained oak; a flat brown fill reads as
+ * cardboard under the key light.
+ */
+export function woodBump(size = 512): HTMLCanvasElement {
+  const { c, x } = canvas(size, size);
+  const r = rng(0x900d);
+  x.fillStyle = '#808080';
+  x.fillRect(0, 0, size, size);
+  // Broad bands — the cathedral arches of the board.
+  for (let band = 0; band < 26; band++) {
+    const y0 = r() * size;
+    const h = 6 + r() * 22;
+    const v = 128 + (r() - 0.5) * 80;
+    x.fillStyle = `rgba(${v},${v},${v},0.35)`;
+    x.fillRect(0, y0, size, h);
+  }
+  // Fine grain, gently wandering so it does not read as a barcode.
+  x.lineWidth = 1;
+  for (let i = 0; i < 900; i++) {
+    const y0 = r() * size;
+    const v = 128 + (r() - 0.5) * 90;
+    const wobble = (r() - 0.5) * 14;
+    x.strokeStyle = `rgba(${v},${v},${v},0.42)`;
+    x.beginPath();
+    x.moveTo(0, y0);
+    x.bezierCurveTo(size * 0.33, y0 + wobble, size * 0.66, y0 - wobble, size, y0 + wobble * 0.4);
+    x.stroke();
+  }
+  // Knots.
+  for (let i = 0; i < 5; i++) {
+    const cx = r() * size;
+    const cy = r() * size;
+    for (let ring = 1; ring < 7; ring++) {
+      const v = 128 - ring * 8;
+      x.strokeStyle = `rgba(${v},${v},${v},0.5)`;
+      x.beginPath();
+      x.ellipse(cx, cy, ring * 4.5, ring * 2.2, 0, 0, Math.PI * 2);
+      x.stroke();
+    }
+  }
+  return c;
+}

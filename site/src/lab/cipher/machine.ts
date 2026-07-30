@@ -8,10 +8,11 @@
 
 import * as THREE from 'three';
 import {
-  CASE, DECK, ROTOR, AXLE_R, PLUGBOARD, PLATE, SOCKET, KEY_R, KEY_H, KEY_TRAVEL, LAMP_R, LAMP_H,
+  CASE, DECK, ROTOR, AXLE_R, AXLE_LEN, PLINTH, SHROUD, PLUGBOARD, PLATE, SOCKET,
+  KEY_R, KEY_H, KEY_TRAVEL, LAMP_R, LAMP_H,
   keySlots, lampSlots, socketSlots,
 } from './layout';
-import { atlasCell, brushedBump, crinkleBump, letterAtlas, plateTexture, ringTexture } from './surfaces';
+import { atlasCell, brushedBump, crinkleBump, letterAtlas, plateTexture, ringTexture, woodBump } from './surfaces';
 
 export interface Palette {
   paint: number;
@@ -86,23 +87,46 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
   crinkle.repeat.set(6, 4);
   const brushed = keep(tex(brushedBump(), true));
   brushed.repeat.set(3, 3);
+  const grain = keep(tex(woodBump(), true));
+  grain.repeat.set(2, 1);
 
+  // Wrinkle-finish enamel is a dielectric: the old metalness 0.22 let the env
+  // map wash the near-black paint up to a light plastic grey — and with the
+  // metalness fixed, the studio HDRI's diffuse IBL kept doing the same job.
+  // Every non-metal here therefore sips the env; only the metals drink it.
   const paint = keep(new THREE.MeshStandardMaterial({
-    color: p.paint, roughness: 0.78, metalness: 0.22, bumpMap: crinkle, bumpScale: 0.035, envMap: env,
+    color: p.paint, roughness: 0.68, metalness: 0.05, bumpMap: crinkle, bumpScale: 0.06,
+    envMap: env, envMapIntensity: 0.08,
   }));
   const brass = keep(new THREE.MeshStandardMaterial({
     color: p.brass, roughness: 0.31, metalness: 0.95, bumpMap: brushed, bumpScale: 0.012, envMap: env,
   }));
+  // Stamped steel for the shroud — harder and shinier than the enamel.
+  const steel = keep(new THREE.MeshStandardMaterial({
+    color: p.paint, roughness: 0.42, metalness: 0.55, bumpMap: crinkle, bumpScale: 0.02,
+    envMap: env, envMapIntensity: 0.3,
+  }));
+  const wood = keep(new THREE.MeshStandardMaterial({
+    color: 0x3a2718, roughness: 0.66, metalness: 0.0, bumpMap: grain, bumpScale: 0.025,
+    envMap: env, envMapIntensity: 0.08,
+  }));
 
-  // ── Case, deck edge and front furniture ────────────────────────────────
+  // ── Case, plinth, deck edge and front furniture ─────────────────────────
   const body = new THREE.Mesh(keep(new THREE.BoxGeometry(CASE.w, CASE.h, CASE.d)), paint);
   body.position.y = CASE.h / 2;
   body.castShadow = body.receiveShadow = true;
   root.add(body);
 
+  const plinth = new THREE.Mesh(keep(new THREE.BoxGeometry(PLINTH.w, PLINTH.h, PLINTH.d)), wood);
+  plinth.position.set(0, PLINTH.y, PLINTH.z);
+  plinth.castShadow = plinth.receiveShadow = true;
+  root.add(plinth);
+
   const plug = new THREE.Mesh(
     keep(new THREE.BoxGeometry(PLUGBOARD.w, PLUGBOARD.h, PLUGBOARD.d)),
-    keep(new THREE.MeshStandardMaterial({ color: p.paint, roughness: 0.5, metalness: 0.35, envMap: env })),
+    keep(new THREE.MeshStandardMaterial({
+      color: p.paint, roughness: 0.5, metalness: 0.35, envMap: env, envMapIntensity: 0.3,
+    })),
   );
   plug.position.set(0, PLUGBOARD.y, PLUGBOARD.z);
   root.add(plug);
@@ -119,12 +143,18 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
   plate.position.set(0, PLATE.y, PLATE.z);
   root.add(plate);
 
-  // ── Sockets and cables ─────────────────────────────────────────────────
+  // ── Sockets, plug tips and cables ────────────────────────────────────────
   const slots = socketSlots();
+  // Three patch cables, and therefore six plug tips. The endpoints match the
+  // plugboard pairs the cipher actually uses.
+  const cablePairs: [number, number][] = [[1, 8], [4, 10], [2, 7]];
+  const tips = cablePairs.flatMap(([a, b]) => [a, b]);
+  // One InstancedMesh carries sockets AND tips: same brass cylinder, the tips
+  // just run narrower and longer through their instance matrices.
   const sockets = new THREE.InstancedMesh(
     keep(new THREE.CylinderGeometry(SOCKET.r, SOCKET.r, SOCKET.h, 12)),
     brass,
-    slots.length,
+    slots.length + tips.length,
   );
   const m = new THREE.Matrix4();
   // Sockets stand out of the front face, so their axis turns from y to z.
@@ -136,20 +166,34 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
   const qAxle = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2));
   const noRot = new THREE.Quaternion();
   const one = new THREE.Vector3(1, 1, 1);
+  const tipScale = new THREE.Vector3(0.7, 2.3, 0.7);
   slots.forEach((s, i) =>
     sockets.setMatrixAt(i, m.compose(new THREE.Vector3(s.x, s.y, PLUGBOARD.z + PLUGBOARD.d / 2), q, one)),
   );
+  tips.forEach((slotIdx, i) =>
+    sockets.setMatrixAt(
+      slots.length + i,
+      m.compose(
+        new THREE.Vector3(slots[slotIdx].x, slots[slotIdx].y, PLUGBOARD.z + PLUGBOARD.d / 2 + 0.04),
+        q,
+        tipScale,
+      ),
+    ),
+  );
   root.add(sockets);
 
-  // Three patch cables, merged into one geometry so they cost one call. Their
-  // endpoints match the plugboard pairs the cipher actually uses.
-  const cableMat = keep(new THREE.MeshStandardMaterial({ color: p.cable, roughness: 0.62, metalness: 0.08, envMap: env }));
-  const cablePairs: [number, number][] = [[1, 8], [4, 10], [2, 7]];
+  // The cables hang, they do not bulge: thin braided loops sagging below the
+  // panel's bottom edge, not red worms pushed through its face.
+  const cableMat = keep(new THREE.MeshStandardMaterial({
+    color: p.cable, roughness: 0.55, metalness: 0.05, envMap: env, envMapIntensity: 0.2,
+  }));
   const cableGeos = cablePairs.map(([a, b]) => {
-    const from = new THREE.Vector3(slots[a].x, slots[a].y, PLUGBOARD.z + 0.09);
-    const to = new THREE.Vector3(slots[b].x, slots[b].y, PLUGBOARD.z + 0.09);
-    const mid = from.clone().lerp(to, 0.5).add(new THREE.Vector3(0, -0.34, 0.3));
-    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3([from, mid, to]), 20, 0.022, 6);
+    const from = new THREE.Vector3(slots[a].x, slots[a].y, PLUGBOARD.z + 0.12);
+    const to = new THREE.Vector3(slots[b].x, slots[b].y, PLUGBOARD.z + 0.12);
+    const sag = Math.min(from.y, to.y) - 0.34;
+    const d1 = from.clone().lerp(to, 0.33).setY(sag).setZ(PLUGBOARD.z + 0.26);
+    const d2 = from.clone().lerp(to, 0.67).setY(sag).setZ(PLUGBOARD.z + 0.26);
+    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3([from, d1, d2, to]), 24, 0.014, 6);
   });
   const cables = new THREE.Mesh(keep(mergeGeometries(cableGeos)), cableMat);
   cableGeos.forEach((g) => g.dispose());
@@ -157,7 +201,9 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
 
   // ── Rotors: one ring texture, three pivots, sunk into the deck ─────────
   const ring = keep(tex(ringTexture(p.ringGround, p.ringInk, p.ringAccent)));
-  const ringMat = keep(new THREE.MeshStandardMaterial({ map: ring, roughness: 0.42, metalness: 0.6, envMap: env }));
+  const ringMat = keep(new THREE.MeshStandardMaterial({
+    map: ring, roughness: 0.42, metalness: 0.6, envMap: env, envMapIntensity: 0.7,
+  }));
   const drumGeo = keep(new THREE.CylinderGeometry(ROTOR.r, ROTOR.r, ROTOR.w, 48, 1, true));
   const flangeGeo = keep(new THREE.CylinderGeometry(ROTOR.flangeR, ROTOR.flangeR, 0.05, 32));
 
@@ -186,10 +232,34 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
   }
   root.add(flanges);
 
-  const axle = new THREE.Mesh(keep(new THREE.CylinderGeometry(AXLE_R, AXLE_R, ROTOR.gap * 2 + 1.1, 12)), brass);
-  axle.rotation.z = Math.PI / 2;
+  const axleGeo = keep(new THREE.CylinderGeometry(AXLE_R, AXLE_R, AXLE_LEN, 12));
+  axleGeo.rotateZ(Math.PI / 2);
+  const knobGeos = [-1, 1].map((side) => {
+    const g = new THREE.CylinderGeometry(0.12, 0.12, 0.1, 20);
+    g.rotateZ(Math.PI / 2);
+    g.translate(side * (SHROUD.w / 2 + 0.04), 0, 0);
+    return g;
+  });
+  const axleParts = mergeGeometries([axleGeo, ...knobGeos]);
+  knobGeos.forEach((g) => g.dispose());
+  const axle = new THREE.Mesh(keep(axleParts), brass);
   axle.position.set(0, ROTOR.y, ROTOR.z);
   root.add(axle);
+
+  // ── The shroud: fascia and cheeks the rotors rise out of ────────────────
+  const shroudGeos = [
+    new THREE.BoxGeometry(SHROUD.w, SHROUD.h, SHROUD.t),
+    ...([-1, 1] as const).map((side) => {
+      const g = new THREE.BoxGeometry(SHROUD.t, SHROUD.h, SHROUD.cheekD);
+      g.translate(side * (SHROUD.w / 2 - SHROUD.t / 2), 0, SHROUD.cheekZ - SHROUD.fasciaZ);
+      return g;
+    }),
+  ];
+  const shroud = new THREE.Mesh(keep(mergeGeometries(shroudGeos)), steel);
+  shroudGeos.forEach((g) => g.dispose());
+  shroud.position.set(0, DECK + SHROUD.h / 2, SHROUD.fasciaZ);
+  shroud.castShadow = true;
+  root.add(shroud);
 
   // ── Keyboard and lampboard: caps, lamps, and two atlas label layers ────
   const atlas = keep(tex(letterAtlas(p.keyInk)));
@@ -197,8 +267,12 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
   const lampData = lampSlots();
 
   const keys = new THREE.InstancedMesh(
-    keep(new THREE.CylinderGeometry(KEY_R * 0.92, KEY_R, KEY_H, 20)),
-    keep(new THREE.MeshStandardMaterial({ color: p.key, roughness: 0.46, metalness: 0.06, envMap: env })),
+    keep(new THREE.CylinderGeometry(KEY_R * 0.94, KEY_R, KEY_H, 20)),
+    // Bakelite: near-black with a soft gloss. The white discs were the single
+    // biggest reason the old machine read as a toy.
+    keep(new THREE.MeshStandardMaterial({
+      color: p.key, roughness: 0.45, metalness: 0.0, envMap: env, envMapIntensity: 0.15,
+    })),
     keyData.length,
   );
   keys.castShadow = true;
@@ -210,9 +284,11 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
   root.add(keys);
 
   const lamps = new THREE.InstancedMesh(
-    keep(new THREE.CylinderGeometry(LAMP_R, LAMP_R, LAMP_H, 20)),
+    keep(new THREE.CylinderGeometry(LAMP_R, LAMP_R * 0.95, LAMP_H, 20)),
+    // Dark glass windows seated near-flush; the glow does all the talking.
     keep(new THREE.MeshStandardMaterial({
-      color: p.lampOff, roughness: 0.35, metalness: 0.1, emissive: p.lampOn, emissiveIntensity: 0, envMap: env,
+      color: p.lampOff, roughness: 0.15, metalness: 0.1, emissive: p.lampOn, emissiveIntensity: 0,
+      envMap: env, envMapIntensity: 0.4,
     })),
     lampData.length,
   );
@@ -223,6 +299,19 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
     lamps.setColorAt(i, new THREE.Color(p.lampOff));
   });
   root.add(lamps);
+
+  // A brass bezel around each window, so the lampboard reads as fittings in a
+  // panel rather than as a second keyboard.
+  const bezels = new THREE.InstancedMesh(
+    keep(new THREE.TorusGeometry(LAMP_R + 0.022, 0.013, 8, 24)),
+    brass,
+    lampData.length,
+  );
+  const flatBezel = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
+  lampData.forEach((s, i) => {
+    bezels.setMatrixAt(i, m.compose(new THREE.Vector3(s.x, DECK + 0.008, s.z), flatBezel, one));
+  });
+  root.add(bezels);
 
   // Label layers: flat discs just above each cap/lamp, all sampling one atlas.
   const labelLayer = (

@@ -9,7 +9,8 @@
 // disagree. The dimension callouts print real numbers for the same reason.
 
 import {
-  CASE, DECK, FRONT, ROTOR, PLUGBOARD, PLATE, STEP_DEG, KEY_ROWS, LAMP_ROWS, LAMP_R, LAMP_H,
+  CASE, DECK, FRONT, ROTOR, PLINTH, SHROUD, PLUGBOARD, PLATE, STEP_DEG,
+  KEY_ROWS, KEY_R, LAMP_ROWS, LAMP_R, LAMP_H,
   keySlots, lampSlots, socketSlots,
 } from './layout';
 
@@ -49,10 +50,14 @@ export function blueprintSVG(): string {
     parts.push(el('line', { x1: PAD, y1: gy, x2: W - PAD, y2: gy, class: 'bp-grid' }));
   }
 
-  // Case outline.
+  // Case outline, then the carrying-box tray around it.
   parts.push(el('rect', {
     x: px(-CASE.w / 2), y: pz(-CASE.d / 2), width: CASE.w * S, height: CASE.d * S,
     rx: 6, class: 'bp-case',
+  }));
+  parts.push(el('rect', {
+    x: px(-PLINTH.w / 2), y: pz(PLINTH.z - PLINTH.d / 2), width: PLINTH.w * S, height: PLINTH.d * S,
+    rx: 8, class: 'bp-case',
   }));
 
   // Centreline.
@@ -85,18 +90,30 @@ export function blueprintSVG(): string {
     parts.push(label(px(cx), pz(ROTOR.z) + 26, ['I', 'II', 'III'][i], 'bp-t bp-t--mid'));
   }
 
+  // The cradle: fascia and cheeks the rotors rise out of.
+  parts.push(el('rect', {
+    x: px(-SHROUD.w / 2), y: pz(SHROUD.fasciaZ - SHROUD.t / 2),
+    width: SHROUD.w * S, height: SHROUD.t * S, class: 'bp-plug',
+  }));
+  [-1, 1].forEach((side) => {
+    parts.push(el('rect', {
+      x: px(side * (SHROUD.w / 2 - SHROUD.t / 2) - SHROUD.t / 2), y: pz(SHROUD.cheekZ - SHROUD.cheekD / 2),
+      width: SHROUD.t * S, height: SHROUD.cheekD * S, class: 'bp-plug',
+    }));
+  });
+
   // Lamp bank, then key bank. Both carry their letter so the Proof register can
   // answer a keystroke: the page promises 'a key sinks, a lamp lights', and a
   // static drawing was quietly not delivering it on any machine without a GPU.
   lampSlots().forEach((s) => {
     parts.push(el('circle', {
-      cx: px(s.x), cy: pz(s.z), r: 0.145 * S, class: 'bp-lamp', 'data-lamp': s.letter,
+      cx: px(s.x), cy: pz(s.z), r: LAMP_R * S, class: 'bp-lamp', 'data-lamp': s.letter,
     }));
     parts.push(label(px(s.x), pz(s.z) + 4, s.letter, 'bp-t bp-t--tiny'));
   });
   keySlots().forEach((s) => {
     parts.push(el('circle', {
-      cx: px(s.x), cy: pz(s.z), r: 0.175 * S, class: 'bp-key', 'data-key': s.letter,
+      cx: px(s.x), cy: pz(s.z), r: KEY_R * S, class: 'bp-key', 'data-key': s.letter,
     }));
     parts.push(label(px(s.x), pz(s.z) + 4, s.letter, 'bp-t bp-t--tiny'));
   });

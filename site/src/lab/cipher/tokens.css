@@ -21,12 +21,12 @@
   --phosphor: #62e6c8;
   --brass: #b08d57;
   --amber: #ffb454;
-  --cable: #8c2f24;
+  --cable: #2a1a12;
 
   /* Fed to the WebGL materials verbatim. */
   --m-paint: #191a1d;
-  --m-key: #e8e2d0;
-  --m-lamp-off: #3a2f1d;
+  --m-key: #17130e; /* bakelite, not bone — the bone moved to the letters */
+  --m-lamp-off: #120e0a;
 
   --ink-on-brass: #17140e;
 

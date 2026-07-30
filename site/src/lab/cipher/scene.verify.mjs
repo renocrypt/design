@@ -29,16 +29,16 @@ globalThis.document = {
 
 const THREE = await import('three');
 const { buildMachine } = await import('./machine.ts');
-const { CASE } = await import('./layout.ts');
+const { CASE, PLINTH } = await import('./layout.ts');
 
 // The camera stops, copied from scene.ts. Kept in step by the assertion below,
 // which fails if scene.ts stops matching this list.
 const CAMERA_STOPS = [
-  { pos: [3.9, 3.15, 6.2], look: [0, 1.15, 0] },
-  { pos: [1.1, 5.4, 4.5], look: [0, 1.5, -0.6] },
-  { pos: [-3.2, 2.5, 4.9], look: [-0.2, 1.2, -0.4] },
-  { pos: [0.2, 2.05, 4.15], look: [0, 1.35, 0.5] },
-  { pos: [5.2, 3.6, 6.9], look: [0, 1.1, 0] },
+  { pos: [4.0, 2.5, 7.2], look: [0, 1.2, 0.1] },
+  { pos: [1.1, 5.6, 4.6], look: [0, 1.6, -0.6] },
+  { pos: [-3.4, 2.6, 5.0], look: [-0.2, 1.3, -0.4] },
+  { pos: [0.2, 2.2, 4.3], look: [0, 1.5, 0.5] },
+  { pos: [5.4, 3.8, 7.1], look: [0, 1.2, 0] },
 ];
 const FOV = 33;
 const ASPECT = 16 / 9;
@@ -108,7 +108,10 @@ check('machine is centred on the axle line in x', Math.abs(centre.x) < 0.02, `x 
 check('nothing escapes the case footprint in x',
   whole.min.x > -CASE.w / 2 - 0.35 && whole.max.x < CASE.w / 2 + 0.35,
   `x ${whole.min.x.toFixed(2)}..${whole.max.x.toFixed(2)} against case ±${CASE.w / 2}`);
-const sunken = meshes.filter((m) => m.box.min.y < -0.02);
+// The table is the plinth's underside now, not y=0: the machine stands in its
+// carrying-box tray, so parts legitimately reach PLINTH.y - PLINTH.h/2.
+const tableY = PLINTH.y - PLINTH.h / 2;
+const sunken = meshes.filter((m) => m.box.min.y < tableY - 0.005);
 check('nothing sinks below the table', sunken.length === 0,
   sunken.map((m) => `${m.name}×${m.count} reaches y=${m.box.min.y.toFixed(3)}`).join('; '));
 

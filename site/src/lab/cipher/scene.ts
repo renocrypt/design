@@ -15,7 +15,7 @@
 
 import * as THREE from 'three';
 import { buildMachine, type Machine, type Palette } from './machine';
-import { ROTOR, STEP_DEG } from './layout';
+import { ROTOR, PLINTH, STEP_DEG } from './layout';
 import { advance, makeTracks, retarget } from './tracks';
 
 export interface SceneHandle {
@@ -31,12 +31,14 @@ export interface SceneHandle {
   dispose(): void;
 }
 
+// Recomposed for the taller case and the plinth: the hero sits near eye level
+// so the machine reads as a chest on a table, not a floor plan.
 const CAMERA_STOPS: { pos: [number, number, number]; look: [number, number, number] }[] = [
-  { pos: [3.9, 3.15, 6.2], look: [0, 1.15, 0] },
-  { pos: [1.1, 5.4, 4.5], look: [0, 1.5, -0.6] },
-  { pos: [-3.2, 2.5, 4.9], look: [-0.2, 1.2, -0.4] },
-  { pos: [0.2, 2.05, 4.15], look: [0, 1.35, 0.5] },
-  { pos: [5.2, 3.6, 6.9], look: [0, 1.1, 0] },
+  { pos: [4.0, 2.5, 7.2], look: [0, 1.2, 0.1] },
+  { pos: [1.1, 5.6, 4.6], look: [0, 1.6, -0.6] },
+  { pos: [-3.4, 2.6, 5.0], look: [-0.2, 1.3, -0.4] },
+  { pos: [0.2, 2.2, 4.3], look: [0, 1.5, 0.5] },
+  { pos: [5.4, 3.8, 7.1], look: [0, 1.2, 0] },
 ];
 
 const lerp3 = (a: number[], b: number[], t: number, out: THREE.Vector3): THREE.Vector3 =>
@@ -82,14 +84,17 @@ export function mountScene(
 
   // Two lighting poses. Night is a lit object in a dark room; day is the same
   // object on drafting paper, which needs a brighter bounce and less contrast
-  // or it reads as a hole cut in the page.
+  // or it reads as a hole cut in the page. Night's fill dropped with the
+  // redesign: at 0.5 it washed the wrinkle enamel up to plastic grey.
   const LIGHT = {
-    night: { key: 2.5, keyHue: 0xfff1de, sky: 0x9fb6d8, ground: 0x0a0a0c, fill: 0.5, exposure: 1.05 },
-    day: { key: 2.1, keyHue: 0xfff6ea, sky: 0xffffff, ground: 0xd8d2c4, fill: 1.15, exposure: 1.2 },
+    night: { key: 1.7, keyHue: 0xfff1de, sky: 0x9fb6d8, ground: 0x0a0a0c, fill: 0.09, rim: 1.4, exposure: 1.0 },
+    day: { key: 2.1, keyHue: 0xfff6ea, sky: 0xffffff, ground: 0xd8d2c4, fill: 1.15, rim: 0.7, exposure: 1.2 },
   } as const;
 
+  // Off to the side more than overhead: straight-down light turned the whole
+  // deck into one broad specular sheet.
   const key = new THREE.DirectionalLight(LIGHT.night.keyHue, LIGHT.night.key);
-  key.position.set(3.4, 6.2, 3.1);
+  key.position.set(4.6, 5.6, 2.4);
   key.castShadow = !software;
   key.shadow.mapSize.set(1024, 1024);
   key.shadow.camera.near = 1;
@@ -100,6 +105,22 @@ export function mountScene(
   scene.add(key);
   const fill = new THREE.HemisphereLight(LIGHT.night.sky, LIGHT.night.ground, LIGHT.night.fill);
   scene.add(fill);
+  // Cool rim from behind-left, so the brass crowns and the case edges separate
+  // from the void instead of dissolving into it.
+  const rim = new THREE.DirectionalLight(0x8fb4e8, LIGHT.night.rim);
+  rim.position.set(-4.5, 2.8, -4);
+  scene.add(rim);
+
+  // The machine finally stands on something: a shadow-catcher at the plinth's
+  // base. The renderer stays transparent; only the shadow lands.
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(24, 24),
+    new THREE.ShadowMaterial({ opacity: 0.45 }),
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = PLINTH.y - PLINTH.h / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
 
   let machine: Machine | null = null;
   let env: THREE.Texture | null = null;
@@ -197,6 +218,7 @@ export function mountScene(
       fill.color.setHex(p.sky);
       fill.groundColor.setHex(p.ground);
       fill.intensity = p.fill;
+      rim.intensity = p.rim;
       renderer.toneMappingExposure = p.exposure;
       shadowDirty = needsRender = true;
     },
@@ -242,8 +264,8 @@ export function mountScene(
       if (!reduced) {
         camera.position.x += Math.sin(t / 31) * 0.16;
         camera.position.y += Math.cos(t / 19) * 0.09;
-        key.position.x = 3.4 + Math.sin(t / 19) * 0.9;
-        key.position.z = 3.1 + Math.cos(t / 23) * 0.7;
+        key.position.x = 4.6 + Math.sin(t / 19) * 0.9;
+        key.position.z = 2.4 + Math.cos(t / 23) * 0.7;
       }
       camera.lookAt(look);
 
@@ -252,7 +274,9 @@ export function mountScene(
       machine.rotors.forEach((pivot, idx) => {
         const spread = tracks.spread.value * 0.62;
         pivot.position.x = (idx - 1) * (ROTOR.gap + spread);
-        pivot.position.y = ROTOR.y + tracks.spread.value * (0.3 + idx * 0.09);
+        // The explode must clear the shroud it now rises out of: 0.84 just to
+        // lift the flange bottoms over the fascia, and each rotor goes further.
+        pivot.position.y = ROTOR.y + tracks.spread.value * (1.0 + idx * 0.18);
         // Approach the quantised target; the settle is what sells the detent.
         pivot.rotation.x += (rotorTargets[idx] - pivot.rotation.x) * (1 - Math.pow(1 - 0.14, dt * 60));
       });
