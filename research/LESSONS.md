@@ -23,6 +23,12 @@ Softening text with opacity is where this bites hardest — on the darkest lane 
 World 04's real bugs were invisible in a screenshot: a blanket `.poster-h1 .line` selector silently zeroed the finale's headline via the poster's exit tween, station u-mapping was `/8` instead of `(n−1)/4`, and a Sprite had been given a MeshBasicMaterial.
 The same habit caught the night-mode contrast failures — measured ratios, not "looks a bit dark".
 
+**A claim in a comment is a claim, and it costs one script to check.**
+The archive's S5 cipher engine is headed "real wiring: rotors I, II, III, reflector B".
+Tested: it is genuinely reciprocal and never maps a letter to itself, so the Enigma property holds — but it types `AAAAA` → `DHLXO` where a real Enigma I at AAA gives `BDZGO`, because each rotor's ring offset is applied on entry and never removed on exit, and the middle rotor's double-step is absent.
+The plugboard is geometry only: `encrypt()` never touches the panel and cables the case displays.
+Recorded and deliberately not fixed — `/lab/` is a dated record, and rebuilding it as a world would jump a backlog of sharper concepts.
+
 **A fix for *missing* is not licence to change *design*.**
 While fixing an absent favicon the mark itself got redesigned, justified with a 16px legibility claim that had never been rendered.
 Reverted. A legibility claim without a render behind it is exactly the kind of assertion this project bans.
