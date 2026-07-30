@@ -21,7 +21,7 @@ One entrance opening into self-contained worlds, each built around a single hard
 
 ```
 docs/          the north star: concept, inspiration, asset rules, per-world build specs
-research/      dated findings per reference site (NOTES.md); screenshots stay local
+research/      measured anatomy per reference pole (POLES.md) + standing lessons; screenshots stay local
 site/          the build — one Vite app (TS + Three.js + GSAP), static output
   index.html     the hub
   worlds/<id>/   one HTML entry per world lane

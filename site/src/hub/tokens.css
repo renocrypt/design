@@ -12,8 +12,16 @@
   /* Ink for anything painted on a toy-box solid or a cream card. Those fills do
      NOT flip at night, so their text must not either — it stays black in both
      themes, which is also the pole's law (saturated solid + black text). Use
-     --ink only where the surface underneath is --paper. */
-  --ink-on-hue: #0e0d0b;
+     --ink only where the surface underneath is --paper.
+
+     Pure black, not --ink's warm near-black, and that is the whole point: on the
+     two darkest lane hues, #0e0d0b lands at 4.18:1 (cobalt) and 4.30:1 (red) —
+     under AA for body text — while #000 lifts the same fills to 4.52 and 4.65.
+     So the palette keeps hues that are traceable to the measured poles (cobalt
+     IS units.gr's rgb(0,114,227)) and the contrast is bought from the ink side
+     instead. Warmth still belongs on paper, where --ink rules; the difference is
+     0.004 luminance, invisible on cream and load-bearing on cobalt. */
+  --ink-on-hue: #000;
 
   --mint: #62e6c8; /* 00 Lab — the archive's own phosphor, quoted from /lab/ */
   --cobalt: #0072e3; /* 01 Noir — midnight cobalt */
@@ -24,16 +32,19 @@
   --amber-fill: var(--amber); /* amber as a large area — night-tuned below */
   --band: #ea3737; /* marquee band ground */
 
-  /* world aliases (specimen + shared references) */
+  /* World aliases (specimen + shared references). The -text ones are ink ON a
+     lane hue, so they take --ink-on-hue for the same reason the cards do.
+     /type/ is day-only — it never sets data-theme — so this was latent there
+     rather than visible; it is still the wrong token to inherit. */
   --gate-noir: var(--cobalt);
-  --gate-noir-text: var(--ink);
+  --gate-noir-text: var(--ink-on-hue);
   --gate-chrome: var(--vermilion);
-  --gate-chrome-text: var(--ink);
-  --gate-chrome-accent: var(--ink);
+  --gate-chrome-text: var(--ink-on-hue);
+  --gate-chrome-accent: var(--ink-on-hue);
   --gate-monument: var(--violet);
-  --gate-monument-text: var(--ink);
+  --gate-monument-text: var(--ink-on-hue);
   --gate-pulse: var(--red);
-  --gate-pulse-text: var(--ink);
+  --gate-pulse-text: var(--ink-on-hue);
 
   --font-display: 'Cabinet Grotesk';
   --font-text: 'General Sans';

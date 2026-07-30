@@ -1,7 +1,8 @@
 # Inspiration sources
 
 The curated list of places we pull design inspiration from.
-One line of *what it's for* per site — detailed findings from actual visits go in `research/NOTES.md`, screenshots in `research/shots/<site>/`.
+One line of *what it's for* per site — measured findings from the five reference poles go in `research/POLES.md`, screenshots in `research/shots/<site>/`.
+Curation hubs stay here rather than in `research/`: their walls rotate, so a dated snapshot of one goes stale while the verdict on the feed does not.
 
 Research cost ladder (cheapest first) — pick the lowest rung that answers the question:
 
@@ -14,8 +15,8 @@ Research cost ladder (cheapest first) — pick the lowest rung that answers the 
 
 | Site | What it is | Best for |
 | --- | --- | --- |
-| [posts.design](https://posts.design) | Curated wall of brand social posts (292+), each linking to its original source | Card-scale graphic language: type, color, motion trends. Visited 2026-07-26 ✓ |
-| [recent.design](https://recent.design) | Daily-curated multi-category gallery (Web, Interface, Motion, 3D, Typography…) with sub-galleries for Websites, OG Images, App Screenshots, App Icons | Broadest single feed; category filters map to our sketch topics. Visited 2026-07-26 ✓. Note: 403s WebFetch — needs Playwright |
+| [posts.design](https://posts.design) | Curated wall of brand social posts (292+), each linking to its original source | Card-scale graphic language: type, color, motion trends. Visited 2026-07-26 ✓. Shell pattern shared with recent.design: masonry + calm sidebar + presence dot |
+| [recent.design](https://recent.design) | Daily-curated multi-category gallery (Web, Interface, Motion, 3D, Typography…) with sub-galleries for Websites, OG Images, App Screenshots, App Icons | Broadest single feed; the Motion and 3D tabs are pre-filtered idea feeds. Visited 2026-07-26 ✓. Gotchas: 403s WebFetch (Playwright required), and a newsletter modal opens on load — Escape dismisses it |
 | [mnmm.xyz](https://mnmm.xyz) ("Minimum") | Hand-curated directory of ~148 minimalist sites, mostly designer/dev portfolios (Rauch, shadcn, Paco Coursey…) | The restrained end of the spectrum; portfolio patterns |
 
 ## Reference sites (single-site studies)
@@ -68,6 +69,6 @@ Evaluated and skipped: cosmos.so — a moodboard/collection *tool*, not a source
 
 - Collect by **technique**, not by site: "that marquee bend" → a future sketch in `sketches/`.
 - Steal one hard idea executed cleanly, not stacks of effects.
-- Every visited site gets: one line here (✓ + date), findings in `research/NOTES.md`, shots in `research/shots/<site>/`.
+- Every visited site gets: one line here (✓ + date), shots in `research/shots/<site>/`; a site we adopt as a pole also gets a measured section in `research/POLES.md`.
 
 

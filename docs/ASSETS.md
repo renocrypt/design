@@ -20,7 +20,7 @@ When in doubt, come back to this list instead of searching.
 ## Type — the identity carrier
 
 Standing rule: no reflex Google Fonts, no Inter-by-default.
-Every vibe/sketch picks its own face deliberately; the display face carries the personality, paired with one quiet workhorse (the two-font pattern every premium reference uses — see `research/NOTES.md`).
+Every vibe/sketch picks its own face deliberately; the display face carries the personality, paired with one quiet workhorse (the two-font pattern every premium reference uses — see `research/POLES.md`).
 
 - **Fontshare** (fontshare.com) — Indian Type Foundry's free catalog, 100 families, ITF Free Font License (free commercial, no signup). Real-foundry quality: General Sans, Clash Display/Grotesk, Cabinet Grotesk, Satoshi. **First stop.** Download from fontshare.com only — third-party mirrors mislabel the license.
 - **Uncut.wtf** — Kasper Nordkvist's curated catalog of 160+ free-for-commercial contemporary typefaces from independent designers; skews display/experimental. Exactly the "unique fonts" brief. Note: 403s WebFetch — browse via Playwright.

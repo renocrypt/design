@@ -26,7 +26,7 @@ This is also why the hub's `--mint` exists: the 00 lane hue quotes the lab's own
 
 ## The mapping (decided 2026-07-26)
 
-Each design target takes one reference pole — original styles described truthfully in `research/NOTES.md`, then rebuilt with our identity, faces, and content.
+Each design target takes one reference pole — original styles described truthfully in `research/POLES.md`, then rebuilt with our identity, faces, and content.
 
 | Target | Reference pole | Original style in one line |
 | --- | --- | --- |
@@ -82,5 +82,5 @@ The lab is built to grow past four worlds. One checklist, in order:
    If dual-mode: read `localStorage('hub-theme')` pre-paint in an inline head script and write back on toggle — lab-wide continuity.
 4. **Pixel glyph** — draw the lane's `glyph` as a 10×10 ASCII bitmap in `GLYPHS` in `src/hub/main.ts`; the room-card and rail render themselves from it. No hand-authored card markup — `#worlds` is empty in `index.html` by design.
 5. **Hue token** — add the lane's hue to `site/src/hub/tokens.css` if the registry references a new `var(...)`.
-6. **The hard rules still apply**: measured-anatomy reference pole filed in `research/NOTES.md` first; degrade ladder (live → still frame → art-directed DOM) with ≤40 draw calls and dpr ≤1.75; `webglcontextlost` guard; GSAP owns every transform it touches; icons drawn, never stock; assets pass the `ASSETS.md` slop filter; unique image assets per world (generated/seeded beats downloaded).
+6. **The hard rules still apply**: measured-anatomy reference pole filed in `research/POLES.md` first; degrade ladder (live → still frame → art-directed DOM) with ≤40 draw calls and dpr ≤1.75; `webglcontextlost` guard; GSAP owns every transform it touches; icons drawn, never stock; assets pass the `ASSETS.md` slop filter; unique image assets per world (generated/seeded beats downloaded).
 7. **Spec first** — write the world's build spec into `docs/specs/<id>.json` (shape: world/policy/typecasting/downloads/sections/centerpiece/assets2d/motion/fallback/distinct) and check it against `docs/specs/_verdict.md`'s distinctiveness matrix before building.

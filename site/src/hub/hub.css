@@ -612,7 +612,10 @@ body {
   max-width: 30rem;
   font-size: 1.02rem;
   line-height: 1.5;
-  color: rgb(14 13 11 / 78%);
+  /* Solid, not softened: composited over cobalt, 78% near-black is 3.42:1 and
+     even 100% near-black only reaches 4.18 — no alpha clears AA on this fill,
+     so the hierarchy here comes from size and measure instead of opacity. */
+  color: var(--ink-on-hue);
 }
 
 .man-chips {
@@ -900,7 +903,9 @@ body {
 }
 
 .bench-cap--sun {
-  color: var(--cream-text);
+  /* Was cream on cobalt: 4.38:1, and cream on a solid is the hero media card's
+     privilege alone (see tokens.css). Black on the fill is both the law and 4.52. */
+  color: var(--ink-on-hue);
   max-width: 16rem;
 }
 
@@ -989,7 +994,9 @@ body {
 
 .pill-link--static {
   border-color: transparent;
-  color: rgb(14 13 11 / 55%);
+  /* 62% is the dim tier .rules p already uses; at 55% this composited to
+     4.19:1 on the footer cream, under AA for text that is not a control. */
+  color: rgb(14 13 11 / 62%);
 }
 
 /* ── Mobile ──────────────────────────────────────────── */
