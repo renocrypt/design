@@ -1,6 +1,6 @@
 # Reference poles — measured anatomy
 
-The five sites the lab is built against, one section each: what the original *is*, and the numbers we measured off it.
+The sites the lab is built against, one section each: what the original *is*, and the numbers we measured off it.
 This file is **current state, not history** — when a re-visit corrects an earlier reading, the old number is deleted rather than appended, so anything here is what we believe today.
 Where two viewports disagree, both are recorded with their viewport, because that difference is usually the finding.
 
@@ -42,6 +42,30 @@ The rail collapses to logo + pill CTA + black hamburger — never a horizontal c
 Hero card follows immediately, display type stays huge, black pill CTA bottom-center.
 
 **Preloader.** Animated items play before entry: charming, but too long — ours is the short, dynamic cut.
+
+---
+
+## anygivenmoment.co — the 00 Cipher pole (interaction)
+
+London/Paris creative production house, found via hoverstat.es, which describes its dial navigation as "luxurious, mechanical".
+Role: how a rotating control earns that mechanical feel — taken for world 00's cipher engine, whose rotors are dials.
+Renders here; measured 2026-07-30 at 1280×844.
+
+**The feel is quantisation, not scroll.**
+The page is exactly **one viewport** (844px) with `overflow: visible` and **no wheel hijack** — the dial is driven by input, not by document height.
+That matters: we assumed a long scrub was what made it feel mechanical, and the opposite is true.
+
+**Measured geometry.** A Swiper instance (`swiper-creative swiper-3d`), `position: fixed`, z-index 1.
+Slides sit on exact **30° spokes** — successive rotations of −30.04°, −60.07°, −89.93°, −119.97° — each offset **169px** in y, and everything past the fourth clamps at −120° and parks out of view.
+A separate SVG tick ring is graduated at roughly **14.3°** per mark.
+
+**Everything else is restrained**, which is why the dial reads as the subject: 315 elements, 20 videos, **zero canvases** (no WebGL at all), and one transition curve doing almost all the work — `cubic-bezier(0.4, 0, 0.2, 1)`, 21 of 24 uses at 0.3s.
+
+**The convergence worth building on**: an Enigma rotor advances 360/26 = **13.846°** per letter, which lands almost exactly on this dial's 14.3° tick ring.
+The reference's graduated ring and a real rotor's step are, by coincidence, the same visual rhythm.
+
+*Checked and rejected as a pole the same day*: ballet-de-marseille.com, whose "sticky layered homepage choreography" is gone — sampling every section across a 1473px scroll gives rate 1.00 for all of them, with only a fixed header at 0.
+No layered choreography survives on the page, so it earns no section here.
 
 ---
 
