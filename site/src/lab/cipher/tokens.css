@@ -1,0 +1,57 @@
+/* World 00 · Cipher — palette tokens.
+   Two registers, and they are two DIFFERENT REPRESENTATIONS rather than one
+   design with its values flipped: Proof is the machine as a paper drawing,
+   Signal is the machine as a lit object. No other world in the lab does this.
+
+   Teal is world 00's own accent — the lab's phosphor, which the hub's --mint
+   already quotes — and brass is the machine's. Warm metal against cold phosphor
+   is the split that keeps this world clear of 01 Noir's strict charcoal-and-bone.
+
+   The 3D materials read these same values through machine.ts's Palette, so the
+   canvas and the DOM cannot drift; there is one palette, not two. */
+
+:root {
+  /* Signal (dark) — the default, because the machine is the subject. */
+  --bg: #08090b;
+  --bg-2: #0e1014;
+  --bone: #e8e4d8;
+  --bone-60: color-mix(in oklch, var(--bone) 60%, var(--bg));
+  --bone-30: color-mix(in oklch, var(--bone) 30%, var(--bg));
+  --bone-12: color-mix(in oklch, var(--bone) 12%, var(--bg));
+  --phosphor: #62e6c8;
+  --brass: #b08d57;
+  --amber: #ffb454;
+  --cable: #8c2f24;
+
+  /* Fed to the WebGL materials verbatim. */
+  --m-paint: #191a1d;
+  --m-key: #e8e2d0;
+  --m-lamp-off: #3a2f1d;
+
+  --ink-on-brass: #17140e;
+
+  --font: 'Martian Mono', ui-monospace, monospace;
+
+  /* Radius 2px: unclaimed in the lab (01 is 4, 02 is 0, 03 none, 04 pills).
+     Small enough to read as machined rather than styled. */
+  --r: 2px;
+
+  /* One snap curve for discrete UI. Mechanical, slight overshoot. Continuous
+     motion never uses it — that lives on the five track rates in scene.ts. */
+  --snap: cubic-bezier(0.2, 0.9, 0.1, 1);
+  --snap-ms: 340ms;
+}
+
+:root[data-theme='day'] {
+  /* Proof (light) — drafting paper. Ink is warm near-black, and the accent
+     becomes the drawing's red pen, because phosphor is a light-emitting idea
+     and paper does not emit. */
+  --bg: #f7f3ea;
+  --bg-2: #efe9da;
+  --bone: #171a17;
+  --bone-60: color-mix(in oklch, var(--bone) 60%, var(--bg));
+  --bone-30: color-mix(in oklch, var(--bone) 30%, var(--bg));
+  --bone-12: color-mix(in oklch, var(--bone) 14%, var(--bg));
+  --phosphor: #1f4fd8;
+  --amber: #c0392b;
+}

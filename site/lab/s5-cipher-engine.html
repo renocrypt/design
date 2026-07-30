@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en" data-theme="night">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>S5 — The Cipher Engine · RenoCrypt</title>
+    <meta
+      name="description"
+      content="A procedural Enigma you can type into — shown as a lit brass machine, or as the paper drawing it was built from."
+    />
+    <script>
+      // Pre-paint, so the register is correct on the first frame and the lab-wide
+      // flip stays continuous. Signal (dark) is the default: the machine is the subject.
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem('hub-theme') || 'night';
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <!-- Signal register -->
+    <canvas id="stage"></canvas>
+    <!-- Proof register: generated from the same constants as the mesh (blueprint.ts) -->
+    <div class="proof" aria-hidden="false"></div>
+
+    <div class="hud">
+      <span class="brand">RENOCRYPT<i>_</i> M-26</span>
+      <button class="btn" id="theme" type="button">Proof ↗</button>
+    </div>
+
+    <main>
+      <section class="chapter chapter--hero">
+        <div class="inner">
+          <p class="k">World 00 · study five</p>
+          <h1>The cipher <span class="dim">engine</span></h1>
+          <p>
+            Three rotors, a reflector and a plugboard, <b>every part built in code</b>. Type, and it
+            enciphers for real — rotors I–II–III, reflector B, the same wiring the originals used.
+          </p>
+          <p class="hint">Scroll to open it up · press any letter</p>
+        </div>
+      </section>
+
+      <section class="chapter chapter--right">
+        <div class="inner">
+          <p class="k">Anatomy</p>
+          <h2>Three rotors, <span class="dim">one secret</span></h2>
+          <p>
+            Each rotor is a different scramble of the alphabet, and each turns at its own moment. The
+            right one steps every letter; the middle waits for a notch, then <b>steps twice in two
+            presses</b> — the anomaly that made the machine breakable.
+          </p>
+          <p>
+            They separate as you scroll, but not together: every part here rides its own track at its
+            own rate, so nothing arrives in lockstep.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter">
+        <div class="inner">
+          <p class="k">The path</p>
+          <h2>Through and <span class="dim">back</span></h2>
+          <p>
+            A letter goes in at the plugboard, right to left through the rotors, hits the reflector,
+            then returns left to right and out through the plugboard again — <b>ten stops</b>. Because
+            the reflector pairs letters, the whole machine is its own inverse.
+          </p>
+          <p>
+            Which is also its flaw: <b>no letter can ever encipher to itself</b>. That single
+            certainty is where the attacks began.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter chapter--right">
+        <div class="inner">
+          <p class="k">Type it</p>
+          <h2>It <span class="dim">encrypts</span></h2>
+          <p>Your keyboard drives the machine. A key sinks, a rotor steps one notch, a lamp lights.</p>
+
+          <div class="io">
+            <div class="io-row"><span>Plain</span><span class="io-val io-val--plain" id="out-plain">—</span></div>
+            <div class="io-row"><span>Cipher</span><span class="io-val" id="out-cipher">—</span></div>
+            <div class="io-row"><span>Windows</span><span class="io-val" id="out-windows">A A A</span></div>
+          </div>
+
+          <div class="controls">
+            <button class="btn" id="prove" type="button">Prove it reverses</button>
+            <button class="btn" id="reset" type="button">Reset rotors</button>
+          </div>
+          <p class="hint">Retyping the cipher from the same start returns the plain text</p>
+        </div>
+      </section>
+
+      <section class="chapter">
+        <div class="inner">
+          <p class="k">Colophon</p>
+          <h2>Made, <span class="dim">not found</span></h2>
+          <p>
+            Every rotor, key, lamp, cable and engraving on this page is generated at load. The only
+            things downloaded are <b>one CC0 environment map</b> and <b>one open-licence typeface</b>.
+          </p>
+          <p>
+            Rotor step <b id="step-angle">13.846°</b> · plugboard pairs <b id="plug-pairs">BJ · EK · CH</b> ·
+            <b id="drawcalls">—</b> draw calls.
+          </p>
+          <p>
+            The light register is not a fallback — it is the same machine as its plan drawing, built
+            from the same numbers.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <a class="exit" href="/lab/">← lab</a>
+    <script type="module" src="/src/lab/cipher/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,229 @@
+/* World 00 · Cipher — page. One family (Martian Mono), radius 2px, one snap
+   curve for discrete UI. Continuous motion is not here: it lives on the five
+   independently-lerped tracks in scene.ts, which is the whole point. */
+
+@font-face {
+  font-family: 'Martian Mono';
+  src: url('/fonts/MartianMono-Variable.woff2') format('woff2-variations');
+  font-weight: 100 800;
+  font-display: swap;
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+html {
+  background: var(--bg);
+  transition: background-color 700ms var(--snap);
+}
+
+body {
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--bone);
+  font-family: var(--font);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 700ms var(--snap), color 700ms var(--snap);
+}
+
+/* ── The two registers ───────────────────────────────────
+   Signal shows the canvas; Proof shows the blueprint. Exactly one is ever
+   mounted, so the light theme costs no WebGL and the fallback costs no extra
+   design work. */
+
+#stage {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  opacity: 1;
+  transition: opacity 500ms var(--snap);
+}
+
+#stage.is-lost,
+:root[data-theme='day'] #stage,
+:root:not([data-webgl]) #stage { opacity: 0; pointer-events: none; }
+
+.proof {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: none;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+:root[data-theme='day'] .proof,
+:root:not([data-webgl]) .proof { display: grid; }
+
+.blueprint { width: min(100%, 62rem); height: auto; }
+.bp-sheet { fill: transparent; }
+.bp-grid { stroke: var(--bone-12); stroke-width: 1; }
+.bp-case { fill: none; stroke: var(--bone); stroke-width: 1.6; }
+.bp-centre { stroke: var(--amber); stroke-width: 1; stroke-dasharray: 10 4 2 4; }
+.bp-axle { stroke: var(--bone-60); stroke-width: 1.2; stroke-dasharray: 6 3; }
+.bp-rotor { fill: none; stroke: var(--bone); stroke-width: 1.2; }
+.bp-rotor-inner { fill: none; stroke: var(--bone-30); stroke-width: 1; }
+.bp-key { fill: none; stroke: var(--bone-60); stroke-width: 1; }
+.bp-lamp { fill: none; stroke: var(--phosphor); stroke-width: 1; }
+.bp-plug { fill: none; stroke: var(--bone-60); stroke-width: 1; }
+.bp-socket { fill: var(--bone-30); }
+.bp-leader { stroke: var(--bone-30); stroke-width: 1; fill: none; }
+.bp-t {
+  fill: var(--bone-60);
+  font-family: var(--font);
+  font-size: 9px;
+  text-anchor: middle;
+  letter-spacing: 0.04em;
+}
+/* Was --bone-30 and measured 1.93:1 — these letters say which key is which, so
+   they are information, not texture. --bone-60 takes them to 5.14:1. */
+.bp-t--tiny { font-size: 7.5px; fill: var(--bone-60); }
+.bp-t--mid { font-size: 13px; fill: var(--bone); font-weight: 600; }
+.bp-t--note { text-anchor: start; font-size: 10px; letter-spacing: 0.14em; }
+
+/* ── Chapters ────────────────────────────────────────────
+   Content scrolls over whichever register is showing. */
+
+main { position: relative; z-index: 1; }
+
+.chapter {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 clamp(1.25rem, 5vw, 5rem);
+}
+
+.chapter .inner { max-width: 30rem; }
+.chapter--right .inner { margin-left: auto; }
+.chapter--hero { justify-content: flex-end; padding-bottom: clamp(3.5rem, 9vh, 6rem); }
+
+.k {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.1rem;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.k::before { content: ''; width: 2rem; height: 1px; background: currentcolor; }
+
+h1, h2 {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+h1 { font-size: clamp(2.6rem, 7vw, 6.5rem); }
+h2 { font-size: clamp(1.8rem, 4vw, 3.4rem); }
+/* --bone-60, not --bone-30. The recessed headline word measured 2.1:1, which
+   fails even the 3:1 large-text bar, and it is a word people read rather than
+   texture. The effect lives in the STEP between the two words, and 5.14 against
+   15.67 is still an unmistakable step. */
+h1 .dim, h2 .dim { color: var(--bone-60); }
+
+.chapter p {
+  margin-top: 1.1rem;
+  color: var(--bone-60);
+  max-width: 34ch;
+}
+.chapter p b { color: var(--bone); font-weight: 500; }
+
+/* ── Keyboard floor ──────────────────────────────────────*/
+
+.io {
+  margin-top: 1.6rem;
+  border: 1px solid var(--bone-12);
+  border-radius: var(--r);
+  background: color-mix(in oklch, var(--bg) 70%, transparent);
+  backdrop-filter: blur(6px);
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.io-row { display: flex; gap: 0.7rem; align-items: baseline; font-size: 12px; }
+/* --bone-60, not --bone-30: at 30% these labels measured 1.93:1 in Signal and
+   2.10:1 in Proof, which is a dim tier applied to real text — the exact bug the
+   hub was audited for. Authored dimness is fine on a pole's terms; this is not. */
+.io-row span:first-child { color: var(--bone-60); letter-spacing: 0.14em; text-transform: uppercase; }
+.io-val { color: var(--phosphor); word-break: break-all; font-weight: 500; }
+.io-val--plain { color: var(--bone); }
+
+.hint {
+  margin-top: 0.9rem;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-30);
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--bone-30);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--bone);
+  font: 500 11px/1 var(--font);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+  transition: border-color var(--snap-ms) var(--snap), color var(--snap-ms) var(--snap);
+}
+.btn:hover { border-color: var(--phosphor); color: var(--phosphor); }
+
+.controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+
+/* ── Fixed chrome ────────────────────────────────────────*/
+
+.hud {
+  position: fixed;
+  top: 1rem;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 clamp(1rem, 4vw, 2rem);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+.hud a, .hud button { pointer-events: auto; }
+.hud a { color: var(--bone-60); text-decoration: none; }
+.hud a:hover { color: var(--phosphor); }
+.brand { color: var(--bone); font-weight: 600; }
+.brand i { color: var(--phosphor); font-style: normal; }
+
+.exit {
+  position: fixed;
+  left: 1.1rem;
+  bottom: 1.1rem;
+  z-index: 3;
+  border: 1px solid var(--bone-30);
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-60);
+  text-decoration: none;
+  background: color-mix(in oklch, var(--bg) 70%, transparent);
+  backdrop-filter: blur(6px);
+}
+.exit:hover { border-color: var(--phosphor); color: var(--phosphor); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 1ms !important; }
+}

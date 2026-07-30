@@ -15,6 +15,10 @@ export default defineConfig({
       input: {
         hub: resolve(__dirname, 'index.html'),
         type: resolve(__dirname, 'type/index.html'),
+        // World 00's first study to move onto our stack. It keeps its URL —
+        // dist/lab/s5-cipher-engine.html — while the other three stay copied
+        // from public/, so the two must never both provide that filename.
+        cipher: resolve(__dirname, 'lab/s5-cipher-engine.html'),
         ...Object.fromEntries(
           buildLanes().map((l) => [l.id, resolve(__dirname, `worlds/${l.id}/index.html`)]),
         ),
