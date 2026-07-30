@@ -44,8 +44,11 @@ body {
   transition: opacity 500ms var(--snap);
 }
 
+/* Which representation is on screen is its own axis. It used to hang off
+   data-theme, so a light-mode visitor never saw the machine at all — and
+   hub-theme is shared lab-wide, so toggling any other world took it away. */
 #stage.is-lost,
-:root[data-theme='day'] #stage,
+:root[data-register='proof'] #stage,
 :root:not([data-webgl]) #stage { opacity: 0; pointer-events: none; }
 
 .proof {
@@ -57,7 +60,7 @@ body {
   padding: clamp(1rem, 4vw, 3rem);
 }
 
-:root[data-theme='day'] .proof,
+:root[data-register='proof'] .proof,
 :root:not([data-webgl]) .proof { display: grid; }
 
 /* 44rem, not 62: a 30rem copy column plus two page paddings leaves 48rem, and
@@ -220,6 +223,10 @@ h1 .dim, h2 .dim { color: var(--bone-60); }
   text-transform: uppercase;
   pointer-events: none;
 }
+/* Two controls now, so they travel together and space-between keeps meaning
+   brand-left / controls-right rather than pushing one of them to the middle. */
+.hud-controls { display: flex; gap: 0.5rem; align-items: center; }
+
 .hud a, .hud button { pointer-events: auto; }
 .hud a { color: var(--bone-60); text-decoration: none; }
 .hud a:hover { color: var(--phosphor); }

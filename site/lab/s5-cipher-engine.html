@@ -11,8 +11,11 @@
     <script>
       // Pre-paint, so the register is correct on the first frame and the lab-wide
       // flip stays continuous. Signal (dark) is the default: the machine is the subject.
+      // Theme is colour and travels with the lab; register is which
+      // representation is on screen and belongs to this page alone.
       try {
         document.documentElement.dataset.theme = localStorage.getItem('hub-theme') || 'night';
+        document.documentElement.dataset.register = localStorage.getItem('cipher-register') || 'signal';
       } catch (e) {}
     </script>
   </head>
@@ -24,7 +27,10 @@
 
     <div class="hud">
       <span class="brand">RENOCRYPT<i>_</i> M-26</span>
-      <button class="btn" id="theme" type="button">Proof ↗</button>
+      <span class="hud-controls">
+        <button class="btn" id="register" type="button">Proof ↗</button>
+        <button class="btn" id="theme" type="button">Day ↗</button>
+      </span>
     </div>
 
     <main>

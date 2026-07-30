@@ -50,30 +50,50 @@ const markProof = (typed: string, lit: string): void => {
 };
 
 // ── Theme: two registers, continuous with the rest of the lab ──────────────
+// Declared up here because applyTheme reaches for it, and a `let` in the
+// temporal dead zone throws on read — optional chaining does not save you.
+let scene: SceneHandle | null = null;
+
 const applyTheme = (mode: 'day' | 'night') => {
   document.documentElement.dataset.theme = mode;
   localStorage.setItem('hub-theme', mode);
   const btn = $<HTMLButtonElement>('#theme');
+  if (btn) btn.textContent = mode === 'day' ? 'Night ↗' : 'Day ↗';
+  scene?.setTheme(mode);
+};
+
+/**
+ * Which representation is on screen. Separate from the theme, and page-local:
+ * `hub-theme` travels the whole lab, and one toggle in another world must not
+ * decide whether this page shows its machine.
+ */
+const applyRegister = (mode: 'signal' | 'proof') => {
+  const offered = document.documentElement.dataset.signal !== 'unavailable';
+  document.documentElement.dataset.register = offered ? mode : 'proof';
+  localStorage.setItem('cipher-register', offered ? mode : 'proof');
+  const btn = $<HTMLButtonElement>('#register');
   if (!btn) return;
-  // 'Signal ↗' is an offer, and it has to be one the page can keep: with no
-  // WebGL context, pressing it changed the theme and left the same drawing on
-  // screen, which reads as a dead button rather than as a missing register.
-  if (document.documentElement.dataset.signal === 'unavailable') {
+  if (!offered) {
     btn.textContent = 'Proof only';
     btn.title = 'The lit machine needs WebGL, which this browser did not provide.';
     btn.disabled = true;
     return;
   }
-  btn.textContent = mode === 'day' ? 'Signal ↗' : 'Proof ↗';
+  btn.textContent = mode === 'proof' ? 'Signal ↗' : 'Proof ↗';
 };
+
+applyRegister(localStorage.getItem('cipher-register') === 'proof' ? 'proof' : 'signal');
 applyTheme((localStorage.getItem('hub-theme') as 'day' | 'night') ?? 'night');
+
 $('#theme')?.addEventListener('click', () =>
   applyTheme(document.documentElement.dataset.theme === 'day' ? 'night' : 'day'),
+);
+$('#register')?.addEventListener('click', () =>
+  applyRegister(document.documentElement.dataset.register === 'proof' ? 'signal' : 'proof'),
 );
 
 // ── Signal register: the lit machine ──────────────────────────────────────
 const canvas = $<HTMLCanvasElement>('#stage');
-let scene: SceneHandle | null = null;
 
 if (canvas) {
   scene = mountScene(
@@ -105,12 +125,13 @@ if (canvas) {
         // data-webgl here; the CSS shows the drawing on :not([data-webgl]).
         document.documentElement.dataset.signal = 'unavailable';
         if (line) line.textContent = ' · no WebGL context in this browser, so the machine is unavailable here.';
-        // The toggle was already labelled before this resolved, so relabel it.
-        applyTheme(document.documentElement.dataset.theme === 'day' ? 'day' : 'night');
+        // The buttons were labelled before this resolved, so settle them now.
+        applyRegister('proof');
         return;
       }
       document.documentElement.dataset.webgl = 'on';
       scene?.resize();
+      scene?.setTheme(document.documentElement.dataset.theme === 'day' ? 'day' : 'night');
       const dc = $('#drawcalls');
       if (dc && scene) dc.textContent = String(scene.drawCalls);
     },
@@ -128,9 +149,11 @@ const sections = [...document.querySelectorAll('.chapter')];
  * — a fixed, dead-centre 62rem drawing beneath text columns that alternate sides,
  * which ran 328px of key circles straight through two chapters. Same scalar and
  * the same five stops, so the drawing leans away from the copy instead.
- * -1 = drawing left (copy on the right), +1 = drawing right, 0 = centred.
+ * -1 = drawing left (copy on the right), +1 = drawing right.
+ * The hero was centred here and its bank callouts landed under the statement,
+ * so it leans like every other chapter: its copy is bottom-left, drawing right.
  */
-const PROOF_LEAN = [0, -1, 1, -1, 1];
+const PROOF_LEAN = [1, -1, 1, -1, 1];
 
 const readScroll = () => {
   const span = document.documentElement.scrollHeight - innerHeight;

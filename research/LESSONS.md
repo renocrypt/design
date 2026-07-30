@@ -51,8 +51,9 @@ Night-mode tuning belongs on the large fills; small accents keep the undimmed hu
 **Text on a fill must not follow a flipping ink token**, or day/night silently inverts the contrast.
 
 **Don't tie a rendering mode to a colour theme.**
-Theme is colour; which representation is on screen is a separate axis.
-Still live in S5: `[data-theme='day']` hides the 3D canvas, so a light-mode visitor never sees the page's subject, and `hub-theme` is shared lab-wide — toggling any other world removes it.
+Theme is colour; which representation is on screen is a separate axis, and one of them travels the lab while the other belongs to its page.
+S5 hid its 3D under `[data-theme='day']`, so a light-mode visitor never saw the page's subject and a toggle in any other world took it away through the shared `hub-theme` key.
+Splitting them means the lit object also needs a second lighting pose, or it is a hole cut in the paper.
 
 **A degrade ladder must actually fire, and the trigger has to exist.**
 A lost context that hides the canvas without restoring the fallback leaves an empty page.

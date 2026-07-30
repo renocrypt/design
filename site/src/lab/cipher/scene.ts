@@ -24,6 +24,8 @@ export interface SceneHandle {
   setScroll(v: number): void;
   /** `typed` sinks its cap, `lit` glows its lamp; either may be '' for a reset. */
   press(typed: string, lit: string, windows: number[]): void;
+  /** Relight for the page's ground. The machine is the same object in both. */
+  setTheme(mode: 'day' | 'night'): void;
   setReduced(on: boolean): void;
   drawCalls: number;
   dispose(): void;
@@ -48,7 +50,11 @@ export function mountScene(
 ): SceneHandle | null {
   let renderer: THREE.WebGLRenderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    // Transparent, so the machine sits on whatever ground the page is using
+    // instead of on a black plate that only agrees with one theme.
+    renderer = new THREE.WebGLRenderer({
+      canvas, antialias: true, alpha: true, powerPreference: 'high-performance',
+    });
   } catch {
     onReady(false);
     return null;
@@ -60,6 +66,7 @@ export function mountScene(
   const software = /swiftshader|llvmpipe|software|basic render/i.test(gpuName);
 
   renderer.setPixelRatio(Math.min(devicePixelRatio, software ? 1 : 1.75));
+  renderer.setClearAlpha(0);
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -73,7 +80,15 @@ export function mountScene(
   const camera = new THREE.PerspectiveCamera(33, 1, 0.1, 60);
   const look = new THREE.Vector3();
 
-  const key = new THREE.DirectionalLight(0xfff1de, 2.5);
+  // Two lighting poses. Night is a lit object in a dark room; day is the same
+  // object on drafting paper, which needs a brighter bounce and less contrast
+  // or it reads as a hole cut in the page.
+  const LIGHT = {
+    night: { key: 2.5, keyHue: 0xfff1de, sky: 0x9fb6d8, ground: 0x0a0a0c, fill: 0.5, exposure: 1.05 },
+    day: { key: 2.1, keyHue: 0xfff6ea, sky: 0xffffff, ground: 0xd8d2c4, fill: 1.15, exposure: 1.2 },
+  } as const;
+
+  const key = new THREE.DirectionalLight(LIGHT.night.keyHue, LIGHT.night.key);
   key.position.set(3.4, 6.2, 3.1);
   key.castShadow = !software;
   key.shadow.mapSize.set(1024, 1024);
@@ -83,7 +98,8 @@ export function mountScene(
   key.shadow.camera.right = key.shadow.camera.top = 5;
   key.shadow.bias = -0.0006;
   scene.add(key);
-  scene.add(new THREE.HemisphereLight(0x9fb6d8, 0x0a0a0c, 0.5));
+  const fill = new THREE.HemisphereLight(LIGHT.night.sky, LIGHT.night.ground, LIGHT.night.fill);
+  scene.add(fill);
 
   let machine: Machine | null = null;
   let env: THREE.Texture | null = null;
@@ -171,6 +187,17 @@ export function mountScene(
       windows.forEach((w, i) => {
         rotorTargets[i] = -w * STEP_DEG * (Math.PI / 180);
       });
+      shadowDirty = needsRender = true;
+    },
+
+    setTheme(mode: 'day' | 'night') {
+      const p = LIGHT[mode];
+      key.intensity = p.key;
+      key.color.setHex(p.keyHue);
+      fill.color.setHex(p.sky);
+      fill.groundColor.setHex(p.ground);
+      fill.intensity = p.fill;
+      renderer.toneMappingExposure = p.exposure;
       shadowDirty = needsRender = true;
     },
 
