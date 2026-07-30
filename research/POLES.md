@@ -6,7 +6,7 @@ Where two viewports disagree, both are recorded with their viewport, because tha
 
 Screenshots live in `shots/<site>/<date>-<what>.png` and are gitignored — evidence stays on disk, conclusions come here.
 `shots/_smoke/` holds environment-verification captures, not inspiration.
-Sibling files: `LESSONS.md` (what building against these poles taught us), `award-study-2026-07.md` (the 2026-07-19 award-winner study the lab itself grew from).
+Sibling file: `LESSONS.md` — what building against these poles taught us.
 Curation hubs (posts.design, recent.design, mnmm.xyz…) are listed with their verdicts in `docs/INSPIRATION.md`; they are feeds, so they get a verdict there rather than a findings section here.
 
 ---

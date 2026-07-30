@@ -1,90 +1,83 @@
 # Concept — the hub and its worlds
 
-The north star for everything we build here.
-Content is never the point; **look and vibe are ubercritical** — copy and structure get tailored to us later, aesthetics are studied and stolen now.
-This is a personal project, kept for ourselves: no acknowledgement rituals anywhere (no credits footers, no award ceremony), and personal-use font tiers are fully in scope.
+Content is never the point; **look and vibe are ubercritical**.
+Personal project, kept for ourselves: no credits, no award ceremony, personal-use font tiers in scope.
+Nothing here is frozen — world 00 included.
 
 ## The shape
 
-One **entrance site** — modern, elegant, bold, unique — that opens into four **worlds**, each a self-contained experience with its own distinct vibe, all finished to the same bar.
+One **entrance site** that opens into four **worlds**, each self-contained with its own vibe, all finished to the same bar.
 
-- The hub is a design statement in its own right, not a table of contents. It sells the universe, then hands off.
-- Each world is one hard idea executed cleanly (per `INSPIRATION.md` habits) — different vibe, same level of commitment.
-- In repo terms: everything lives in `site/` — one Vite app, the hub fronting the world pages.
+- The hub is a design statement, not a table of contents.
+- Each world is one hard idea executed cleanly.
+- Everything lives in `site/` — one Vite app, the hub fronting the world pages.
 
-Alongside the worlds sits **00 — Lab** (merged 2026-07-27): the WebGL studies the rest of this build grew out of, at `/lab/`.
+Alongside them sits **00 — Lab** at `/lab/`: the WebGL studies this build grew out of, and itself a designed entrance with its own identity (near-black `#0c0c0e`, phosphor mint `#62e6c8`, Clash Display + Newsreader italic + JetBrains Mono).
+It opens into S1, S2, S4, S5 — the gap is real, S3 was cut.
+Three levels: entrance → lab entrance → studies.
+The hub's `--mint` quotes the lab's accent.
 
-**Nothing here is frozen** (settled 2026-07-30, and it overturns the earlier stance).
-00 is a live lane on an open line of work — the studies get rebuilt, deepened and replaced as their turn comes, exactly like every other world.
-An earlier version of this document called them "a dated record, not living code", kept "exactly as authored", and told future agents never to modernise them into the app.
-That was wrong, it is deleted rather than softened, and no part of this repo is an exhibit.
-The practical consequence: a study may move onto our stack (Vite + TS + bundled Three + GSAP), take real tokens, and be held to the same bar as a world — `kind: 'static'` describes where a lane's files sit today, never how much it is allowed to change.
+`kind: 'static'` describes where a lane's files sit today, never how much it is allowed to change.
 
-**00 is itself an entrance, not a file listing** (recorded 2026-07-30) — the lab makes six designed surfaces here, not five.
-`site/public/lab/index.html` is a hub with its own complete identity: near-black `#0c0c0e` ground, bone text, phosphor mint `#62e6c8` accent, a three-face cast (Clash Display + Newsreader italic + JetBrains Mono), hairline-ruled rows, "Pick a *direction*".
-It opens into S1, S2, S4 and S5 — the gap is authentic, S3 was cut during the original run — and each study carries its own nav plus `switcher.js`, which injects the one link back up to `/`.
-So the lab is a nested hub, and the lab has three levels: entrance → lab entrance → studies.
-It began with no reference pole, because it predates the mapping below (built ~2026-07-19 from `research/award-study-2026-07.md`) — that is where it started, not where it stays.
-This is also why the hub's `--mint` exists: the 00 lane hue quotes the lab's own accent.
+## The mapping
 
-## The mapping (decided 2026-07-26)
-
-Each design target takes one reference pole — original styles described truthfully in `research/POLES.md`, then rebuilt with our identity, faces, and content.
+Each target takes one reference pole — described truthfully in `research/POLES.md`, then rebuilt with our identity.
 
 | Target | Reference pole | Original style in one line |
 | --- | --- | --- |
 | **Hub** | units.gr | Warm cream paper, toy-box color cards as numbered nav, chunky display face, marquees, one radius |
-| **01 — Noir** | lamalama.com | Charcoal + bone total two-color commitment, mono labels vs. grotesk statements, red only as footage, full-WebGL motion craft |
-| **02 — Chrome** | hildenkaira.fi | Warm-stone editorial serif + liquid-chrome masthead and metallic stickers, vermilion/pistachio/jade accents |
-| **03 — Monument** | experiment.obys.agency | Gallery-white void, one custom face as colossal caps monument sliced by hairlines, wry museum labeling, Three.js gallery |
-| **04 — Pulse** | blood-donation.com | Saturated single-hue red poster, one variable font by weight, flat-vector charm over a WebGPU click-through journey (XState-staged, not scroll) |
+| **01 — Noir** | lamalama.com | Charcoal + bone two-color commitment, mono labels vs. grotesk statements, red only as footage |
+| **02 — Chrome** | hildenkaira.fi | Warm-stone editorial serif + liquid-chrome masthead, vermilion/pistachio/jade accents |
+| **03 — Monument** | experiment.obys.agency | Gallery-white void, one colossal face sliced by hairlines, wry museum labeling |
+| **04 — Pulse** | blood-donation.com | Saturated single-hue red poster, one variable font by weight, flat-vector charm over a click-through journey |
 
 Working names are ours and renameable.
-The table covers the five poled targets only — 00 sits above, self-directed.
-Five poles, zero overlap: warm toy-box, dark cinema, chrome editorial, white type-monument, red flat-pop journey — proof that worlds may differ radically as long as each commits totally.
-Runtime-3D truth per pole (what we verified, not what it looks like): lamalama real WebGL; hildenkaira **pre-rendered** chrome (zero runtime 3D — our version goes live-3D); obys real Three.js; blood-donation Three.js on the WebGPU renderer.
+00 sits above the table, self-directed.
+Runtime-3D truth per pole (verified, not assumed): lamalama real WebGL; hildenkaira **pre-rendered** chrome, zero runtime 3D — ours goes live; obys real Three.js; blood-donation Three.js on WebGPU.
 
-## Backlog (later worlds)
+## Backlog
 
-Validated 2026-07-26 from posts.design + recent.design: liquid glass / refraction, jelly & soft-body UI, kinetic typography, dither & grain.
+Liquid glass / refraction, jelly & soft-body UI, kinetic typography, dither & grain.
 A world enters the queue only with a one-line vibe statement this sharp.
 
-## Identity rules (hard constraints)
+## Identity rules
 
-- **Type**: every target gets its own deliberately chosen face from the vetted sources in `ASSETS.md` § Type. No reflex Google Fonts, no Inter-by-default. Pattern proven by every pole: one characterful display + one quiet workhorse, two families max (blood-donation shows one variable family can do both jobs).
-- **Palette**: a designed artifact, never a default ramp. Derived from a material, photo, HDRI, or print reference (lamalama's red is ink-in-water macro photography, not a hex picked in a color tool). Limited — canvas + text + few accents. Named tokens in the target's folder.
-- **Motion**: each target has a signature easing/physics feel; motion vocabulary is part of the identity, not decoration sprinkled at the end.
-- **Icons/glyphs are drawn, not downloaded**: hand-made SVG in each world's own language, animated where it earns it — no stock icon sets (see `ASSETS.md` § Icons).
-- **The hub keeps its own identity too** — it is the fifth design, not a neutral frame.
-- **Contrast: AA is the floor for accidents, not a veto on authored dimness** (settled 2026-07-30). Text a theme flip silently inverted is a defect — the hub shipped cream-on-cream at 1.00:1 and black-on-cobalt under 4.5:1, both fixed by pinning ink to the fill (`--ink-on-hue`) rather than by moving a hue. A faint tier that is deliberate and traceable to a pole stays: world 03's 20% dim label is obys' measured value (1.61:1) and world 02's 30% card index reads 1.93:1, and overriding either would mean rebuilding a measured anatomy to satisfy a standard the reference itself ignores. Structurally the hub was the only surface at risk — 02 hard-pins the text on its light cards, 03 flips ground and ink together, 04 flips fill and text as declared pairs — so this is not a per-world audit waiting to happen. A *new* dim tier still has to be a decision rather than a leftover.
-- **Un-replicable media gets a stand-in, never an imitation**: reference photography/footage (units.gr lifestyle shots, lamalama's macro red ink) is not replaced with stock lookalikes — we build items with comparable vibe from what we own: shaders, generated fields, live 3D, drawn SVG. Generated beats downloaded (per `ASSETS.md`).
+- **Type**: own deliberately chosen face per target from `ASSETS.md` § Type. No reflex Google Fonts, no Inter-by-default. One characterful display + one quiet workhorse, two families max.
+- **Palette**: a designed artifact, never a default ramp — derived from a material, photo, HDRI or print reference. Named tokens in the target's folder.
+- **Motion**: each target has a signature easing/physics feel; motion vocabulary is identity, not decoration.
+- **Icons/glyphs are drawn, not downloaded** — hand-made SVG in each world's language.
+- **The hub keeps its own identity** — it is the fifth design, not a frame.
+- **Contrast**: AA is the floor for accidents, not a veto on authored dimness. Pin ink to the fill (`--ink-on-hue`) so a theme flip cannot invert it. A faint tier stays if it is deliberate and traceable to a pole; a new one has to be a decision, not a leftover.
+- **Un-replicable media gets a stand-in, never an imitation** — reference photography/footage is rebuilt from what we own: shaders, generated fields, live 3D, drawn SVG.
 
-## Stack (decided 2026-07-26)
+## Stack
 
-Vite + TypeScript + vanilla Three.js + GSAP (SplitText/ScrollTrigger — all free now).
-Static output only; frontend only.
-One app, N HTML entries (hub + worlds) generated from the lane registry (`site/src/worlds/registry.ts`) — only `kind: 'world'` lanes become build inputs.
-**Deploy** (from 2026-07-27): GitHub Actions builds `site/` and publishes `site/dist` to `design.renocrypt.com` (`.github/workflows/pages.yml`); the Pages source is the workflow, not a branch folder.
+Vite + TypeScript + vanilla Three.js + GSAP.
+Static output only, frontend only.
+One app, N HTML entries generated from the lane registry (`site/src/worlds/registry.ts`) — only `kind: 'world'` lanes become build inputs.
+
+**Deploy**: GitHub Actions builds `site/` and publishes `site/dist` to `design.renocrypt.com` (`.github/workflows/pages.yml`).
 `site/public/CNAME` carries the domain into every build — deleting it drops the custom domain.
-Head tags: one Vite plugin (`site/tools/vite-plugin-head-tags.ts`) stamps the Google tag **and the icon set** into every built page at `closeBundle`, including the verbatim-copied `/lab/` pages — template-level tags silently miss `public/`, which is exactly how those pages shipped faviconless.
-Icons: `favicon.svg` is hand-authored; `favicon.ico` (16+32), `apple-touch-icon.png` (180) and `icon-512.png` are generated by `site/tools/make-favicons.mjs` (no image library on this machine — it writes PNG/ICO bytes directly). Change the mark in one and regenerate the other; the geometry is duplicated by design and noted in both files.
-Fonts: self-hosted in-repo is the default (license text alongside); **CDN font delivery is allowed** (ruled 2026-07-27) when a face can't be reasonably persisted — the uniqueness/elegance bar for pairings is unchanged, and each world still casts its own faces from `ASSETS.md` § Type.
-Other runtime assets (HDRI, models, textures) stay self-hosted in-repo per their licenses.
 
-## Adding a lane (for future agents)
+**Head tags**: `site/tools/vite-plugin-head-tags.ts` stamps the Google tag and the icon set into every built page at `closeBundle`, including the verbatim-copied `/lab/` pages — template-level tags silently miss `public/`.
 
-The lab is built to grow past four worlds. One checklist, in order:
+**Icons**: `favicon.svg` is hand-authored; the raster set is generated by `site/tools/make-favicons.mjs`, which writes PNG/ICO bytes directly. Change the mark in one and regenerate the other.
 
-1. **Registry row** — add to `LANES` in `site/src/worlds/registry.ts` (`id`, `num`, `name`, `hue`, `kind`, `status`, `glyph`, `kicker`, `points`).
-   The vite build inputs, the rail doors, the mobile menu, the room-card grid, **the marquee band and the closing call to action** all generate from this list; the lane now exists, is linked, and has a card.
-   Six consumers, and two of them filter: the band and the CTA speak for `kind: 'world'` only, so a `'static'` or `'external'` lane joins the doors and the grid but stays out of the marquee — by rule, in `renderTicker`/`renderFirstDoor`, not by hand-written markup.
-   Where a lane lands in the two navigations is also deliberate: the rail is an index, so it runs in numeral order (00 first, as a compact marker); the grid is a pitch, so worlds lead and non-world lanes close as a wide shelf.
-   `kind` decides the rest: `'world'` becomes a build entry under `worlds/<id>/`; `'static'` lives in `site/public/<path>/` and just needs an `href`; `'external'` is an absolute URL.
+**Fonts**: self-hosted woff2 in-repo by default, license text alongside; CDN delivery is allowed when a face can't be reasonably persisted. Other runtime assets stay self-hosted per their licenses.
+
+**Dev-server parity**: `publicDirIndex` in `vite.config.ts` resolves `<dir>/` against `public/` the way Pages does — without it a project-root folder with no `index.html` shadows its `public/` twin and the SPA fallback answers with the hub.
+
+## Adding a lane
+
+1. **Registry row** — add to `LANES` in `site/src/worlds/registry.ts`.
+   Build inputs, rail doors, mobile menu, room-card grid, marquee band and closing CTA all generate from this list.
+   The band and the CTA speak for `kind: 'world'` only, filtered in `renderTicker`/`renderFirstDoor`, never by hand-written markup.
+   The rail is an index and runs in numeral order; the grid is a pitch, so worlds lead and non-world lanes close as a wide shelf.
+   `kind` decides the rest: `'world'` becomes a build entry under `worlds/<id>/`; `'static'` lives in `site/public/<path>/` and needs an `href`; `'external'` is an absolute URL.
 2. **World folder** — `site/worlds/<id>/index.html` + `site/src/worlds/<id>/main.ts` + `world.css` (+ optional `scene.ts`).
-   World pages are self-contained identities: own tokens, own faces, own motion law — never import another world's CSS.
-3. **Theme policy** — decide day/night stance up front (dark-only / both / a signature toggle).
-   If dual-mode: read `localStorage('hub-theme')` pre-paint in an inline head script and write back on toggle — lab-wide continuity.
-4. **Pixel glyph** — draw the lane's `glyph` as a 10×10 ASCII bitmap in `GLYPHS` in `src/hub/main.ts`; the room-card and rail render themselves from it. No hand-authored card markup — `#worlds` is empty in `index.html` by design.
-5. **Hue token** — add the lane's hue to `site/src/hub/tokens.css` if the registry references a new `var(...)`.
-6. **The hard rules still apply**: measured-anatomy reference pole filed in `research/POLES.md` first; degrade ladder (live → still frame → art-directed DOM) with ≤40 draw calls and dpr ≤1.75; `webglcontextlost` guard; GSAP owns every transform it touches; icons drawn, never stock; assets pass the `ASSETS.md` slop filter; unique image assets per world (generated/seeded beats downloaded).
-7. **Spec first** — write the world's build spec into `docs/specs/<id>.json` (shape: world/policy/typecasting/downloads/sections/centerpiece/assets2d/motion/fallback/distinct) and check it against `docs/specs/_verdict.md`'s distinctiveness matrix before building.
+   Never import another world's CSS.
+3. **Theme policy** — decide day/night stance up front. If dual-mode: read `localStorage('hub-theme')` pre-paint in an inline head script and write back on toggle.
+   Theme changes colour only — it must not decide which representation is on screen.
+4. **Pixel glyph** — draw the lane's `glyph` as a 10×10 ASCII bitmap in `GLYPHS` in `src/hub/main.ts`.
+5. **Hue token** — add the hue to `site/src/hub/tokens.css` if the registry references a new `var(...)`.
+6. **The hard rules**: measured-anatomy pole filed in `research/POLES.md` first; degrade ladder (live → still frame → art-directed DOM) with ≤40 draw calls and dpr ≤1.75, and the ladder's trigger has to be one that actually fires; `webglcontextlost` guard that restores a visible fallback; GSAP owns every transform it touches; icons drawn, never stock; assets pass the `ASSETS.md` slop filter.
