@@ -39,18 +39,29 @@ The pairing bar does not move: unique and elegant per world, two families max.
 
 ## Heavy media — delivery ruling (2026-07-30)
 
-Fonts are self-hosted by default (see § Type).
-**Video and audio are the opposite: never commit them.**
-A video in git is in history permanently, Pages is not a video host, and the repo has already had to drop 41 MB of dead assets once.
+**Remote first, local when we have to — and short either way.**
+Remote keeps git history clean, so reach for a URL before a download; but if a clip only exists as a file, or the host is unreliable, persisting it is allowed and always has been preferable to dropping a good idea.
 
-Which delivery is allowed depends on what the media does:
+GitHub is not the wall people assume.
+Published Pages sites may be no larger than **1 GB**, with a soft **100 GB/month** bandwidth limit and a hard **100 MB per file** (a warning, but still a successful push, above 50 MiB).
+Our entire `site/public/` is single-digit MB, so we have three orders of magnitude of headroom and will never hit it.
 
-- **Plain `<video>` or `<audio>` playback** — a remote URL is fine. Prefer a host with stable URLs; treat stock-site hotlinks as breakable, because they rotate paths and several forbid hotlinking outright.
-- **Video as a WebGL texture** — the response MUST send `Access-Control-Allow-Origin` and the element MUST set `crossOrigin`, or the texture is silently unusable. Check before designing around an asset: `curl -sSI -H "Origin: https://design.renocrypt.com" <url> | grep -i access-control`. Verified 2026-07-30: `archive.org` sends `*`; a stock CDN we tested sent nothing.
-- **Short UI sound** (a key click, a detent) — a few KB of audio is the rare case worth committing, since it must be instant and cannot depend on a third party staying up.
+So the real budget is **the visitor, not the platform**:
 
-And the standing preference still wins: generate motion with a shader or canvas rather than sourcing footage.
-Generated has no license, no CORS problem, no weight, and no dead link in a year.
+- A hero clip should be a few seconds, seamlessly loopable, and low single-digit MB — someone is waiting on it, and GitHub is not.
+- Prefer AV1/H.265 with an H.264 fallback, sized to its actual display box; a texture almost never needs more than 720p.
+- Watch **churn**, not size: git keeps every version forever, so re-committing a 5 MB clip ten times costs 50 MB permanently. Get it right before it lands, or keep it remote until it is.
+
+Which delivery fits depends on the job:
+
+- **Plain `<video>` or `<audio>` playback** — a remote URL is fine and preferred. Treat stock-site hotlinks as breakable, since they rotate paths and several forbid hotlinking outright; if a clip matters to the design, persist it rather than trust the link.
+- **Video as a WebGL texture** — the response MUST send `Access-Control-Allow-Origin` and the element MUST set `crossOrigin`, or the texture is silently unusable. Check before designing around one: `curl -sSI -H "Origin: https://design.renocrypt.com" <url> | grep -i access-control`. Verified 2026-07-30: `archive.org` sends `*`; a stock CDN we tested sent nothing. When in doubt, self-host — CORS problems vanish.
+- **Short UI sound** (a key click, a detent) — always local. A few KB must be instant and cannot depend on a third party staying up.
+
+And the standing preference still wins over all of it: generate the motion with a shader or canvas rather than sourcing footage.
+Generated has no licence, no CORS, no weight, and no dead link in a year.
+
+**The vibe outranks the asset.** A three-second loop that sets the mood beats a thirty-second showreel, and a generated one beats both.
 
 ## Photos
 
