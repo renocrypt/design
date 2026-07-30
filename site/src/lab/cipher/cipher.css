@@ -60,7 +60,21 @@ body {
 :root[data-theme='day'] .proof,
 :root:not([data-webgl]) .proof { display: grid; }
 
-.blueprint { width: min(100%, 62rem); height: auto; }
+/* 44rem, not 62: a 30rem copy column plus two page paddings leaves 48rem, and
+   the drawing has to sit BESIDE the text, not under it. --proof-lean comes from
+   the same scroll scalar the camera stops read, so the drawing leans away from
+   whichever side the current chapter's copy is on. */
+.proof {
+  transform: translateX(calc(var(--proof-lean, 0) * var(--proof-throw)));
+  --proof-throw: clamp(0rem, calc(50vw - 25rem), 19rem);
+}
+.blueprint { width: min(100%, 44rem); height: auto; }
+
+/* Below ~68rem the drawing and a copy column cannot both fit, so it stops
+   leaning and sits centred behind the text as a ground rather than a rival. */
+@media (max-width: 68rem) {
+  .proof { transform: none; opacity: 0.42; }
+}
 .bp-sheet { fill: transparent; }
 .bp-grid { stroke: var(--bone-12); stroke-width: 1; }
 .bp-case { fill: none; stroke: var(--bone); stroke-width: 1.6; }
@@ -70,6 +84,10 @@ body {
 .bp-rotor-inner { fill: none; stroke: var(--bone-30); stroke-width: 1; }
 .bp-key { fill: none; stroke: var(--bone-60); stroke-width: 1; }
 .bp-lamp { fill: none; stroke: var(--phosphor); stroke-width: 1; }
+/* The struck key and the lit lamp. Drawing conventions, not glow: the key gets a
+   heavy outline, the lamp gets filled in. */
+.bp-key.is-down { stroke: var(--bone); stroke-width: 3; }
+.bp-lamp.is-lit { fill: var(--phosphor); stroke-width: 2.5; }
 .bp-plug { fill: none; stroke: var(--bone-60); stroke-width: 1; }
 .bp-socket { fill: var(--bone-30); }
 .bp-leader { stroke: var(--bone-30); stroke-width: 1; fill: none; }
@@ -85,6 +103,8 @@ body {
 .bp-t--tiny { font-size: 7.5px; fill: var(--bone-60); }
 .bp-t--mid { font-size: 13px; fill: var(--bone); font-weight: 600; }
 .bp-t--note { text-anchor: start; font-size: 10px; letter-spacing: 0.14em; }
+.bp-t--head { fill: var(--bone); font-weight: 600; }
+.bp-t--lead { text-anchor: end; font-size: 10px; letter-spacing: 0.14em; fill: var(--bone); }
 
 /* ── Chapters ────────────────────────────────────────────
    Content scrolls over whichever register is showing. */

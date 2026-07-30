@@ -21,17 +21,27 @@ export interface Box {
   tilt?: number;
 }
 
-export const CASE = { w: 4.4, h: 1.6, d: 3.2 } as const;
+// Depth is 3.6, not 3.2: at 3.2 the bank spacing that keeps the back lamp row out
+// of the rotor drums does not fit between the front wall and the axle. The old
+// value bought its proportion by burying six lamps in the rotors.
+export const CASE = { w: 4.4, h: 1.6, d: 3.6 } as const;
 /** Top face of the case — the plane the keyboard and lampboard sit on. */
 export const DECK = CASE.h;
 /** Front face, where the plugboard and nameplate live. */
 export const FRONT = CASE.d / 2;
 
-/** Keyboard: three staggered rows on the deck, front third of the case. */
+/**
+ * Keyboard: three staggered rows on the deck, front third of the case, listed
+ * front to back. Two things were wrong here and both were visible in a single
+ * plan drawing: the rows ran backwards (QWERTZUIO belongs at the BACK, nearest
+ * the rotors, with PYXCVBNML under the operator's hands), and the top row was
+ * spelled QWERTYUIO — the QWERTZ Y/Z swap missed — which gave the machine two Y
+ * keys and no Z at all.
+ */
 export const KEY_ROWS = [
-  { letters: 'QWERTYUIO', z: 1.28 },
-  { letters: 'ASDFGHJK', z: 0.93 },
-  { letters: 'PYXCVBNML', z: 0.58 },
+  { letters: 'PYXCVBNML', z: 1.565 },
+  { letters: 'ASDFGHJK', z: 1.225 },
+  { letters: 'QWERTZUIO', z: 0.885 },
 ] as const;
 export const KEY_PITCH = 0.44;
 export const KEY_R = 0.175;
@@ -39,11 +49,11 @@ export const KEY_H = 0.14;
 /** How far a key sinks when pressed. */
 export const KEY_TRAVEL = 0.075;
 
-/** Lampboard: same three-row grammar, behind the keys, flush with the deck. */
+/** Lampboard: same three-row grammar and the same order, behind the keys. */
 export const LAMP_ROWS = [
-  { letters: 'QWERTYUIO', z: 0.18 },
-  { letters: 'ASDFGHJK', z: -0.16 },
-  { letters: 'PYXCVBNML', z: -0.5 },
+  { letters: 'PYXCVBNML', z: 0.265 },
+  { letters: 'ASDFGHJK', z: -0.075 },
+  { letters: 'QWERTZUIO', z: -0.415 },
 ] as const;
 export const LAMP_R = 0.145;
 export const LAMP_H = 0.07;
@@ -59,7 +69,7 @@ export const ROTOR = {
   w: 0.34,
   gap: 0.85,
   y: DECK + 0.12,
-  z: -1.02,
+  z: -1.22,
 } as const;
 export const AXLE_R = 0.075;
 

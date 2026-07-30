@@ -22,7 +22,8 @@ export interface SceneHandle {
   frame(now: number): void;
   resize(): void;
   setScroll(v: number): void;
-  press(letter: string, windows: number[]): void;
+  /** `typed` sinks its cap, `lit` glows its lamp; either may be '' for a reset. */
+  press(typed: string, lit: string, windows: number[]): void;
   setReduced(on: boolean): void;
   drawCalls: number;
   dispose(): void;
@@ -96,6 +97,12 @@ export function mountScene(
   let needsRender = true;
   let last = performance.now();
   const rotorTargets = [0, 0, 0];
+  // The keystroke: one scalar from 1 to 0 drives both the cap and the lamp, so
+  // they cannot drift out of step.
+  const STROKE_S = 0.26;
+  let stroke = 0;
+  let held = '';
+  let glowing = '';
 
   const build = () => {
     machine = buildMachine(palette, env);
@@ -123,11 +130,16 @@ export function mountScene(
     e.preventDefault();
     lost = true;
     canvas.classList.add('is-lost');
+    // Hand the page back to the Proof register. Without this the canvas is
+    // hidden by .is-lost while data-webgl stays 'on', so the drawing stays
+    // display:none too and a lost context leaves nothing on screen at all.
+    delete document.documentElement.dataset.webgl;
   });
   canvas.addEventListener('webglcontextrestored', () => {
     lost = false;
     shadowDirty = needsRender = true;
     canvas.classList.remove('is-lost');
+    document.documentElement.dataset.webgl = 'on';
   });
   document.addEventListener('visibilitychange', () => {
     hidden = document.hidden;
@@ -144,8 +156,16 @@ export function mountScene(
       needsRender = true;
     },
 
-    press(letter: string, windows: number[]) {
-      void letter;
+    press(typed: string, lit: string, windows: number[]) {
+      // Release whatever is still held, so a fast typist cannot strand a cap down
+      // or leave two lamps burning.
+      if (machine) {
+        if (held) machine.setKeyTravel(held, 0);
+        if (glowing) machine.setLamp(glowing, 0);
+      }
+      held = typed;
+      glowing = lit;
+      stroke = typed || lit ? 1 : 0;
       // Rotor angles are always exact multiples of 360/26 — the quantisation the
       // dial pole showed is what makes the motion read as mechanical.
       windows.forEach((w, i) => {
@@ -209,6 +229,23 @@ export function mountScene(
         // Approach the quantised target; the settle is what sells the detent.
         pivot.rotation.x += (rotorTargets[idx] - pivot.rotation.x) * (1 - Math.pow(1 - 0.14, dt * 60));
       });
+
+      if (stroke > 0) {
+        if (reduced) {
+          // No stroke, but the answer must still be readable: the lamp goes to
+          // full and stays there until the next key clears it.
+          stroke = 0;
+          if (held) machine.setKeyTravel(held, 0);
+          if (glowing) machine.setLamp(glowing, 1);
+        } else {
+          stroke = Math.max(0, stroke - dt / STROKE_S);
+          if (held) machine.setKeyTravel(held, stroke);
+          if (glowing) machine.setLamp(glowing, stroke);
+          if (stroke === 0) held = glowing = '';
+        }
+        shadowDirty = true;
+        needsRender = true;
+      }
 
       if (shadowDirty && !software) {
         renderer.shadowMap.needsUpdate = true;

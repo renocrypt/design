@@ -27,12 +27,44 @@ const $ = <T extends Element = HTMLElement>(sel: string) => document.querySelect
 const proof = $('.proof');
 if (proof) proof.innerHTML = blueprintSVG();
 
+/**
+ * The drawing's answer to a keystroke, so the Proof register keeps the promise
+ * the copy makes. Held until the next press rather than timed out: a drawing
+ * states, it does not animate.
+ */
+let proofMarked: Element[] = [];
+const markProof = (typed: string, lit: string): void => {
+  proofMarked.forEach((el) => el.classList.remove('is-down', 'is-lit'));
+  proofMarked = [];
+  if (!proof) return;
+  const down = typed && proof.querySelector(`[data-key="${typed}"]`);
+  const glow = lit && proof.querySelector(`[data-lamp="${lit}"]`);
+  if (down) {
+    down.classList.add('is-down');
+    proofMarked.push(down);
+  }
+  if (glow) {
+    glow.classList.add('is-lit');
+    proofMarked.push(glow);
+  }
+};
+
 // ── Theme: two registers, continuous with the rest of the lab ──────────────
 const applyTheme = (mode: 'day' | 'night') => {
   document.documentElement.dataset.theme = mode;
   localStorage.setItem('hub-theme', mode);
-  const btn = $('#theme');
-  if (btn) btn.textContent = mode === 'day' ? 'Signal ↗' : 'Proof ↗';
+  const btn = $<HTMLButtonElement>('#theme');
+  if (!btn) return;
+  // 'Signal ↗' is an offer, and it has to be one the page can keep: with no
+  // WebGL context, pressing it changed the theme and left the same drawing on
+  // screen, which reads as a dead button rather than as a missing register.
+  if (document.documentElement.dataset.signal === 'unavailable') {
+    btn.textContent = 'Proof only';
+    btn.title = 'The lit machine needs WebGL, which this browser did not provide.';
+    btn.disabled = true;
+    return;
+  }
+  btn.textContent = mode === 'day' ? 'Signal ↗' : 'Proof ↗';
 };
 applyTheme((localStorage.getItem('hub-theme') as 'day' | 'night') ?? 'night');
 $('#theme')?.addEventListener('click', () =>
@@ -62,7 +94,21 @@ if (canvas) {
     },
     '/hdri/studio_small_03_1k.hdr',
     (ok) => {
-      if (!ok) return;
+      // The colophon printed a bare em-dash forever in the Proof register, so the
+      // sentence read '... BJ · EK · CH · — draw calls.' A drawing has no draw
+      // calls; the clause is dropped rather than left claiming a number.
+      const line = $('#draw-line');
+      if (!ok) {
+        // Say so. The page was showing the drawing and asserting a paragraph
+        // lower that it is 'not a fallback' — true when the drawing is chosen,
+        // a lie when it is all the browser could give you. Note: never set
+        // data-webgl here; the CSS shows the drawing on :not([data-webgl]).
+        document.documentElement.dataset.signal = 'unavailable';
+        if (line) line.textContent = ' · no WebGL context in this browser, so the machine is unavailable here.';
+        // The toggle was already labelled before this resolved, so relabel it.
+        applyTheme(document.documentElement.dataset.theme === 'day' ? 'day' : 'night');
+        return;
+      }
       document.documentElement.dataset.webgl = 'on';
       scene?.resize();
       const dc = $('#drawcalls');
@@ -74,10 +120,27 @@ if (canvas) {
 
 // ── Scroll: one scalar in, five tracks out ────────────────────────────────
 const sections = [...document.querySelectorAll('.chapter')];
+
+/**
+ * Which way the drawing leans, per chapter, so it is never under the copy.
+ * The Signal register gets this for free: the camera has five stops, so the
+ * machine swings out of the way as you scroll. The Proof register had none of it
+ * — a fixed, dead-centre 62rem drawing beneath text columns that alternate sides,
+ * which ran 328px of key circles straight through two chapters. Same scalar and
+ * the same five stops, so the drawing leans away from the copy instead.
+ * -1 = drawing left (copy on the right), +1 = drawing right, 0 = centred.
+ */
+const PROOF_LEAN = [0, -1, 1, -1, 1];
+
 const readScroll = () => {
   const span = document.documentElement.scrollHeight - innerHeight;
   const v = span > 0 ? (scrollY / span) * (sections.length - 1) : 0;
   scene?.setScroll(v);
+
+  const i = Math.max(0, Math.min(PROOF_LEAN.length - 2, Math.floor(v)));
+  const f = Math.max(0, Math.min(1, v - i));
+  const lean = PROOF_LEAN[i] + (PROOF_LEAN[i + 1] - PROOF_LEAN[i]) * f;
+  document.documentElement.style.setProperty('--proof-lean', lean.toFixed(4));
 };
 
 let queued = false;
@@ -112,7 +175,9 @@ const press = (letter: string) => {
   const { cipher: out } = encode(wheel, plugboard, letter);
   plain += letter;
   cipher += out;
-  scene?.press(letter, wheel.position);
+  // The cipher letter goes to the scene too — it is the one that lights a lamp.
+  scene?.press(letter, out, wheel.position);
+  markProof(letter, out);
   paint();
 };
 
@@ -128,7 +193,8 @@ addEventListener('keydown', (e) => {
 $('#reset')?.addEventListener('click', () => {
   wheel = newWheel([0, 1, 2], [0, 0, 0]);
   plain = cipher = '';
-  scene?.press('', wheel.position);
+  scene?.press('', '', wheel.position);
+  markProof('', '');
   paint();
 });
 
@@ -142,7 +208,8 @@ $('#prove')?.addEventListener('click', () => {
   wheel = newWheel([0, 1, 2], [0, 0, 0]);
   plain = text;
   cipher = back;
-  scene?.press('', wheel.position);
+  scene?.press('', '', wheel.position);
+  markProof('', '');
   paint();
 });
 

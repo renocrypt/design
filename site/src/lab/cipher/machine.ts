@@ -8,7 +8,7 @@
 
 import * as THREE from 'three';
 import {
-  CASE, DECK, ROTOR, AXLE_R, PLUGBOARD, PLATE, SOCKET, KEY_R, KEY_H, LAMP_R, LAMP_H,
+  CASE, DECK, ROTOR, AXLE_R, PLUGBOARD, PLATE, SOCKET, KEY_R, KEY_H, KEY_TRAVEL, LAMP_R, LAMP_H,
   keySlots, lampSlots, socketSlots,
 } from './layout';
 import { atlasCell, brushedBump, crinkleBump, letterAtlas, plateTexture, ringTexture } from './surfaces';
@@ -37,6 +37,10 @@ export interface Machine {
   /** Letter -> instance index, for press and glow. */
   keyIndex: Map<string, number>;
   lampIndex: Map<string, number>;
+  /** Sink one cap and its label, t in [0,1] of KEY_TRAVEL. Unknown letters no-op. */
+  setKeyTravel(letter: string, t: number): void;
+  /** Blend one lamp from its off colour to its on colour, t in [0,1]. */
+  setLamp(letter: string, t: number): void;
   drawCalls: number;
   dispose(): void;
 }
@@ -123,7 +127,14 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
     slots.length,
   );
   const m = new THREE.Matrix4();
+  // Sockets stand out of the front face, so their axis turns from y to z.
   const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
+  // Anything on the rotor axle turns from y to x instead. The flanges were reusing
+  // the socket rotation, which stood them on end: two 1.12-diameter discs per
+  // rotor, square across the drum, rising 0.56 above the deck. Invisible in every
+  // check we had, obvious the first time the scene graph was drawn.
+  const qAxle = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2));
+  const noRot = new THREE.Quaternion();
   const one = new THREE.Vector3(1, 1, 1);
   slots.forEach((s, i) =>
     sockets.setMatrixAt(i, m.compose(new THREE.Vector3(s.x, s.y, PLUGBOARD.z + PLUGBOARD.d / 2), q, one)),
@@ -167,7 +178,7 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
         i * 2 + k,
         m.compose(
           new THREE.Vector3((i - 1) * ROTOR.gap + (side * (ROTOR.w / 2 + 0.02)), ROTOR.y, ROTOR.z),
-          q,
+          qAxle,
           one,
         ),
       );
@@ -238,6 +249,34 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
   const lampLabels = labelLayer(lampData, LAMP_R, DECK + LAMP_H + 0.002);
   root.add(keyLabels, lampLabels);
 
+  // The two maps above were built and then read by nothing: press() threw the
+  // letter away, so no cap ever sank and no lamp ever lit on a page whose whole
+  // instruction is PRESS ANY LETTER. These are the missing consumers, kept here
+  // because the matrices belong with the geometry that authored them.
+  const flatQ = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
+  const at = new THREE.Vector3();
+  const lampOff = new THREE.Color(p.lampOff);
+  const lampOn = new THREE.Color(p.lampOn);
+  const lampMix = new THREE.Color();
+
+  const setKeyTravel = (letter: string, t: number): void => {
+    const i = keyIndex.get(letter);
+    if (i === undefined) return;
+    const s = keyData[i];
+    const drop = KEY_TRAVEL * t;
+    keys.setMatrixAt(i, m.compose(at.set(s.x, DECK + KEY_H / 2 - drop, s.z), noRot, one));
+    keyLabels.setMatrixAt(i, m.compose(at.set(s.x, DECK + KEY_H + 0.002 - drop, s.z), flatQ, one));
+    keys.instanceMatrix.needsUpdate = true;
+    keyLabels.instanceMatrix.needsUpdate = true;
+  };
+
+  const setLamp = (letter: string, t: number): void => {
+    const i = lampIndex.get(letter);
+    if (i === undefined) return;
+    lamps.setColorAt(i, lampMix.copy(lampOff).lerp(lampOn, t));
+    if (lamps.instanceColor) lamps.instanceColor.needsUpdate = true;
+  };
+
   // Count what the renderer will actually submit, so the budget is a fact.
   let drawCalls = 0;
   root.traverse((o) => {
@@ -251,6 +290,8 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
     lamps,
     keyIndex,
     lampIndex,
+    setKeyTravel,
+    setLamp,
     drawCalls,
     dispose() {
       disposables.forEach((d) => d.dispose());
