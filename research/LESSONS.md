@@ -23,6 +23,11 @@ Softening text with opacity is where this bites hardest — on the darkest lane 
 World 04's real bugs were invisible in a screenshot: a blanket `.poster-h1 .line` selector silently zeroed the finale's headline via the poster's exit tween, station u-mapping was `/8` instead of `(n−1)/4`, and a Sprite had been given a MeshBasicMaterial.
 The same habit caught the night-mode contrast failures — measured ratios, not "looks a bit dark".
 
+**Prefer a known-answer vector from outside the project to a self-consistency check.**
+The old cipher passed reciprocity — retyping the ciphertext returned the plaintext — and was still enciphering wrongly, because a broken transform can be perfectly self-consistent.
+What caught it was one published vector: Enigma I at AAA turns `AAAAA` into `BDZGO`.
+The corollary bit immediately after: the first double-step test failed, and the bug was in the test's expectation, not the code — so when a fresh test fails, suspect the expectation first and go back to the reference.
+
 **A claim in a comment is a claim, and it costs one script to check.**
 World 00's S5 cipher engine is headed "real wiring: rotors I, II, III, reflector B".
 Tested: it is genuinely reciprocal and never maps a letter to itself, so the Enigma property holds — but it types `AAAAA` → `DHLXO` where a real Enigma I at AAA gives `BDZGO`, because each rotor's ring offset is applied on entry and never removed on exit, and the middle rotor's double-step is absent.
