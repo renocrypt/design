@@ -1,0 +1,28 @@
+# worlds. — a design sketchbook
+
+One entrance, four worlds and the lab they grew from. A personal design lab:
+each world is built around one hard visual idea — its own typeface, its own
+palette, its own physics — all finished to the same bar.
+
+## Pages
+
+- [Hub](https://design.renocrypt.com/): the entrance. Warm cream paper, toy-box color cards as numbered nav, a live 3D sundial hero.
+- [00 — Lab](https://design.renocrypt.com/lab/): the WebGL studies the build grew out of, monitored as channels on one phosphor console (near-black #0c0c0e, phosphor mint #62e6c8).
+- [01 — Noir](https://design.renocrypt.com/worlds/01-noir/): dark cinema. Charcoal & bone two-color commitment, light as the only color. A night drive rendered live in WebGL.
+- [02 — Chrome](https://design.renocrypt.com/worlds/02-chrome/): liquid editorial. Warm-stone serif with a live-rendered liquid-chrome masthead; vermilion, pistachio and jade accents.
+- [03 — Monument](https://design.renocrypt.com/worlds/03-monument/): a white void. One colossal condensed face sliced by hairlines, 32 seeded exhibits, wry museum labeling.
+- [04 — Pulse](https://design.renocrypt.com/worlds/04-pulse/): a guided journey. One red, weight does the talking; one click's life told in five stations.
+- [Type specimen](https://design.renocrypt.com/type/): hub type casting — Clash Display, Cabinet Grotesk and General Sans compared as display candidates.
+
+## Lab studies
+
+- [S1 — Living Matrix](https://design.renocrypt.com/lab/s1-living-matrix.html): WebGL attention lattice, orbit camera, dark.
+- [S2 — Platonic Drift](https://design.renocrypt.com/lab/s2-platonic-drift.html): scroll camera path, five solids, light WebGL.
+- [S4 — The Agent](https://design.renocrypt.com/lab/s4-the-agent.html): rigged robot, four animation states, orbit camera.
+- [S5 — Cipher Engine](https://design.renocrypt.com/lab/s5-cipher-engine.html): a hand-built Enigma model you can type into, exploded rotors.
+
+## Notes
+
+- Everything is static HTML/CSS/JS built with Vite + TypeScript + Three.js + GSAP; there is no backend and no API.
+- Type is self-hosted woff2; icons are hand-drawn SVG; media is generated (shaders, seeded fields, live 3D), not stock.
+- Random-looking details are seeded and stable between visits.
