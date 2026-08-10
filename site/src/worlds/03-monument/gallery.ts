@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { mulberry32 } from '../../shared/rng';
+import { isSoftwareRenderer } from '../../shared/gpu';
 import type { Poster } from './posters';
 
 // The Formation Gallery — 32 seeded posters in an UNLIT shader (the wash is
@@ -114,13 +115,10 @@ export function mountGallery(
   } catch {
     return null; // rung 2 takes over
   }
-  const gl = renderer.getContext();
-  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-  const glName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
-  if (/swiftshader|llvmpipe|software/i.test(glName)) {
+  if (isSoftwareRenderer(renderer.getContext())) {
     renderer.dispose();
     renderer.forceContextLoss();
-    return null; // software renderer → rung-2 DOM strip, by design
+    return null; // too slow for live 3D → rung-2 DOM strip, by design
   }
 
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));

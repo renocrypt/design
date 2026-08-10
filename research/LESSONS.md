@@ -57,7 +57,15 @@ Splitting them means the lit object also needs a second lighting pose, or it is 
 
 **A degrade ladder must actually fire, and the trigger has to exist.**
 A lost context that hides the canvas without restoring the fallback leaves an empty page.
-Still live in seven files: software-renderer detection reads `WEBGL_debug_renderer_info`, which modern browsers gate — the sniff returns nothing and the code concludes "fast GPU".
+The `WEBGL_debug_renderer_info` sniff was recorded here as dead in every browser; measuring it corrected that, and the correction was the useful part.
+Chrome 150 exposes the extension and names the rasteriser honestly — `ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max)` on this machine, `…SwiftShader driver` under `--use-angle=swiftshader`.
+The hole is only where the string is withheld (Firefox under `resistFingerprinting`, masking webviews): `getExtension` returns null, `''` fails the regex, and the code concludes "fast GPU" with no second rung.
+`site/src/shared/gpu.ts` now falls back to timing a fixed GPU workload, which separates the two populations by 110× — 1.0 ms on hardware against 110.5 ms on SwiftShader — and both rungs were checked to agree on both machines.
+
+**Assume a claim in this file is stale before you build on it.**
+"This machine is a software rasteriser" sat in a comment in the S5 rebuild and was never true; it is an M5 Max.
+A wrong environmental assumption is invisible because everything still runs — it just runs the path you did not think you were testing.
+Force the other one: `--use-angle=swiftshader --enable-unsafe-swiftshader --disable-gpu` on a separate `--user-data-dir`.
 
 **Font metric archaeology beats copying a line-height.**
 The obys pole's lh 0.9 collides in League Gothic, whose hhea line box is 1.2em against a 0.735em cap height; we ship 1.05 with the metrics cited in the stylesheet.

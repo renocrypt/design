@@ -6,7 +6,7 @@
 
 import './tokens.css';
 import './cipher.css';
-import { buildPlugboard, encode, newWheel, windowLetters, STEP_ANGLE } from './enigma';
+import { buildPlugboard, encode, newWheel, windowLetters } from './enigma';
 import { blueprintSVG } from './blueprint';
 import { mountScene, type SceneHandle } from './scene';
 import { STEP_DEG } from './layout';
@@ -98,22 +98,10 @@ const canvas = $<HTMLCanvasElement>('#stage');
 if (canvas) {
   scene = mountScene(
     canvas,
-    {
-      paint: 0x191a1d,
-      brass: 0xb08d57,
-      key: 0x17130e,
-      keyInk: '#e8e2d0',
-      lampOff: 0x120e0a,
-      lampOn: 0xffb454,
-      cable: 0x2a1a12,
-      ringGround: '#141414',
-      ringInk: '#e8e2d0',
-      ringAccent: '#ffb454',
-      plateGround: '#b08d57',
-      plateInk: '#17140e',
-    },
+    { lampOn: 0xffb454 },
     '/hdri/studio_small_03_1k.hdr',
-    (ok) => {
+    '/lab/cipher/enigma.glb',
+    (ok: boolean) => {
       // The colophon printed a bare em-dash forever in the Proof register, so the
       // sentence read '... BJ · EK · CH · — draw calls.' A drawing has no draw
       // calls; the clause is dropped rather than left claiming a number.
@@ -137,6 +125,8 @@ if (canvas) {
     },
   );
   scene?.setReduced(reduced);
+  // Dev-only handle so a headless walkthrough can drive the machine directly.
+  if (import.meta.env.DEV) (window as unknown as { __cipher: unknown }).__cipher = () => scene;
 }
 
 // ── Scroll: one scalar in, five tracks out ────────────────────────────────
@@ -199,7 +189,7 @@ const press = (letter: string) => {
   plain += letter;
   cipher += out;
   // The cipher letter goes to the scene too — it is the one that lights a lamp.
-  scene?.press(letter, out, wheel.position);
+  scene?.press(letter, out);
   markProof(letter, out);
   paint();
 };
@@ -216,7 +206,7 @@ addEventListener('keydown', (e) => {
 $('#reset')?.addEventListener('click', () => {
   wheel = newWheel([0, 1, 2], [0, 0, 0]);
   plain = cipher = '';
-  scene?.press('', '', wheel.position);
+  scene?.press('', '');
   markProof('', '');
   paint();
 });
@@ -231,7 +221,7 @@ $('#prove')?.addEventListener('click', () => {
   wheel = newWheel([0, 1, 2], [0, 0, 0]);
   plain = text;
   cipher = back;
-  scene?.press('', '', wheel.position);
+  scene?.press('', '');
   markProof('', '');
   paint();
 });
@@ -253,5 +243,3 @@ const tick = (now: number) => {
 requestAnimationFrame(tick);
 
 if (import.meta.hot) import.meta.hot.dispose(() => scene?.dispose());
-
-void STEP_ANGLE;

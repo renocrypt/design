@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { DAY, NIGHT, initialTheme, type Pose, type Theme } from './poses';
 import { makeTooth, makeMottle, makeHalo, makeNumerals } from './textures';
+import { isSoftwareRenderer } from '../../shared/gpu';
 
 // SUNDIAL — the toy-box relief wall.
 // A Girard-style painted-wood relief: five oversized toy shapes (one per
@@ -28,10 +29,7 @@ export function mountSundial(container: HTMLElement): SundialHandle {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
-  const gl = renderer.getContext();
-  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-  const glName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
-  const software = /swiftshader|llvmpipe|software/i.test(glName);
+  const software = isSoftwareRenderer(renderer.getContext());
   const still = reduced || software;
 
   renderer.setPixelRatio(still ? 1 : Math.min(devicePixelRatio, 1.75));

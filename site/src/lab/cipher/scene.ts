@@ -15,15 +15,17 @@
 
 import * as THREE from 'three';
 import { buildMachine, type Machine, type Palette } from './machine';
-import { ROTOR, PLINTH, STEP_DEG } from './layout';
 import { advance, makeTracks, retarget } from './tracks';
+import { isSoftwareRenderer } from '../../shared/gpu';
 
 export interface SceneHandle {
   frame(now: number): void;
   resize(): void;
   setScroll(v: number): void;
-  /** `typed` sinks its cap, `lit` glows its lamp; either may be '' for a reset. */
-  press(typed: string, lit: string, windows: number[]): void;
+  /** `typed` sinks its cap, `lit` glows its lamp; either may be '' for a reset.
+   *  Rotor positions are deliberately not passed: the model's rotors are sealed
+   *  behind their cover, so stepping is shown in the readout, not in the mesh. */
+  press(typed: string, lit: string): void;
   /** Relight for the page's ground. The machine is the same object in both. */
   setTheme(mode: 'day' | 'night'): void;
   setReduced(on: boolean): void;
@@ -31,14 +33,29 @@ export interface SceneHandle {
   dispose(): void;
 }
 
-// Recomposed for the taller case and the plinth: the hero sits near eye level
-// so the machine reads as a chest on a table, not a floor plan.
-const CAMERA_STOPS: { pos: [number, number, number]; look: [number, number, number] }[] = [
-  { pos: [4.0, 2.5, 7.2], look: [0, 1.2, 0.1] },
-  { pos: [1.1, 5.6, 4.6], look: [0, 1.6, -0.6] },
-  { pos: [-3.4, 2.6, 5.0], look: [-0.2, 1.3, -0.4] },
-  { pos: [0.2, 2.2, 4.3], look: [0, 1.5, 0.5] },
-  { pos: [5.4, 3.8, 7.1], look: [0, 1.2, 0] },
+// Composed around the real machine: body 4.4 wide on the table, deck at 3.2,
+// the open lid rising to 8.2 behind it.
+//
+// Every stop has to leave its chapter's copy column legible, and the copy
+// alternates sides — hero left, then right, left, right, left. So each stop
+// swings the machine to the OPPOSITE side, and the close-ups sit back far
+// enough that the object stops covering the whole frame. The earlier set framed
+// stops 1-3 at 2.3-2.65× the frame, which put dense keyboard detail under the
+// body copy and made it unreadable.
+//
+// scene.verify.mjs imports this array and asserts the clearance, so these
+// numbers cannot drift without a check failing. Exported for exactly that.
+// Solved by stops.tune.mjs, which holds each stop's viewing ANGLE fixed — that
+// angle is the art direction — and moves only the distance back along it and the
+// aim along x. The hero keeps its original framing: its 20% overlap is the
+// composition, the display face crossing the machine's dark lower body, and the
+// copy there is 60px type rather than a paragraph.
+export const CAMERA_STOPS: { pos: [number, number, number]; look: [number, number, number] }[] = [
+  { pos: [7.5, 7.0, 14.0], look: [-1.1, 3.1, 0] },
+  { pos: [2.0, 16.9, 10.6], look: [1.5, 2.4, -0.2] },
+  { pos: [-17.5, 7.1, 23.4], look: [-2.1, 2.8, 0.2] },
+  { pos: [0.5, 5.9, 13.0], look: [1.5, 2.9, 0.6] },
+  { pos: [9.5, 6.8, 16.8], look: [-2.1, 3.2, 0] },
 ];
 
 const lerp3 = (a: number[], b: number[], t: number, out: THREE.Vector3): THREE.Vector3 =>
@@ -48,6 +65,7 @@ export function mountScene(
   canvas: HTMLCanvasElement,
   palette: Palette,
   hdriUrl: string,
+  glbUrl: string,
   onReady: (ok: boolean) => void,
 ): SceneHandle | null {
   let renderer: THREE.WebGLRenderer;
@@ -61,11 +79,12 @@ export function mountScene(
     onReady(false);
     return null;
   }
-  // Software rasterisers report a SwiftShader/llvmpipe renderer string; this
-  // machine is one, so the still-frame path below is what gets exercised here.
-  const debug = renderer.getContext().getExtension('WEBGL_debug_renderer_info');
-  const gpuName = debug ? String(renderer.getContext().getParameter(debug.UNMASKED_RENDERER_WEBGL)) : '';
-  const software = /swiftshader|llvmpipe|software|basic render/i.test(gpuName);
+  // Renderer string first, timed GPU probe when the browser withholds it — see
+  // shared/gpu.ts. The comment that used to sit here claimed this dev machine was
+  // a software rasteriser; it is an Apple M5 Max, so the on-demand path below is
+  // NOT what local development exercises. Force it with Chrome's
+  // --use-angle=swiftshader if you need to see that rung.
+  const software = isSoftwareRenderer(renderer.getContext());
 
   renderer.setPixelRatio(Math.min(devicePixelRatio, software ? 1 : 1.75));
   renderer.setClearAlpha(0);
@@ -84,11 +103,12 @@ export function mountScene(
 
   // Two lighting poses. Night is a lit object in a dark room; day is the same
   // object on drafting paper, which needs a brighter bounce and less contrast
-  // or it reads as a hole cut in the page. Night's fill dropped with the
-  // redesign: at 0.5 it washed the wrinkle enamel up to plastic grey.
+  // or it reads as a hole cut in the page. env is the HDRI's IBL, kept LOW:
+  // the lesson of the plastic-grey rebuild was that a strong env washes the
+  // wrinkle enamel flat.
   const LIGHT = {
-    night: { key: 1.7, keyHue: 0xfff1de, sky: 0x9fb6d8, ground: 0x0a0a0c, fill: 0.09, rim: 1.4, exposure: 1.0 },
-    day: { key: 2.1, keyHue: 0xfff6ea, sky: 0xffffff, ground: 0xd8d2c4, fill: 1.15, rim: 0.7, exposure: 1.2 },
+    night: { key: 1.7, keyHue: 0xfff1de, sky: 0x9fb6d8, ground: 0x0a0a0c, fill: 0.09, rim: 1.4, exposure: 1.0, env: 0.22 },
+    day: { key: 2.1, keyHue: 0xfff6ea, sky: 0xffffff, ground: 0xd8d2c4, fill: 1.15, rim: 0.7, exposure: 1.2, env: 0.55 },
   } as const;
 
   // Off to the side more than overhead: straight-down light turned the whole
@@ -111,19 +131,17 @@ export function mountScene(
   rim.position.set(-4.5, 2.8, -4);
   scene.add(rim);
 
-  // The machine finally stands on something: a shadow-catcher at the plinth's
+  // The machine stands on the page's ground: a shadow-catcher at the case's
   // base. The renderer stays transparent; only the shadow lands.
   const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(24, 24),
     new THREE.ShadowMaterial({ opacity: 0.45 }),
   );
   ground.rotation.x = -Math.PI / 2;
-  ground.position.y = PLINTH.y - PLINTH.h / 2;
   ground.receiveShadow = true;
   scene.add(ground);
 
   let machine: Machine | null = null;
-  let env: THREE.Texture | null = null;
   const tracks = makeTracks();
   let reduced = false;
   let visible = true;
@@ -133,35 +151,35 @@ export function mountScene(
   /** Software rasterisers render on demand only; a real GPU renders every frame. */
   let needsRender = true;
   let last = performance.now();
-  const rotorTargets = [0, 0, 0];
   // The keystroke: one scalar from 1 to 0 drives both the cap and the lamp, so
   // they cannot drift out of step.
-  const STROKE_S = 0.26;
+  const STROKE_S = 0.34;
   let stroke = 0;
   let held = '';
   let glowing = '';
 
-  const build = () => {
-    machine = buildMachine(palette, env);
+  const build = async () => {
+    machine = await buildMachine(glbUrl, palette);
     scene.add(machine.root);
     handle.drawCalls = machine.drawCalls;
     shadowDirty = needsRender = true;
     onReady(true);
   };
 
-  // The HDRI is the single biggest lever on whether brass reads as metal, so it
-  // is loaded before the machine; if it fails, the machine still builds unlit-ish
-  // rather than not at all.
-  import('three/examples/jsm/loaders/RGBELoader.js')
-    .then(({ RGBELoader }) => new RGBELoader().loadAsync(hdriUrl))
+  // The HDRI is the single biggest lever on whether the paint and brass read as
+  // real, so it loads before the machine; if it fails, the machine still builds
+  // unlit-ish rather than not at all. The GLB loads in parallel.
+  const hdri = import('three/examples/jsm/loaders/HDRLoader.js')
+    .then(({ HDRLoader }) => new HDRLoader().loadAsync(hdriUrl))
     .then((hdr) => {
       const pmrem = new THREE.PMREMGenerator(renderer);
-      env = pmrem.fromEquirectangular(hdr).texture;
+      scene.environment = pmrem.fromEquirectangular(hdr).texture;
+      scene.environmentIntensity = LIGHT.night.env;
       hdr.dispose();
       pmrem.dispose();
-      build();
     })
-    .catch(build);
+    .catch(() => {});
+  Promise.all([hdri, build()]).catch(() => onReady(false));
 
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
@@ -193,7 +211,7 @@ export function mountScene(
       needsRender = true;
     },
 
-    press(typed: string, lit: string, windows: number[]) {
+    press(typed: string, lit: string) {
       // Release whatever is still held, so a fast typist cannot strand a cap down
       // or leave two lamps burning.
       if (machine) {
@@ -203,11 +221,6 @@ export function mountScene(
       held = typed;
       glowing = lit;
       stroke = typed || lit ? 1 : 0;
-      // Rotor angles are always exact multiples of 360/26 — the quantisation the
-      // dial pole showed is what makes the motion read as mechanical.
-      windows.forEach((w, i) => {
-        rotorTargets[i] = -w * STEP_DEG * (Math.PI / 180);
-      });
       shadowDirty = needsRender = true;
     },
 
@@ -220,6 +233,7 @@ export function mountScene(
       fill.intensity = p.fill;
       rim.intensity = p.rim;
       renderer.toneMappingExposure = p.exposure;
+      scene.environmentIntensity = p.env;
       shadowDirty = needsRender = true;
     },
 
@@ -271,15 +285,11 @@ export function mountScene(
 
       machine.root.rotation.y = tracks.yaw.value;
 
-      machine.rotors.forEach((pivot, idx) => {
-        const spread = tracks.spread.value * 0.62;
-        pivot.position.x = (idx - 1) * (ROTOR.gap + spread);
-        // The explode must clear the shroud it now rises out of: 0.84 just to
-        // lift the flange bottoms over the fascia, and each rotor goes further.
-        pivot.position.y = ROTOR.y + tracks.spread.value * (1.0 + idx * 0.18);
-        // Approach the quantised target; the settle is what sells the detent.
-        pivot.rotation.x += (rotorTargets[idx] - pivot.rotation.x) * (1 - Math.pow(1 - 0.14, dt * 60));
-      });
+      // The anatomy explode: one scroll track fans the machine into its parts —
+      // keys forward, lamps up, lid and cover peeling back. The rotors are
+      // sealed inside the real machine's drums, so the explode shows the
+      // object as a cabinet of components, not its wheel train.
+      machine.explode(tracks.spread.value);
 
       if (stroke > 0) {
         if (reduced) {
@@ -311,7 +321,7 @@ export function mountScene(
 
     dispose() {
       machine?.dispose();
-      env?.dispose();
+      scene.environment?.dispose();
       renderer.dispose();
     },
   };

@@ -4,6 +4,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import gsap from 'gsap';
 import { mulberry32 } from '../../shared/rng';
 import { makeGlowSprite, makeSpeckleCanvas, drawSpeckle } from './assets';
+import { isSoftwareRenderer } from '../../shared/gpu';
 
 // THE MACHINE HALL — one continuous 48-unit toy machine, filleted primitives
 // only (nothing sharp, nothing downloaded). ONE shadow light tracks the
@@ -57,10 +58,7 @@ export function mountHall(canvas: HTMLCanvasElement, initialTheme: ThemeName): H
   } catch {
     return null; // rung 3: the diagram journey takes over
   }
-  const gl = renderer.getContext();
-  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-  const glName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
-  const software = /swiftshader|llvmpipe|software/i.test(glName);
+  const software = isSoftwareRenderer(renderer.getContext());
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   renderer.setPixelRatio(software ? 1 : Math.min(devicePixelRatio, 1.75));

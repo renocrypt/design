@@ -1,89 +1,81 @@
 // Look at the 3D machine on a box with no GPU.
-// Run: node --experimental-strip-types src/lab/cipher/scene.verify.mjs
+// Run: node --experimental-strip-types --import ./tools/ts-resolve.mjs src/lab/cipher/scene.verify.mjs
 //
 // Rasterising needs a GPU. Building the scene graph and projecting it does not —
 // that is all CPU maths, and it is where every framing and geometry mistake
-// actually lives. This builds the REAL machine from machine.ts and projects it
-// through the REAL camera stops from scene.ts, then writes an SVG wireframe so
-// the thing can be looked at instead of assumed.
-//
-// It exists because 'no GPU here, unverified' was being used as an answer. It
-// is not one: the case depth changed from 3.2 to 3.6 under camera poses that
-// were hand-tuned for 3.2, and nobody could say whether the machine still fit
-// the frame. Now it is a number.
+// actually lives. This parses the REAL shipped asset (textureless twin of
+// public/lab/cipher/enigma.glb) through the REAL parseMachine from machine.ts,
+// projects it through the REAL camera stops from scene.ts, then writes an SVG
+// wireframe so the thing can be looked at instead of assumed.
 
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// ── Minimal DOM so surfaces.ts can generate its canvases ──────────────────
-// Nothing reads a pixel here; only geometry is under test, so the 2D context is
-// a no-op recorder and the canvas is just a width/height pair.
-const ctx2d = new Proxy({}, {
-  get: (_t, k) => (k === 'canvas' ? {} : () => ({ addColorStop() {} })),
-  set: () => true,
-});
-globalThis.document = {
-  createElement: () => ({ width: 0, height: 0, getContext: () => ctx2d }),
-};
+const here = dirname(fileURLToPath(import.meta.url));
 
 const THREE = await import('three');
-const { buildMachine } = await import('./machine.ts');
-const { CASE, PLINTH } = await import('./layout.ts');
+const { GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js');
+const { MeshoptDecoder } = await import('three/examples/jsm/libs/meshopt_decoder.module.js');
+const { parseMachine } = await import('./machine.ts');
+const { CASE } = await import('./layout.ts');
 
-// The camera stops, copied from scene.ts. Kept in step by the assertion below,
-// which fails if scene.ts stops matching this list.
-const CAMERA_STOPS = [
-  { pos: [4.0, 2.5, 7.2], look: [0, 1.2, 0.1] },
-  { pos: [1.1, 5.6, 4.6], look: [0, 1.6, -0.6] },
-  { pos: [-3.4, 2.6, 5.0], look: [-0.2, 1.3, -0.4] },
-  { pos: [0.2, 2.2, 4.3], look: [0, 1.5, 0.5] },
-  { pos: [5.4, 3.8, 7.1], look: [0, 1.2, 0] },
-];
+// The real stops, imported rather than transcribed. They used to be copied into
+// this file under a comment claiming an assertion kept the two lists in step;
+// there was no such assertion, so the copy was free to rot silently.
+const { CAMERA_STOPS } = await import('./scene.ts');
+// The same motion law the page runs, so the poses measured here are the poses shown.
+const { makeTracks, retarget } = await import('./tracks.ts');
+
 const FOV = 33;
 const ASPECT = 16 / 9;
 
-const palette = {
-  paint: 0x2b2b2b, brass: 0xb08d57, key: 0x1a1a1a, keyInk: '#e8e4d8',
-  lampOff: 0x2a2a26, lampOn: 0xffe9a8, cable: 0x141414,
-  ringGround: '#b08d57', ringInk: '#17140e', ringAccent: '#8c2f2f',
-  plateGround: '#b08d57', plateInk: '#17140e',
-};
+/**
+ * Where each chapter's copy sits, from the chapter classes in
+ * lab/s5-cipher-engine.html: `.chapter--right` pushes `.inner` right, everything
+ * else runs left. One entry per stop, in order.
+ */
+const COPY_SIDE = ['left', 'right', 'left', 'right', 'left'];
 
-const machine = buildMachine(palette, null);
+/**
+ * The copy column in NDC, at a 1440-wide reference viewport.
+ * `.chapter` padding is clamp(1.25rem, 5vw, 5rem) → 72px at 1440, and
+ * `.chapter .inner` is max-width 30rem → 480px. So the column runs 72..552 from
+ * whichever edge it is anchored to, which is |x| 0.233..0.900 in NDC.
+ */
+const COL_INNER = 0.233;
+const COL_OUTER = 0.9;
+/**
+ * How much of that column the machine may cover.
+ *
+ * Not zero: the hero deliberately runs its display face over the machine's dark
+ * lower body, and that overlap is the composition — it sits at 20%. What broke
+ * readability was body copy on the lit keyboard, measured at 46% on the old
+ * stop 2 and plainly unreadable in a screenshot. 25% admits the hero and nothing
+ * heavier; the four body chapters solve to ≤2%, so the margin is not being leaned on.
+ */
+const MAX_COVER = 0.25;
+
+// Node's fetch cannot read files, so the loader gets bytes. The wire twin has
+// no textures, which is what makes it parseable off-DOM.
+const buf = readFileSync(resolve(here, 'enigma-wire.glb'));
+const gltf = await new Promise((res, rej) => {
+  new GLTFLoader().setMeshoptDecoder(MeshoptDecoder)
+    .parse(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), '', res, rej);
+});
+
+const machine = parseMachine(gltf, { lampOn: 0 });
 machine.root.updateWorldMatrix(true, true);
 
 // ── What is actually in the scene ─────────────────────────────────────────
-/**
- * World bounds of one object. An InstancedMesh's own matrixWorld says nothing
- * about where its instances are, so the per-instance matrices have to be folded
- * in — the first version of this file skipped that and reported the key caps as
- * sitting below the table, because it was measuring the geometry at the origin.
- */
 const worldBox = (o) => {
   o.geometry.computeBoundingBox();
-  const geo = o.geometry.boundingBox;
-  if (!o.isInstancedMesh) return geo.clone().applyMatrix4(o.matrixWorld);
-  const out = new THREE.Box3();
-  const im = new THREE.Matrix4();
-  const mat = new THREE.Matrix4();
-  for (let n = 0; n < o.count; n++) {
-    o.getMatrixAt(n, im);
-    mat.multiplyMatrices(o.matrixWorld, im);
-    out.union(geo.clone().applyMatrix4(mat));
-  }
-  return out;
+  return o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld);
 };
 
 const meshes = [];
 machine.root.traverse((o) => {
-  if (!o.isMesh) return;
-  meshes.push({
-    name: o.name || o.geometry.type,
-    count: o.isInstancedMesh ? o.count : 1,
-    box: worldBox(o),
-    obj: o,
-  });
+  if (o.isMesh) meshes.push({ name: o.name, box: worldBox(o) });
 });
 
 const whole = new THREE.Box3();
@@ -92,6 +84,40 @@ const size = new THREE.Vector3();
 const centre = new THREE.Vector3();
 whole.getSize(size);
 whole.getCenter(centre);
+
+/**
+ * Put the machine into the pose a given scroll position actually produces.
+ *
+ * This file used to measure the assembled, un-yawed object at every stop — a
+ * pose the page never shows. `retarget` swings the machine up to 0.42 rad and
+ * opens the anatomy across stops 1-2, and both change the silhouette the copy
+ * has to sit beside. Measuring the rest state reported stop 1 as 0% covered
+ * while a screenshot showed a paragraph lying across the deck.
+ *
+ * Targets, not eased values: a stop is where the tracks are heading, and the
+ * page rests there whenever the reader stops scrolling.
+ */
+const poseAt = (v) => {
+  const tracks = makeTracks();
+  retarget(tracks, v, CAMERA_STOPS.length);
+  machine.explode(tracks.spread.target);
+  machine.root.rotation.y = tracks.yaw.target;
+  machine.root.updateWorldMatrix(true, true);
+  const boxes = [];
+  machine.root.traverse((o) => {
+    if (o.isMesh) boxes.push({ name: o.name, box: worldBox(o) });
+  });
+  const box = new THREE.Box3();
+  boxes.forEach((b) => box.union(b.box));
+  return { boxes, box, yaw: tracks.yaw.target, spread: tracks.spread.target };
+};
+
+/** Back to rest, so the geometry assertions above measure the shipped object. */
+const rest = () => {
+  machine.explode(0);
+  machine.root.rotation.y = 0;
+  machine.root.updateWorldMatrix(true, true);
+};
 
 let failures = 0;
 const check = (name, ok, detail = '') => {
@@ -103,72 +129,93 @@ console.log(`meshes ${meshes.length}  ·  draw calls reported ${machine.drawCall
 console.log(`extent  x ${size.x.toFixed(2)}  y ${size.y.toFixed(2)}  z ${size.z.toFixed(2)}`);
 console.log(`centre  ${centre.toArray().map((n) => n.toFixed(2)).join(', ')}\n`);
 
-check('draw calls stay inside the stated budget', machine.drawCalls <= 20, `${machine.drawCalls} calls`);
-check('machine is centred on the axle line in x', Math.abs(centre.x) < 0.02, `x centre ${centre.x.toFixed(3)}`);
-check('nothing escapes the case footprint in x',
-  whole.min.x > -CASE.w / 2 - 0.35 && whole.max.x < CASE.w / 2 + 0.35,
-  `x ${whole.min.x.toFixed(2)}..${whole.max.x.toFixed(2)} against case ±${CASE.w / 2}`);
-// The table is the plinth's underside now, not y=0: the machine stands in its
-// carrying-box tray, so parts legitimately reach PLINTH.y - PLINTH.h/2.
-const tableY = PLINTH.y - PLINTH.h / 2;
-const sunken = meshes.filter((m) => m.box.min.y < tableY - 0.005);
-check('nothing sinks below the table', sunken.length === 0,
-  sunken.map((m) => `${m.name}×${m.count} reaches y=${m.box.min.y.toFixed(3)}`).join('; '));
+// 52 movers (keys + lamps) plus the merged static shell.
+//
+// The wire twin under-counts: stripping its materials collapses the per-material
+// merge buckets in parseMachine, so it reports 56 where the SERVED asset reports
+// 62 — read off the page's own colophon, 2026-07-30. Checking the raw number here
+// would claim 8 calls of headroom against a real margin of 2, so the gap is added
+// back before the comparison.
+const WIRE_UNDERCOUNT = 6;
+const served = machine.drawCalls + WIRE_UNDERCOUNT;
+check('draw calls stay inside the stated budget', served <= 64,
+  `${machine.drawCalls} on the wire twin → ~${served} served, budget 64`);
+check('machine is centred on the axle line in x', Math.abs(centre.x) < 0.05, `x centre ${centre.x.toFixed(3)}`);
+check('machine footprint matches the measured case in x',
+  Math.abs(size.x - CASE.w) < 0.05, `x extent ${size.x.toFixed(3)} against case ${CASE.w}`);
+// The bake floors the case bottom to y=0; the ground plane and the shadow
+// catcher both assume it.
+const sunken = meshes.filter((m) => m.box.min.y < -0.005);
+check('nothing sinks below the floor', sunken.length === 0,
+  sunken.map((m) => `${m.name} reaches y=${m.box.min.y.toFixed(3)}`).join('; '));
 
-// Rotor assemblies, measured off the BUILT instances rather than off the numbers
-// they were meant to be built from. layout.test.mjs checks the intent and passed
-// while the flanges were rotated onto the wrong axis, standing 1.12 across a
-// 0.85 pitch and overlapping their neighbours by 0.27. Only the real matrices
-// show that, which is the entire reason this file exists.
-const flangeMesh = meshes.find((m) => m.count === 6);
-if (flangeMesh) {
-  const im = new THREE.Matrix4();
-  const spans = [];
-  flangeMesh.obj.geometry.computeBoundingBox();
-  for (let n = 0; n < 6; n++) {
-    flangeMesh.obj.getMatrixAt(n, im);
-    const b = flangeMesh.obj.geometry.boundingBox.clone()
-      .applyMatrix4(new THREE.Matrix4().multiplyMatrices(flangeMesh.obj.matrixWorld, im));
-    spans.push([b.min.x, b.max.x]);
-  }
-  spans.sort((a, b) => a[0] - b[0]);
-  let worst = Infinity;
-  for (let n = 1; n < spans.length; n++) worst = Math.min(worst, spans[n][0] - spans[n - 1][1]);
-  check(`rotor assemblies clear each other by ${worst.toFixed(3)} on the axle`, worst > -0.001,
-    `flanges overlap by ${(-worst).toFixed(3)} — check the axis they are rotated onto`);
+// The animatable contract: exactly the 52 parts the page promises.
+const keyMeshes = meshes.filter((m) => m.name.startsWith('key-'));
+const lampMeshes = meshes.filter((m) => m.name.startsWith('lamp-'));
+check('26 key parts exist', keyMeshes.length === 26, `${keyMeshes.length} found`);
+check('26 lamp parts exist', lampMeshes.length === 26, `${lampMeshes.length} found`);
+
+// A keystroke must actually move a key, and the anatomy must actually open —
+// measured on the real matrices, not on the assumption the API is wired up.
+const q = keyMeshes.find((m) => m.name === 'key-Q');
+machine.setKeyTravel('Q', 1);
+machine.root.updateWorldMatrix(true, true);
+check('pressing Q sinks its cap', worldBox(qObj()).max.y < q.box.max.y - 0.05,
+  'cap did not move');
+machine.setKeyTravel('Q', 0);
+function qObj() {
+  let found = null;
+  machine.root.traverse((o) => { if (o.name === 'key-Q') found = o; });
+  return found;
 }
 
 // ── Framing: does the machine fit each camera stop? ───────────────────────
 const camera = new THREE.PerspectiveCamera(FOV, ASPECT, 0.1, 60);
-const corners = () => {
+const cornersOf = (box) => {
   const out = [];
-  for (const x of [whole.min.x, whole.max.x]) {
-    for (const y of [whole.min.y, whole.max.y]) {
-      for (const z of [whole.min.z, whole.max.z]) out.push(new THREE.Vector3(x, y, z));
+  for (const x of [box.min.x, box.max.x]) {
+    for (const y of [box.min.y, box.max.y]) {
+      for (const z of [box.min.z, box.max.z]) out.push(new THREE.Vector3(x, y, z));
     }
   }
   return out;
 };
 
-const framings = CAMERA_STOPS.map((stop, i) => {
+CAMERA_STOPS.forEach((stop, i) => {
   camera.position.set(...stop.pos);
   camera.lookAt(new THREE.Vector3(...stop.look));
   camera.updateMatrixWorld(true);
   camera.updateProjectionMatrix();
 
+  // Measure the pose this stop actually holds, not the object at rest.
+  const pose = poseAt(i);
+
+  // One screen-x interval per part, kept separate rather than merged into a
+  // single envelope: once the anatomy opens there is real daylight between the
+  // pieces, and an envelope would bill the copy for gaps it can be read through.
   let maxU = 0;
   let maxV = 0;
   let behind = 0;
-  for (const c of corners()) {
-    const p = c.clone().project(camera);
-    if (p.z > 1) behind++;
-    maxU = Math.max(maxU, Math.abs(p.x));
-    maxV = Math.max(maxV, Math.abs(p.y));
+  let ndcMin = Infinity;
+  let ndcMax = -Infinity;
+  const spans = [];
+  for (const part of pose.boxes) {
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (const c of cornersOf(part.box)) {
+      const p = c.clone().project(camera);
+      if (p.z > 1) behind++;
+      maxU = Math.max(maxU, Math.abs(p.x));
+      maxV = Math.max(maxV, Math.abs(p.y));
+      lo = Math.min(lo, p.x);
+      hi = Math.max(hi, p.x);
+    }
+    spans.push([lo, hi]);
+    ndcMin = Math.min(ndcMin, lo);
+    ndcMax = Math.max(ndcMax, hi);
   }
-  // 1.0 exactly fills the frame. Stops 1–3 are close-ups, so >1 is the intent,
-  // not a fault — asserting a fill ceiling here would just be a made-up number.
-  // What must hold is that the shot is AIMED at the machine: nothing folded
-  // behind the camera, and the look-at target inside the object's bounds.
+  // 1.0 exactly fills the frame. A close-up is allowed to exceed it; what is not
+  // allowed is burying the chapter's copy, which is the next check.
   const fill = Math.max(maxU, maxV);
   const target = new THREE.Vector3(...stop.look);
   const aimed = whole.containsPoint(target);
@@ -179,13 +226,46 @@ const framings = CAMERA_STOPS.map((stop, i) => {
     + `x ${whole.min.x.toFixed(2)}..${whole.max.x.toFixed(2)} `
     + `y ${whole.min.y.toFixed(2)}..${whole.max.y.toFixed(2)} `
     + `z ${whole.min.z.toFixed(2)}..${whole.max.z.toFixed(2)}`);
-  return { i, fill, maxU, maxV };
+
+  // Does the machine leave this chapter's copy readable?
+  //
+  // The silhouette is approximated by the projected bounding box, which is
+  // generous to the machine — the real object is narrower than its AABB — so a
+  // pass here is a conservative pass. That is the right direction for a check
+  // whose failure mode is unreadable text.
+  const side = COPY_SIDE[i];
+  const [colLo, colHi] = side === 'left'
+    ? [-COL_OUTER, -COL_INNER]
+    : [COL_INNER, COL_OUTER];
+  // Union of the per-part spans, clipped to the column: sort by start, then walk
+  // and accumulate, so overlapping parts are not counted twice.
+  const clipped = spans
+    .map(([lo, hi]) => [Math.max(lo, colLo), Math.min(hi, colHi)])
+    .filter(([lo, hi]) => hi > lo)
+    .sort((a, b) => a[0] - b[0]);
+  let union = 0;
+  let cursor = colLo;
+  for (const [lo, hi] of clipped) {
+    if (hi <= cursor) continue;
+    union += hi - Math.max(lo, cursor);
+    cursor = hi;
+  }
+  const covered = union / (colHi - colLo);
+  check(
+    `stop ${i} leaves the ${side} copy column readable (${(covered * 100).toFixed(0)}% covered`
+    + `${pose.spread ? ', anatomy open' : ''})`,
+    covered <= MAX_COVER,
+    `machine spans NDC x ${ndcMin.toFixed(2)}..${ndcMax.toFixed(2)}, `
+    + `copy column ${colLo.toFixed(2)}..${colHi.toFixed(2)}, `
+    + `yaw ${pose.yaw.toFixed(2)} spread ${pose.spread} — `
+    + `pull the stop back or swing it further ${side === 'left' ? 'right' : 'left'}`);
 });
+rest();
 
 // ── Draw it, so it can be looked at ───────────────────────────────────────
 const W = 960;
 const H = 540;
-const svgFor = (stop) => {
+const svgFor = (stop, i) => {
   camera.position.set(...stop.pos);
   camera.lookAt(new THREE.Vector3(...stop.look));
   camera.updateMatrixWorld(true);
@@ -198,45 +278,31 @@ const svgFor = (stop) => {
 
   const lines = [];
   for (const m of meshes) {
-    // Instanced parts are drawn per instance, so keys and lamps show up as the
-    // 26 objects they are rather than as one box around the whole bank.
-    const instances = m.obj.isInstancedMesh ? m.obj.count : 1;
-    for (let n = 0; n < instances; n++) {
-      const mat = m.obj.matrixWorld.clone();
-      if (m.obj.isInstancedMesh) {
-        const im = new THREE.Matrix4();
-        m.obj.getMatrixAt(n, im);
-        mat.multiply(im);
+    const b = m.box;
+    const pts = [];
+    for (const x of [b.min.x, b.max.x]) {
+      for (const y of [b.min.y, b.max.y]) {
+        for (const z of [b.min.z, b.max.z]) pts.push(new THREE.Vector3(x, y, z));
       }
-      const b = m.obj.geometry.boundingBox;
-      const pts = [];
-      for (const x of [b.min.x, b.max.x]) {
-        for (const y of [b.min.y, b.max.y]) {
-          for (const z of [b.min.z, b.max.z]) {
-            pts.push(new THREE.Vector3(x, y, z).applyMatrix4(mat));
-          }
-        }
-      }
-      const EDGES = [[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]];
-      for (const [a, c] of EDGES) {
-        const p = to2d(pts[a]);
-        const q = to2d(pts[c]);
-        if (p[2] > 1 || q[2] > 1) continue;
-        lines.push(`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}"/>`);
-      }
+    }
+    const EDGES = [[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]];
+    for (const [a, c] of EDGES) {
+      const p = to2d(pts[a]);
+      const q2 = to2d(pts[c]);
+      if (p[2] > 1 || q2[2] > 1) continue;
+      lines.push(`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q2[0].toFixed(1)}" y2="${q2[1].toFixed(1)}"/>`);
     }
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`
     + `<rect width="${W}" height="${H}" fill="#14140f"/>`
     + `<g stroke="#8fe3c0" stroke-width="0.6" fill="none" opacity="0.85">${lines.join('')}</g>`
     + `<text x="14" y="26" fill="#e8e4d8" font-family="monospace" font-size="14">`
-    + `STOP ${stop.i} · pos ${stop.pos.join(', ')} · look ${stop.look.join(', ')}</text></svg>`;
+    + `STOP ${i} · pos ${stop.pos.join(', ')} · look ${stop.look.join(', ')}</text></svg>`;
 };
 
-const here = dirname(fileURLToPath(import.meta.url));
 const outDir = resolve(here, '../../../.verify');
 CAMERA_STOPS.forEach((stop, i) => {
-  writeFileSync(resolve(outDir, `stop-${i}.svg`), svgFor({ ...stop, i }));
+  writeFileSync(resolve(outDir, `stop-${i}.svg`), svgFor(stop, i));
 });
 console.log(`\nwireframes → site/.verify/stop-0..4.svg`);
 console.log(failures ? `\n${failures} FAILED` : '\nall passed');

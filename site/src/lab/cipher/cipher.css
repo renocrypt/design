@@ -81,10 +81,10 @@ body {
 .bp-sheet { fill: transparent; }
 .bp-grid { stroke: var(--bone-12); stroke-width: 1; }
 .bp-case { fill: none; stroke: var(--bone); stroke-width: 1.6; }
+/* The open lid behind the body: lighter, dashed — it stands up out of the
+   plane, so the plan draws it as a projection, not a solid. */
+.bp-lid { fill: none; stroke: var(--bone-30); stroke-width: 1; stroke-dasharray: 8 4; }
 .bp-centre { stroke: var(--amber); stroke-width: 1; stroke-dasharray: 10 4 2 4; }
-.bp-axle { stroke: var(--bone-60); stroke-width: 1.2; stroke-dasharray: 6 3; }
-.bp-rotor { fill: none; stroke: var(--bone); stroke-width: 1.2; }
-.bp-rotor-inner { fill: none; stroke: var(--bone-30); stroke-width: 1; }
 .bp-key { fill: none; stroke: var(--bone-60); stroke-width: 1; }
 .bp-lamp { fill: none; stroke: var(--phosphor); stroke-width: 1; }
 /* The struck key and the lit lamp. Drawing conventions, not glow: the key gets a
@@ -92,7 +92,6 @@ body {
 .bp-key.is-down { stroke: var(--bone); stroke-width: 3; }
 .bp-lamp.is-lit { fill: var(--phosphor); stroke-width: 2.5; }
 .bp-plug { fill: none; stroke: var(--bone-60); stroke-width: 1; }
-.bp-socket { fill: var(--bone-30); }
 .bp-leader { stroke: var(--bone-30); stroke-width: 1; fill: none; }
 .bp-t {
   fill: var(--bone-60);

@@ -1,372 +1,209 @@
-// The machine, built from layout.ts and generated surfaces.
+// The machine, loaded from a real model instead of built from primitives.
 //
-// Draw-call discipline is the point of the structure here. The old build spent
-// ~135 calls, mostly on 26 key labels and 26 lamp labels each carrying their own
-// canvas and material. Here every repeated part is one InstancedMesh, labels
-// share one atlas, and the three rotors share one ring texture, which lands the
-// whole machine in the high teens.
+// The asset is "Enigma Machine" by ASHISH (CC BY 4.0 — see ASSETS.md in this
+// folder), split offline into 127 nodes: 26 key-*, 26 lamp-*, and the static
+// shell. This module loads it, bakes the whole transform chain into the
+// geometry (front to +z, ×SCALE, centred, floored — the numbers in layout.ts
+// are measured against exactly this bake), then merges the static shell per
+// material so the draw calls go to the parts that can actually move.
+//
+// What can move: every key sinks on its letter, every lamp lights on its
+// letter, and explode() opens the anatomy for the scroll's spread track. The
+// rotors themselves stay sealed behind the cover — the model has no full
+// letter rings to step, so stepping lives in the readout, not the mesh.
 
 import * as THREE from 'three';
-import {
-  CASE, DECK, ROTOR, AXLE_R, AXLE_LEN, PLINTH, SHROUD, PLUGBOARD, PLATE, SOCKET,
-  KEY_R, KEY_H, KEY_TRAVEL, LAMP_R, LAMP_H,
-  keySlots, lampSlots, socketSlots,
-} from './layout';
-import { atlasCell, brushedBump, crinkleBump, letterAtlas, plateTexture, ringTexture, woodBump } from './surfaces';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { SCALE, KEY_TRAVEL } from './layout';
 
 export interface Palette {
-  paint: number;
-  brass: number;
-  key: number;
-  keyInk: string;
-  lampOff: number;
   lampOn: number;
-  cable: number;
-  ringGround: string;
-  ringInk: string;
-  ringAccent: string;
-  plateGround: string;
-  plateInk: string;
 }
 
 export interface Machine {
   root: THREE.Group;
-  /** Rotor pivots, left to right, rotated on the 360/26 grid. */
-  rotors: THREE.Object3D[];
-  keys: THREE.InstancedMesh;
-  lamps: THREE.InstancedMesh;
-  /** Letter -> instance index, for press and glow. */
-  keyIndex: Map<string, number>;
-  lampIndex: Map<string, number>;
-  /** Sink one cap and its label, t in [0,1] of KEY_TRAVEL. Unknown letters no-op. */
+  /** Sink one cap, t in [0,1] of KEY_TRAVEL. Unknown letters no-op. */
   setKeyTravel(letter: string, t: number): void;
-  /** Blend one lamp from its off colour to its on colour, t in [0,1]. */
+  /** Glow one lamp from off to on, t in [0,1]. */
   setLamp(letter: string, t: number): void;
+  /** Open the anatomy: 0 assembled, 1 fully separated. */
+  explode(t: number): void;
   drawCalls: number;
   dispose(): void;
 }
 
-const tex = (c: HTMLCanvasElement, repeat = false): THREE.CanvasTexture => {
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 4;
-  if (repeat) {
-    t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  }
-  return t;
+/** Where each part class goes when the anatomy opens. */
+const EXPLODE = {
+  key: new THREE.Vector3(0, 0.7, 0.1),
+  lamp: new THREE.Vector3(0, 1.5, 0),
+  cover: new THREE.Vector3(0, 2.3, -0.3),
+  lid: new THREE.Vector3(0, 0.8, -1.2),
+  plug: new THREE.Vector3(0, 0.2, 1.3),
+} as const;
+
+type PartClass = keyof typeof EXPLODE | 'static';
+
+const classify = (name: string, c: THREE.Vector3): PartClass => {
+  if (name.startsWith('key-')) return 'key';
+  if (name.startsWith('lamp-')) return 'lamp';
+  if (c.z < -1.9) return 'lid';
+  if (c.z > 2.3) return 'plug';
+  if (c.z < -1.0 && c.y > 2.4) return 'cover';
+  return 'static';
 };
 
 /**
- * Patches a material so each instance samples its own cell of the letter atlas.
- * This is the trick that collapses 52 labelled parts into two draw calls.
+ * Meshopt-compressed geometry carries quantised (normalised integer)
+ * attributes; applying a matrix to those in place corrupts them. Dequantise
+ * everything to float32 first — GPU prefers it anyway.
  */
-function useAtlasCells(material: THREE.Material, cols: number, rows: number): void {
-  material.onBeforeCompile = (shader) => {
-    shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', `#include <common>\n attribute vec2 aCell;\n varying vec2 vCell;`)
-      .replace('#include <uv_vertex>', `#include <uv_vertex>\n vCell = aCell;`);
-    shader.fragmentShader = shader.fragmentShader
-      .replace('#include <common>', `#include <common>\n varying vec2 vCell;`)
-      .replace(
-        '#include <map_fragment>',
-        `#ifdef USE_MAP
-           vec2 cellUv = vCell + vMapUv * vec2(${(1 / cols).toFixed(6)}, ${(1 / rows).toFixed(6)});
-           vec4 sampledDiffuseColor = texture2D( map, cellUv );
-           diffuseColor *= sampledDiffuseColor;
-         #endif`,
-      );
-  };
-}
+const dequantize = (geo: THREE.BufferGeometry): THREE.BufferGeometry => {
+  const out = new THREE.BufferGeometry();
+  for (const [name, attr] of Object.entries(geo.attributes)) {
+    const a = attr as THREE.BufferAttribute;
+    const arr = new Float32Array(a.count * a.itemSize);
+    for (let i = 0; i < a.count; i++) {
+      arr[i * a.itemSize] = a.getX(i);
+      if (a.itemSize > 1) arr[i * a.itemSize + 1] = a.getY(i);
+      if (a.itemSize > 2) arr[i * a.itemSize + 2] = a.getZ(i);
+      if (a.itemSize > 3) arr[i * a.itemSize + 3] = a.getW(i);
+    }
+    out.setAttribute(name, new THREE.BufferAttribute(arr, a.itemSize));
+  }
+  if (geo.index) out.setIndex(geo.index.clone());
+  return out;
+};
 
-export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
+/** position/normal/uv only, so merge batches share one attribute set. */
+const stripForMerge = (geo: THREE.BufferGeometry): THREE.BufferGeometry => {
+  const out = new THREE.BufferGeometry();
+  for (const name of ['position', 'normal', 'uv'] as const) {
+    if (geo.attributes[name]) out.setAttribute(name, geo.attributes[name]);
+  }
+  if (geo.index) out.setIndex(geo.index);
+  return out;
+};
+
+/**
+ * The load half: fetch and parse. Split from parseMachine so the headless
+ * verifier can feed bytes instead of a URL (Node's fetch cannot read files).
+ */
+export const loadMachine = async (url: string): Promise<{ scene: THREE.Group }> => {
+  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+  return loader.loadAsync(url);
+};
+
+export const parseMachine = (gltf: { scene: THREE.Group }, palette: Palette): Machine => {
   const root = new THREE.Group();
+  root.name = 'machine';
   const disposables: { dispose(): void }[] = [];
   const keep = <T extends { dispose(): void }>(x: T): T => (disposables.push(x), x);
 
-  const crinkle = keep(tex(crinkleBump(), true));
-  crinkle.repeat.set(6, 4);
-  const brushed = keep(tex(brushedBump(), true));
-  brushed.repeat.set(3, 3);
-  const grain = keep(tex(woodBump(), true));
-  grain.repeat.set(2, 1);
+  gltf.scene.updateMatrixWorld(true);
 
-  // Wrinkle-finish enamel is a dielectric: the old metalness 0.22 let the env
-  // map wash the near-black paint up to a light plastic grey — and with the
-  // metalness fixed, the studio HDRI's diffuse IBL kept doing the same job.
-  // Every non-metal here therefore sips the env; only the metals drink it.
-  const paint = keep(new THREE.MeshStandardMaterial({
-    color: p.paint, roughness: 0.68, metalness: 0.05, bumpMap: crinkle, bumpScale: 0.06,
-    envMap: env, envMapIntensity: 0.08,
-  }));
-  const brass = keep(new THREE.MeshStandardMaterial({
-    color: p.brass, roughness: 0.31, metalness: 0.95, bumpMap: brushed, bumpScale: 0.012, envMap: env,
-  }));
-  // Stamped steel for the shroud — harder and shinier than the enamel.
-  const steel = keep(new THREE.MeshStandardMaterial({
-    color: p.paint, roughness: 0.42, metalness: 0.55, bumpMap: crinkle, bumpScale: 0.02,
-    envMap: env, envMapIntensity: 0.3,
-  }));
-  const wood = keep(new THREE.MeshStandardMaterial({
-    color: 0x3a2718, roughness: 0.66, metalness: 0.0, bumpMap: grain, bumpScale: 0.025,
-    envMap: env, envMapIntensity: 0.08,
-  }));
+  // Bake: +90° about Y (front to +z), ×SCALE, then recentre/floor by the
+  // transformed bounds. Two passes: measure, then apply with the offset in.
+  const rotScale = new THREE.Matrix4().makeRotationY(Math.PI / 2);
+  rotScale.multiply(new THREE.Matrix4().makeScale(SCALE, SCALE, SCALE));
 
-  // ── Case, plinth, deck edge and front furniture ─────────────────────────
-  const body = new THREE.Mesh(keep(new THREE.BoxGeometry(CASE.w, CASE.h, CASE.d)), paint);
-  body.position.y = CASE.h / 2;
-  body.castShadow = body.receiveShadow = true;
-  root.add(body);
-
-  const plinth = new THREE.Mesh(keep(new THREE.BoxGeometry(PLINTH.w, PLINTH.h, PLINTH.d)), wood);
-  plinth.position.set(0, PLINTH.y, PLINTH.z);
-  plinth.castShadow = plinth.receiveShadow = true;
-  root.add(plinth);
-
-  const plug = new THREE.Mesh(
-    keep(new THREE.BoxGeometry(PLUGBOARD.w, PLUGBOARD.h, PLUGBOARD.d)),
-    keep(new THREE.MeshStandardMaterial({
-      color: p.paint, roughness: 0.5, metalness: 0.35, envMap: env, envMapIntensity: 0.3,
-    })),
-  );
-  plug.position.set(0, PLUGBOARD.y, PLUGBOARD.z);
-  root.add(plug);
-
-  // The plate's text is baked into its texture, so the maker's mark is one mesh
-  // — and it now sits in its own band, clear of the plugboard it used to hide in.
-  const plate = new THREE.Mesh(
-    keep(new THREE.BoxGeometry(PLATE.w, PLATE.h, PLATE.d)),
-    keep(new THREE.MeshStandardMaterial({
-      map: keep(tex(plateTexture(p.plateGround, p.plateInk))),
-      roughness: 0.34, metalness: 0.9, envMap: env,
-    })),
-  );
-  plate.position.set(0, PLATE.y, PLATE.z);
-  root.add(plate);
-
-  // ── Sockets, plug tips and cables ────────────────────────────────────────
-  const slots = socketSlots();
-  // Three patch cables, and therefore six plug tips. The endpoints match the
-  // plugboard pairs the cipher actually uses.
-  const cablePairs: [number, number][] = [[1, 8], [4, 10], [2, 7]];
-  const tips = cablePairs.flatMap(([a, b]) => [a, b]);
-  // One InstancedMesh carries sockets AND tips: same brass cylinder, the tips
-  // just run narrower and longer through their instance matrices.
-  const sockets = new THREE.InstancedMesh(
-    keep(new THREE.CylinderGeometry(SOCKET.r, SOCKET.r, SOCKET.h, 12)),
-    brass,
-    slots.length + tips.length,
-  );
-  const m = new THREE.Matrix4();
-  // Sockets stand out of the front face, so their axis turns from y to z.
-  const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
-  // Anything on the rotor axle turns from y to x instead. The flanges were reusing
-  // the socket rotation, which stood them on end: two 1.12-diameter discs per
-  // rotor, square across the drum, rising 0.56 above the deck. Invisible in every
-  // check we had, obvious the first time the scene graph was drawn.
-  const qAxle = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2));
-  const noRot = new THREE.Quaternion();
-  const one = new THREE.Vector3(1, 1, 1);
-  const tipScale = new THREE.Vector3(0.7, 2.3, 0.7);
-  slots.forEach((s, i) =>
-    sockets.setMatrixAt(i, m.compose(new THREE.Vector3(s.x, s.y, PLUGBOARD.z + PLUGBOARD.d / 2), q, one)),
-  );
-  tips.forEach((slotIdx, i) =>
-    sockets.setMatrixAt(
-      slots.length + i,
-      m.compose(
-        new THREE.Vector3(slots[slotIdx].x, slots[slotIdx].y, PLUGBOARD.z + PLUGBOARD.d / 2 + 0.04),
-        q,
-        tipScale,
-      ),
-    ),
-  );
-  root.add(sockets);
-
-  // The cables hang, they do not bulge: thin braided loops sagging below the
-  // panel's bottom edge, not red worms pushed through its face.
-  const cableMat = keep(new THREE.MeshStandardMaterial({
-    color: p.cable, roughness: 0.55, metalness: 0.05, envMap: env, envMapIntensity: 0.2,
-  }));
-  const cableGeos = cablePairs.map(([a, b]) => {
-    const from = new THREE.Vector3(slots[a].x, slots[a].y, PLUGBOARD.z + 0.12);
-    const to = new THREE.Vector3(slots[b].x, slots[b].y, PLUGBOARD.z + 0.12);
-    const sag = Math.min(from.y, to.y) - 0.34;
-    const d1 = from.clone().lerp(to, 0.33).setY(sag).setZ(PLUGBOARD.z + 0.26);
-    const d2 = from.clone().lerp(to, 0.67).setY(sag).setZ(PLUGBOARD.z + 0.26);
-    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3([from, d1, d2, to]), 24, 0.014, 6);
+  const src: { name: string; geo: THREE.BufferGeometry; mat: THREE.Material }[] = [];
+  gltf.scene.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const geo = dequantize(mesh.geometry);
+    geo.applyMatrix4(new THREE.Matrix4().multiplyMatrices(rotScale, mesh.matrixWorld));
+    src.push({ name: mesh.name, geo, mat: mesh.material as THREE.Material });
   });
-  const cables = new THREE.Mesh(keep(mergeGeometries(cableGeos)), cableMat);
-  cableGeos.forEach((g) => g.dispose());
-  root.add(cables);
 
-  // ── Rotors: one ring texture, three pivots, sunk into the deck ─────────
-  const ring = keep(tex(ringTexture(p.ringGround, p.ringInk, p.ringAccent)));
-  const ringMat = keep(new THREE.MeshStandardMaterial({
-    map: ring, roughness: 0.42, metalness: 0.6, envMap: env, envMapIntensity: 0.7,
-  }));
-  const drumGeo = keep(new THREE.CylinderGeometry(ROTOR.r, ROTOR.r, ROTOR.w, 48, 1, true));
-  const flangeGeo = keep(new THREE.CylinderGeometry(ROTOR.flangeR, ROTOR.flangeR, 0.05, 32));
+  const bounds = new THREE.Box3();
+  src.forEach(({ geo }) => {
+    geo.computeBoundingBox();
+    bounds.union(geo.boundingBox!);
+  });
+  const offset = new THREE.Vector3(
+    -(bounds.min.x + bounds.max.x) / 2,
+    -bounds.min.y,
+    -(bounds.min.z + bounds.max.z) / 2,
+  );
+  const shift = new THREE.Matrix4().makeTranslation(offset.x, offset.y, offset.z);
+  src.forEach(({ geo }) => {
+    geo.applyMatrix4(shift);
+    geo.computeBoundingBox();
+  });
 
-  const rotors: THREE.Object3D[] = [];
-  const flanges = new THREE.InstancedMesh(flangeGeo, brass, 6);
-  for (let i = 0; i < 3; i++) {
-    const pivot = new THREE.Group();
-    pivot.position.set((i - 1) * ROTOR.gap, ROTOR.y, ROTOR.z);
-    const drum = new THREE.Mesh(drumGeo, ringMat);
-    drum.rotation.z = Math.PI / 2;
-    drum.castShadow = true;
-    pivot.add(drum);
-    root.add(pivot);
-    rotors.push(pivot);
+  // Classify, then merge the static shell per (class × material); keys and
+  // lamps stay individual because they are the parts that move.
+  const keys = new Map<string, THREE.Mesh>();
+  const lamps = new Map<string, THREE.Mesh>();
+  const buckets = new Map<string, { mat: THREE.Material; geos: THREE.BufferGeometry[] }>();
+  const movers: { mesh: THREE.Object3D; cls: PartClass }[] = [];
 
-    [-1, 1].forEach((side, k) => {
-      flanges.setMatrixAt(
-        i * 2 + k,
-        m.compose(
-          new THREE.Vector3((i - 1) * ROTOR.gap + (side * (ROTOR.w / 2 + 0.02)), ROTOR.y, ROTOR.z),
-          qAxle,
-          one,
-        ),
-      );
-    });
+  for (const { name, geo, mat } of src) {
+    const c = geo.boundingBox!.getCenter(new THREE.Vector3());
+    const cls = classify(name, c);
+    if (cls === 'key' || cls === 'lamp') {
+      const mesh = new THREE.Mesh(keep(geo), mat);
+      mesh.name = name;
+      mesh.castShadow = cls === 'key';
+      movers.push({ mesh, cls });
+      if (cls === 'key') keys.set(name.slice(4), mesh);
+      else lamps.set(name.slice(5), mesh);
+      root.add(mesh);
+    } else {
+      const key = `${cls}|${mat.name}`;
+      let b = buckets.get(key);
+      if (!b) buckets.set(key, (b = { mat, geos: [] }));
+      b.geos.push(geo);
+    }
   }
-  root.add(flanges);
 
-  const axleGeo = keep(new THREE.CylinderGeometry(AXLE_R, AXLE_R, AXLE_LEN, 12));
-  axleGeo.rotateZ(Math.PI / 2);
-  const knobGeos = [-1, 1].map((side) => {
-    const g = new THREE.CylinderGeometry(0.12, 0.12, 0.1, 20);
-    g.rotateZ(Math.PI / 2);
-    g.translate(side * (SHROUD.w / 2 + 0.04), 0, 0);
-    return g;
-  });
-  const axleParts = mergeGeometries([axleGeo, ...knobGeos]);
-  knobGeos.forEach((g) => g.dispose());
-  const axle = new THREE.Mesh(keep(axleParts), brass);
-  axle.position.set(0, ROTOR.y, ROTOR.z);
-  root.add(axle);
+  for (const [key, { mat, geos }] of buckets) {
+    const cls = key.split('|')[0] as PartClass;
+    const merged = keep(mergeGeometries(geos.map(stripForMerge), false));
+    geos.forEach((g) => g.dispose());
+    const mesh = new THREE.Mesh(merged, mat);
+    mesh.name = `merged-${key}`;
+    mesh.castShadow = mesh.receiveShadow = true;
+    root.add(mesh);
+    if (cls !== 'static') movers.push({ mesh, cls });
+  }
 
-  // ── The shroud: fascia and cheeks the rotors rise out of ────────────────
-  const shroudGeos = [
-    new THREE.BoxGeometry(SHROUD.w, SHROUD.h, SHROUD.t),
-    ...([-1, 1] as const).map((side) => {
-      const g = new THREE.BoxGeometry(SHROUD.t, SHROUD.h, SHROUD.cheekD);
-      g.translate(side * (SHROUD.w / 2 - SHROUD.t / 2), 0, SHROUD.cheekZ - SHROUD.fasciaZ);
-      return g;
-    }),
-  ];
-  const shroud = new THREE.Mesh(keep(mergeGeometries(shroudGeos)), steel);
-  shroudGeos.forEach((g) => g.dispose());
-  shroud.position.set(0, DECK + SHROUD.h / 2, SHROUD.fasciaZ);
-  shroud.castShadow = true;
-  root.add(shroud);
+  // Lamps get their own materials: the shared mec material cannot glow per
+  // letter. No emissiveMap on purpose — the lens texture is near-black, and
+  // multiplying the emissive by it kept the 'lit' lamp indistinguishable from
+  // an unlit one. The whole disc burns amber instead, the way a lit lens reads
+  // from operator distance.
+  const lampOn = new THREE.Color(palette.lampOn);
+  for (const mesh of lamps.values()) {
+    const base = mesh.material as THREE.MeshStandardMaterial;
+    const m = keep(base.clone());
+    m.emissive.copy(lampOn);
+    m.emissiveMap = null;
+    m.emissiveIntensity = 0;
+    mesh.material = m;
+  }
 
-  // ── Keyboard and lampboard: caps, lamps, and two atlas label layers ────
-  const atlas = keep(tex(letterAtlas(p.keyInk)));
-  const keyData = keySlots();
-  const lampData = lampSlots();
-
-  const keys = new THREE.InstancedMesh(
-    keep(new THREE.CylinderGeometry(KEY_R * 0.94, KEY_R, KEY_H, 20)),
-    // Bakelite: near-black with a soft gloss. The white discs were the single
-    // biggest reason the old machine read as a toy.
-    keep(new THREE.MeshStandardMaterial({
-      color: p.key, roughness: 0.45, metalness: 0.0, envMap: env, envMapIntensity: 0.15,
-    })),
-    keyData.length,
-  );
-  keys.castShadow = true;
-  const keyIndex = new Map<string, number>();
-  keyData.forEach((s, i) => {
-    keys.setMatrixAt(i, m.compose(new THREE.Vector3(s.x, DECK + KEY_H / 2, s.z), new THREE.Quaternion(), one));
-    keyIndex.set(s.letter, i);
-  });
-  root.add(keys);
-
-  const lamps = new THREE.InstancedMesh(
-    keep(new THREE.CylinderGeometry(LAMP_R, LAMP_R * 0.95, LAMP_H, 20)),
-    // Dark glass windows seated near-flush; the glow does all the talking.
-    keep(new THREE.MeshStandardMaterial({
-      color: p.lampOff, roughness: 0.15, metalness: 0.1, emissive: p.lampOn, emissiveIntensity: 0,
-      envMap: env, envMapIntensity: 0.4,
-    })),
-    lampData.length,
-  );
-  const lampIndex = new Map<string, number>();
-  lampData.forEach((s, i) => {
-    lamps.setMatrixAt(i, m.compose(new THREE.Vector3(s.x, DECK + LAMP_H / 2 - 0.01, s.z), new THREE.Quaternion(), one));
-    lampIndex.set(s.letter, i);
-    lamps.setColorAt(i, new THREE.Color(p.lampOff));
-  });
-  root.add(lamps);
-
-  // A brass bezel around each window, so the lampboard reads as fittings in a
-  // panel rather than as a second keyboard.
-  const bezels = new THREE.InstancedMesh(
-    keep(new THREE.TorusGeometry(LAMP_R + 0.022, 0.013, 8, 24)),
-    brass,
-    lampData.length,
-  );
-  const flatBezel = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
-  lampData.forEach((s, i) => {
-    bezels.setMatrixAt(i, m.compose(new THREE.Vector3(s.x, DECK + 0.008, s.z), flatBezel, one));
-  });
-  root.add(bezels);
-
-  // Label layers: flat discs just above each cap/lamp, all sampling one atlas.
-  const labelLayer = (
-    data: { letter: string; x: number; z: number }[],
-    radius: number,
-    y: number,
-  ): THREE.InstancedMesh => {
-    const mat = keep(new THREE.MeshBasicMaterial({ map: atlas, transparent: true, depthWrite: false }));
-    useAtlasCells(mat, 7, 4);
-    const mesh = new THREE.InstancedMesh(keep(new THREE.PlaneGeometry(radius * 1.5, radius * 1.5)), mat, data.length);
-    const cells = new Float32Array(data.length * 2);
-    const flat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
-    data.forEach((s, i) => {
-      mesh.setMatrixAt(i, m.compose(new THREE.Vector3(s.x, y, s.z), flat, one));
-      const [u, v] = atlasCell(s.letter);
-      cells[i * 2] = u;
-      cells[i * 2 + 1] = v;
-    });
-    mesh.geometry.setAttribute('aCell', new THREE.InstancedBufferAttribute(cells, 2));
-    return mesh;
+  const rests = movers.map(({ mesh, cls }) => ({
+    mesh,
+    rest: mesh.position.clone(),
+    dir: (EXPLODE as Record<string, THREE.Vector3>)[cls],
+  }));
+  // Key travel composes with the explode rather than fighting it: the press is
+  // stored per key and folded into the same position pass.
+  const travels = new Map<THREE.Object3D, number>();
+  let exploded = 0;
+  const apply = (): void => {
+    for (const { mesh, rest, dir } of rests) {
+      mesh.position.set(
+        rest.x + dir.x * exploded,
+        rest.y + dir.y * exploded - KEY_TRAVEL * (travels.get(mesh) ?? 0),
+        rest.z + dir.z * exploded,
+      );
+    }
   };
 
-  const keyLabels = labelLayer(keyData, KEY_R, DECK + KEY_H + 0.002);
-  const lampLabels = labelLayer(lampData, LAMP_R, DECK + LAMP_H + 0.002);
-  root.add(keyLabels, lampLabels);
-
-  // The two maps above were built and then read by nothing: press() threw the
-  // letter away, so no cap ever sank and no lamp ever lit on a page whose whole
-  // instruction is PRESS ANY LETTER. These are the missing consumers, kept here
-  // because the matrices belong with the geometry that authored them.
-  const flatQ = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
-  const at = new THREE.Vector3();
-  const lampOff = new THREE.Color(p.lampOff);
-  const lampOn = new THREE.Color(p.lampOn);
-  const lampMix = new THREE.Color();
-
-  const setKeyTravel = (letter: string, t: number): void => {
-    const i = keyIndex.get(letter);
-    if (i === undefined) return;
-    const s = keyData[i];
-    const drop = KEY_TRAVEL * t;
-    keys.setMatrixAt(i, m.compose(at.set(s.x, DECK + KEY_H / 2 - drop, s.z), noRot, one));
-    keyLabels.setMatrixAt(i, m.compose(at.set(s.x, DECK + KEY_H + 0.002 - drop, s.z), flatQ, one));
-    keys.instanceMatrix.needsUpdate = true;
-    keyLabels.instanceMatrix.needsUpdate = true;
-  };
-
-  const setLamp = (letter: string, t: number): void => {
-    const i = lampIndex.get(letter);
-    if (i === undefined) return;
-    lamps.setColorAt(i, lampMix.copy(lampOff).lerp(lampOn, t));
-    if (lamps.instanceColor) lamps.instanceColor.needsUpdate = true;
-  };
-
-  // Count what the renderer will actually submit, so the budget is a fact.
   let drawCalls = 0;
   root.traverse((o) => {
     if ((o as THREE.Mesh).isMesh) drawCalls++;
@@ -374,46 +211,28 @@ export function buildMachine(p: Palette, env: THREE.Texture | null): Machine {
 
   return {
     root,
-    rotors,
-    keys,
-    lamps,
-    keyIndex,
-    lampIndex,
-    setKeyTravel,
-    setLamp,
+    setKeyTravel(letter, t) {
+      const mesh = keys.get(letter);
+      if (!mesh) return;
+      travels.set(mesh, t);
+      apply();
+    },
+    setLamp(letter, t) {
+      const mesh = lamps.get(letter);
+      // 4.5, not 2.2: the emissive map is a dark lens with a light glyph, so
+      // most of the disc multiplies the glow down — 2.2 never read on screen.
+      if (mesh) (mesh.material as THREE.MeshStandardMaterial).emissiveIntensity = 4.5 * t;
+    },
+    explode(t) {
+      exploded = t;
+      apply();
+    },
     drawCalls,
     dispose() {
       disposables.forEach((d) => d.dispose());
     },
   };
-}
+};
 
-/** Minimal geometry merge — avoids pulling in the addons build for one call. */
-function mergeGeometries(geos: THREE.BufferGeometry[]): THREE.BufferGeometry {
-  const out = new THREE.BufferGeometry();
-  const names = ['position', 'normal', 'uv'] as const;
-  let vertexCount = 0;
-  for (const g of geos) vertexCount += g.attributes.position.count;
-
-  for (const name of names) {
-    const itemSize = geos[0].attributes[name].itemSize;
-    const array = new Float32Array(vertexCount * itemSize);
-    let at = 0;
-    for (const g of geos) {
-      array.set(g.attributes[name].array as Float32Array, at);
-      at += g.attributes[name].count * itemSize;
-    }
-    out.setAttribute(name, new THREE.BufferAttribute(array, itemSize));
-  }
-
-  const indices: number[] = [];
-  let base = 0;
-  for (const g of geos) {
-    const idx = g.index!;
-    for (let i = 0; i < idx.count; i++) indices.push(idx.getX(i) + base);
-    base += g.attributes.position.count;
-  }
-  out.setIndex(indices);
-  out.computeBoundingSphere();
-  return out;
-}
+export const buildMachine = async (url: string, palette: Palette): Promise<Machine> =>
+  parseMachine(await loadMachine(url), palette);

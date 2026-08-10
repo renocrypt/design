@@ -33,8 +33,17 @@ These are the ones that cost us when broken; everything else lives behind a poin
 cd site && npm run dev      # http://localhost:5173
 cd site && npm run build    # static output in site/dist
 
-# Checks. The verifier builds the real scene graph and projects it to
-# site/.verify/*.svg, so 3D geometry can be looked at without a GPU.
+# Checks. The verifier builds the real scene graph, poses it the way the scroll
+# actually poses it, and projects it to site/.verify/*.svg, so 3D geometry can be
+# looked at without a GPU.
 cd site && node --experimental-strip-types src/lab/cipher/{layout,enigma,tracks}.test.mjs
 cd site && node --experimental-strip-types --import ./tools/ts-resolve.mjs src/lab/cipher/scene.verify.mjs
+
+# Solves S5's camera stops when the copy collides with the machine; prints numbers
+# to paste into CAMERA_STOPS, which scene.verify.mjs then asserts.
+cd site && node --experimental-strip-types --import ./tools/ts-resolve.mjs src/lab/cipher/stops.tune.mjs
 ```
+
+The software-renderer rung is real and reachable — force it with
+`--use-angle=swiftshader --enable-unsafe-swiftshader --disable-gpu` on a throwaway
+`--user-data-dir`. Local dev is an Apple GPU and never exercises it.

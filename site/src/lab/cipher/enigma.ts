@@ -67,7 +67,9 @@ export const buildPlugboard = (pairs: readonly string[]): number[] => {
  * The old implementation carried like an odometer, which never does this.
  */
 export function step(w: Wheel): void {
-  const [l, m, r] = w.order;
+  // Left wheel is not read here: it only ever steps as the middle wheel's
+  // carry, which the double-step branch below handles directly.
+  const [, m, r] = w.order;
   const atNotch = (slot: number, pos: number) => pos === NOTCH[slot];
 
   if (atNotch(m, w.position[1])) {
@@ -77,7 +79,6 @@ export function step(w: Wheel): void {
     w.position[1] = (w.position[1] + 1) % 26;
   }
   w.position[2] = (w.position[2] + 1) % 26;
-  void l;
 }
 
 export interface Trace {

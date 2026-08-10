@@ -20,7 +20,7 @@ One entrance opening into self-contained worlds, each built around a single hard
 ## Layout
 
 ```
-docs/          the north star: concept, inspiration, asset rules, per-world build specs
+docs/          the north star: concept, inspiration, asset rules
 research/      measured anatomy per reference pole (POLES.md) + standing lessons; screenshots stay local
 site/          the build — one Vite app (TS + Three.js + GSAP), static output
   index.html     the hub

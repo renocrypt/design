@@ -6,12 +6,13 @@
 // see here is the real thing, not a placeholder.
 //
 // Every coordinate comes from layout.ts, so the drawing and the object cannot
-// disagree. The dimension callouts print real numbers for the same reason.
+// disagree. The object is now a real model — "Enigma Machine" by ASHISH (CC BY
+// 4.0) — and the drawing credits it, because a drawing that does not name its
+// subject is not a drawing.
 
 import {
-  CASE, DECK, FRONT, ROTOR, PLINTH, SHROUD, PLUGBOARD, PLATE, STEP_DEG,
-  KEY_ROWS, KEY_R, LAMP_ROWS, LAMP_R, LAMP_H,
-  keySlots, lampSlots, socketSlots,
+  BODY, CASE, DECK, FRONT, STEP_DEG, KEY_R, LAMP_R,
+  keySlots, lampSlots,
 } from './layout';
 
 /** World units to SVG units, plus a margin for the annotation gutter. */
@@ -33,10 +34,11 @@ const label = (x: number, y: number, text: string, cls = 'bp-t') =>
   el('text', { x, y, class: cls }, text);
 
 /**
- * Plan view of the deck: case outline, key and lamp banks, rotor bank, and the
- * front furniture that used to overlap. The gap the old build got wrong is
- * dimensioned explicitly, because a drawing that states its clearances is how
- * you stop that bug coming back.
+ * Plan view of the machine on its sheet: the body, the open lid standing behind
+ * it, the lampboard and keyboard repeated as 26 circles each, the plugboard on
+ * the front lip. The lamp/key gap the drawing once stated is now a measured
+ * fact: lamps sit at z 0.55 → −0.14, keys at 1.09 → 1.90, and the two banks
+ * cannot overlap because the model's geometry says so.
  */
 export function blueprintSVG(): string {
   const parts: string[] = [];
@@ -50,57 +52,39 @@ export function blueprintSVG(): string {
     parts.push(el('line', { x1: PAD, y1: gy, x2: W - PAD, y2: gy, class: 'bp-grid' }));
   }
 
-  // Case outline, then the carrying-box tray around it.
+  // The open lid, drawn first so the body sits over it: in plan it is the band
+  // behind the machine where the lid's crown and hinges project.
   parts.push(el('rect', {
-    x: px(-CASE.w / 2), y: pz(-CASE.d / 2), width: CASE.w * S, height: CASE.d * S,
-    rx: 6, class: 'bp-case',
+    x: px(-CASE.w / 2), y: pz(-CASE.d / 2),
+    width: CASE.w * S, height: (BODY.backZ + CASE.d / 2) * S,
+    rx: 6, class: 'bp-lid',
   }));
+
+  // Machine body, back edge to front lip.
   parts.push(el('rect', {
-    x: px(-PLINTH.w / 2), y: pz(PLINTH.z - PLINTH.d / 2), width: PLINTH.w * S, height: PLINTH.d * S,
-    rx: 8, class: 'bp-case',
+    x: px(-CASE.w / 2), y: pz(BODY.backZ),
+    width: CASE.w * S, height: (FRONT - BODY.backZ) * S,
+    rx: 6, class: 'bp-case',
   }));
 
   // Centreline.
   parts.push(el('line', { x1: px(0), y1: PAD - 26, x2: px(0), y2: H - PAD + 26, class: 'bp-centre' }));
 
-  // Rotor bank. The drums are cylinders lying on one axle along x, so in PLAN they
-  // are rectangles — w across the axle by 2·flangeR deep. Drawing them as circles
-  // put an end-elevation shape into a plan view, which is why three rotors pitched
-  // 0.85 apart appeared to interpenetrate by 0.27 on a drawing whose own numbers
-  // said they clear each other by 0.42.
-  parts.push(el('line', {
-    x1: px(-ROTOR.gap - 0.55), y1: pz(ROTOR.z), x2: px(ROTOR.gap + 0.55), y2: pz(ROTOR.z), class: 'bp-axle',
-  }));
-  const flangeOffset = ROTOR.w / 2 + 0.02;
-  for (let i = 0; i < 3; i++) {
-    const cx = (i - 1) * ROTOR.gap;
-    // Flanges are the thin lines, the drum is the solid part — the other way round
-    // and the two bright bars read as a pair of slots cut in the deck.
-    [-1, 1].forEach((side) => {
-      parts.push(el('rect', {
-        x: px(cx + side * flangeOffset) - 2, y: pz(ROTOR.z - ROTOR.flangeR),
-        width: 4, height: ROTOR.flangeR * 2 * S, class: 'bp-rotor-inner',
-      }));
-    });
-    parts.push(el('rect', {
-      x: px(cx - ROTOR.w / 2), y: pz(ROTOR.z - ROTOR.r),
-      width: ROTOR.w * S, height: ROTOR.r * 2 * S, class: 'bp-rotor',
-    }));
-    // Clear of the axle centreline, which runs through the drum's middle.
-    parts.push(label(px(cx), pz(ROTOR.z) + 26, ['I', 'II', 'III'][i], 'bp-t bp-t--mid'));
-  }
-
-  // The cradle: fascia and cheeks the rotors rise out of.
+  // The rotor cover: the raised hood between lid and lampboard, where the wheel
+  // windows and thumbwheels live. The rotors are sealed inside it — the drawing
+  // says so instead of pretending to show them.
+  const COVER = { z0: -1.96, z1: -1.16 };
   parts.push(el('rect', {
-    x: px(-SHROUD.w / 2), y: pz(SHROUD.fasciaZ - SHROUD.t / 2),
-    width: SHROUD.w * S, height: SHROUD.t * S, class: 'bp-plug',
+    x: px(-CASE.w / 2 + 0.22), y: pz(COVER.z0),
+    width: (CASE.w - 0.44) * S, height: (COVER.z1 - COVER.z0) * S,
+    rx: 10, class: 'bp-plug',
   }));
-  [-1, 1].forEach((side) => {
-    parts.push(el('rect', {
-      x: px(side * (SHROUD.w / 2 - SHROUD.t / 2) - SHROUD.t / 2), y: pz(SHROUD.cheekZ - SHROUD.cheekD / 2),
-      width: SHROUD.t * S, height: SHROUD.cheekD * S, class: 'bp-plug',
-    }));
-  });
+  parts.push(el('path', {
+    d: `M ${px(CASE.w / 2 - 0.22)} ${pz((COVER.z0 + COVER.z1) / 2)} L ${W - PAD + 44} ${pz((COVER.z0 + COVER.z1) / 2)}`,
+    class: 'bp-leader',
+  }));
+  parts.push(label(W - PAD + 50, pz((COVER.z0 + COVER.z1) / 2) - 6, 'ROTOR COVER', 'bp-t bp-t--note'));
+  parts.push(label(W - PAD + 50, pz((COVER.z0 + COVER.z1) / 2) + 10, 'WHEELS SEALED INSIDE', 'bp-t bp-t--note'));
 
   // Lamp bank, then key bank. Both carry their letter so the Proof register can
   // answer a keystroke: the page promises 'a key sinks, a lamp lights', and a
@@ -118,72 +102,53 @@ export function blueprintSVG(): string {
     parts.push(label(px(s.x), pz(s.z) + 4, s.letter, 'bp-t bp-t--tiny'));
   });
 
-  // Plugboard footprint on the front edge, with its sockets.
+  // Plugboard on the front lip, where the three cable sockets sit on the model.
+  const PLUG = { z0: 2.54, z1: FRONT };
   parts.push(el('rect', {
-    x: px(-PLUGBOARD.w / 2), y: pz(FRONT) - 4, width: PLUGBOARD.w * S, height: 12, class: 'bp-plug',
+    x: px(-CASE.w / 2 + 0.22), y: pz(PLUG.z0),
+    width: (CASE.w - 0.44) * S, height: (PLUG.z1 - PLUG.z0) * S,
+    class: 'bp-plug',
   }));
-  socketSlots().forEach((s, i) => {
-    parts.push(el('circle', { cx: px(s.x), cy: pz(FRONT) + (i < 6 ? -1 : 5), r: 3, class: 'bp-socket' }));
-  });
 
   // Name the banks. Both are 26 circles carrying the same QWERTZ letters, because
   // that is what the machine is — but unlabelled, side by side, the drawing reads
   // as one keyboard printed twice. A drawing that does not name its parts is not
   // a drawing.
   const bankLabels: [number, string][] = [
-    [pz(LAMP_ROWS[1].z), 'LAMPBOARD'],
-    [pz(KEY_ROWS[1].z), 'KEYBOARD'],
+    [pz(0.209), 'LAMPBOARD'],
+    [pz(1.5), 'KEYBOARD'],
+    [pz((PLUG.z0 + PLUG.z1) / 2), 'PLUGBOARD'],
   ];
   bankLabels.forEach(([y, text]) => {
     parts.push(el('path', { d: `M ${px(-CASE.w / 2)} ${y} L ${PAD - 46} ${y}`, class: 'bp-leader' }));
     parts.push(label(PAD - 54, y + 4, text, 'bp-t bp-t--lead'));
   });
-  parts.push(el('path', {
-    d: `M ${px(-PLUGBOARD.w / 2)} ${pz(FRONT) + 2} L ${PAD - 46} ${pz(FRONT) + 2}`, class: 'bp-leader',
-  }));
-  parts.push(label(PAD - 54, pz(FRONT) + 6, 'PLUGBOARD', 'bp-t bp-t--lead'));
 
   // Annotations live in a titleblock in the bottom-right, where a drawing puts
-  // one. They used to start at x=36 in a 651-wide sheet, so on the page they were
-  // laid straight over the hero column: 'reflector' and 'ROTOR STEP 13.846°' were
-  // printed on top of each other.
-  // Sized off the longest row rather than guessed: 10px mono with 0.14em tracking
-  // runs ~7.4px a character, and the clearance line is 48 of them.
+  // one. Sized off the longest row rather than guessed: 10px mono with 0.14em
+  // tracking runs ~7.4px a character.
   const TB_W = 384;
   const TB_H = 104;
   const tbX = W - PAD / 2 - TB_W;
-  const tbY = pz(CASE.d / 2) + 22; // clear of the case outline, and inside the sheet
+  const tbY = pz(FRONT) + 22; // clear of the case outline, and inside the sheet
   parts.push(el('rect', { x: tbX, y: tbY, width: TB_W, height: TB_H, class: 'bp-case' }));
   parts.push(el('line', { x1: tbX, y1: tbY + 22, x2: tbX + TB_W, y2: tbY + 22, class: 'bp-leader' }));
-  // Clearances the object had to be corrected to honour, printed so the next
-  // person reads them off the drawing instead of trusting the shape.
-  const lampY = DECK + LAMP_H / 2 - 0.01;
-  const rotorReach = ROTOR.z + Math.sqrt(ROTOR.flangeR ** 2 - (lampY - ROTOR.y) ** 2);
-  const lampBack = Math.min(...LAMP_ROWS.map((r) => r.z)) - LAMP_R;
   const notes: string[] = [
-    `RENOCRYPT M-26 · PLAN · 1:1 @ ${S}px/u`,
-    `CASE ${CASE.w} × ${CASE.d} × ${CASE.h} · DECK y=${DECK}`,
+    `ENIGMA · PLAN · 1:1 @ ${S}px/u`,
+    `CASE ${CASE.w.toFixed(2)} × ${CASE.d.toFixed(2)} × ${CASE.h.toFixed(2)} · DECK y=${DECK}`,
     `ROTOR STEP ${STEP_DEG.toFixed(3)}° = 360/26`,
-    `PLATE↔PLUGBOARD ${((PLATE.y - PLATE.h / 2) - (PLUGBOARD.y + PLUGBOARD.h / 2)).toFixed(3)}`,
-    `ROTOR↔LAMPBOARD ${(lampBack - rotorReach).toFixed(3)} @ y=${lampY.toFixed(3)}`,
-    'ALL SURFACES GENERATED · NO DOWNLOADS',
+    '26 KEYS · 26 LAMPS · MEASURED OFF THE MODEL',
+    'MODEL "ENIGMA MACHINE" · ASHISH · CC BY 4.0',
   ];
   notes.forEach((t, i) => parts.push(
     label(tbX + 11, tbY + 15 + i * 15, t, i === 0 ? 'bp-t bp-t--note bp-t--head' : 'bp-t bp-t--note'),
   ));
-
-  // Leader line calling out the rotor bank, the way a drawing would.
-  parts.push(el('path', {
-    d: `M ${px(ROTOR.gap + 0.7)} ${pz(ROTOR.z)} L ${W - PAD + 44} ${pz(ROTOR.z)}`, class: 'bp-leader',
-  }));
-  parts.push(label(W - PAD + 50, pz(ROTOR.z) - 6, 'ROTOR BANK', 'bp-t bp-t--note'));
-  parts.push(label(W - PAD + 50, pz(ROTOR.z) + 10, 'SUNK ' + (DECK - (ROTOR.y - ROTOR.flangeR)).toFixed(2), 'bp-t bp-t--note'));
 
   return el('svg', {
     viewBox: `0 0 ${W} ${H}`,
     xmlns: 'http://www.w3.org/2000/svg',
     class: 'blueprint',
     role: 'img',
-    'aria-label': 'Plan drawing of the RENOCRYPT M-26 cipher engine',
+    'aria-label': 'Plan drawing of the Enigma cipher machine',
   }, parts.join(''));
 }

@@ -2,164 +2,108 @@
 // Three.js build and the SVG blueprint that stands in for it in the Proof
 // register. One source means the drawing cannot drift from the object.
 //
-// It also exists because the old S5 laid parts out by eye and sealed its own
-// nameplate inside the plugboard panel — a 0.34 y-overlap nobody could see from
-// any angle. layout.test.mjs now asserts that no two separately-authored parts
-// intersect, so that class of bug fails a run instead of shipping.
-//
-// Units are arbitrary but consistent: the case is 4.4 wide, and everything else
-// is expressed against it. Front of the machine faces +z, which is where the
-// camera lives.
+// The object changed: S5 is no longer built from primitives but from a real
+// model — "Enigma Machine" by ASHISH (CC BY 4.0), split offline into 127 nodes
+// (26 keys, 26 lamps, 75 static parts). These constants are MEASURED off that
+// asset (slots.mjs, 2026-07-30), in the scene units machine.ts bakes at load:
+// rotate +90° about Y so the operator's front faces +z, ×15, centred in x/z,
+// floored so the case bottom is y=0.
 
-export interface Box {
-  name: string;
-  /** Centre. */
-  at: [number, number, number];
-  /** Full extents. */
-  size: [number, number, number];
-  /** Rotation about x, radians. */
-  tilt?: number;
-}
+/** Asset scale: source-model units → scene units (machine body is 4.38 wide). */
+export const SCALE = 15;
 
-// Depth is 3.6, not 3.2: at 3.2 the bank spacing that keeps the back lamp row out
-// of the rotor drums does not fit between the front wall and the axle. The old
-// value bought its proportion by burying six lamps in the rotors.
-// Height is 1.9, not 1.6: a real machine is a chest, not a podium — at 1.6 the
-// case read as a flat grey slab under everything that sits on it.
-export const CASE = { w: 4.4, h: 1.9, d: 3.6 } as const;
-/** Top face of the case — the plane the keyboard and lampboard sit on. */
-export const DECK = CASE.h;
+/** Full footprint of the model, lid included. Front of the machine faces +z. */
+export const CASE = { w: 4.383, d: 6.464, h: 8.18 } as const;
+/** Machine body without the open lid standing behind it. */
+export const BODY = { d: 5.14, h: 3.76, backZ: -1.91 } as const;
+/** Keyboard deck height (cap tops ≈ 3.28, lampboard ≈ 3.29). */
+export const DECK = 3.2;
 /** Front face, where the plugboard and nameplate live. */
 export const FRONT = CASE.d / 2;
 
-/** The carrying-box tray the machine stands in — dark stained wood, one step
- *  wider than the case on every side. Its top is the case's y=0. */
-export const PLINTH = { w: 5.0, h: 0.35, d: 4.15, y: -0.175, z: 0.05 } as const;
-
-/**
- * Keyboard: three staggered rows on the deck, front third of the case, listed
- * front to back. Two things were wrong here and both were visible in a single
- * plan drawing: the rows ran backwards (QWERTZUIO belongs at the BACK, nearest
- * the rotors, with PYXCVBNML under the operator's hands), and the top row was
- * spelled QWERTYUIO — the QWERTZ Y/Z swap missed — which gave the machine two Y
- * keys and no Z at all.
- */
-export const KEY_ROWS = [
-  { letters: 'PYXCVBNML', z: 1.565 },
-  { letters: 'ASDFGHJK', z: 1.225 },
-  { letters: 'QWERTZUIO', z: 0.885 },
-] as const;
-export const KEY_PITCH = 0.44;
-/** Bakelite discs, not drums: 0.16 radius, 0.09 tall — the old 0.175/0.14
- *  white cylinders are what read as marshmallows. */
-export const KEY_R = 0.16;
-export const KEY_H = 0.09;
-/** How far a key sinks when pressed. */
-export const KEY_TRAVEL = 0.075;
-
-/** Lampboard: same three-row grammar and the same order, behind the keys.
- *  Lamps are glass windows seated near-flush, not a second keyboard. */
-export const LAMP_ROWS = [
-  { letters: 'PYXCVBNML', z: 0.265 },
-  { letters: 'ASDFGHJK', z: -0.075 },
-  { letters: 'QWERTZUIO', z: -0.415 },
-] as const;
+/** Bakelite ring caps, measured: 0.37 pitch, ~0.27 diameter. */
+export const KEY_R = 0.135;
+/** Lampboard lenses, measured slightly smaller than the caps. */
 export const LAMP_R = 0.12;
-export const LAMP_H = 0.035;
+/** How far a key sinks when pressed: nearly half the cap, or the stroke
+ *  reads as nothing at page distance (0.075 was ~2px on screen). */
+export const KEY_TRAVEL = 0.13;
 
-/**
- * Rotors: three on one axle at the back, sunk deep into the deck so only the
- * crown of the letter rings shows above the shroud — a real machine hides the
- * works. The scroll's spread track lifts them clear of the cradle, which is
- * what the explode now explodes OUT OF.
- */
-export const ROTOR = {
-  r: 0.5,
-  flangeR: 0.56,
-  w: 0.34,
-  gap: 0.85,
-  y: DECK + 0.04,
-  z: -1.22,
-} as const;
-export const AXLE_R = 0.075;
-/** Short enough to end inside the shroud cheeks; the knobs outside carry it. */
-export const AXLE_LEN = ROTOR.gap * 2 + 0.6;
+/** Keyboard rows, front to back — QWERTZ, as the machine was built. */
+export const KEY_ROWS = ['PYXCVBNML', 'ASDFGHJK', 'QWERTZUIO'] as const;
 
-/**
- * The cradle the rotors rise out of: a front fascia and two end cheeks, no
- * top — the crowns poke through the open slot. Placed so each wall clears the
- * flange discs surface-to-surface (the fascia sits 0.037 off the flange arc at
- * deck height) — and so the crude boxes in solids() stay disjoint too.
- */
-export const SHROUD = {
-  w: 2.5,
-  t: 0.07,
-  h: 0.32,
-  fasciaZ: ROTOR.z + 0.63,
-  cheekD: 1.12,
-  cheekZ: ROTOR.z + 0.03,
-} as const;
-
-/** Front-face furniture. Bands chosen so these two can never overlap again. */
-export const PLUGBOARD = { w: 2.7, h: 0.58, d: 0.05, y: 0.49, z: FRONT + 0.02 } as const;
-export const SOCKET = { r: 0.05, h: 0.06, cols: 6, rows: 2, pitch: 0.42, rowGap: 0.26 } as const;
-export const PLATE = { w: 1.9, h: 0.3, d: 0.035, y: 1.3, z: FRONT + 0.02 } as const;
-
-/** Degrees per rotor step, and therefore the quantisation of every rotation. */
+/** Degrees per rotor step, and therefore the quantisation of the cipher. */
 export const STEP_DEG = 360 / 26;
 
-const keyX = (row: { letters: string }, i: number): number =>
-  -((row.letters.length - 1) * KEY_PITCH) / 2 + i * KEY_PITCH;
-
-/** Every key's deck position, in the order the atlas expects. */
-export const keySlots = (): { letter: string; x: number; z: number }[] =>
-  KEY_ROWS.flatMap((row) => [...row.letters].map((letter, i) => ({ letter, x: keyX(row, i), z: row.z })));
-
-export const lampSlots = (): { letter: string; x: number; z: number }[] =>
-  LAMP_ROWS.flatMap((row) => [...row.letters].map((letter, i) => ({ letter, x: keyX(row, i), z: row.z })));
-
-export const socketSlots = (): { x: number; y: number }[] => {
-  const out: { x: number; y: number }[] = [];
-  for (let r = 0; r < SOCKET.rows; r++) {
-    for (let c = 0; c < SOCKET.cols; c++) {
-      out.push({
-        x: -((SOCKET.cols - 1) * SOCKET.pitch) / 2 + c * SOCKET.pitch,
-        y: PLUGBOARD.y + SOCKET.rowGap / 2 - r * SOCKET.rowGap,
-      });
-    }
-  }
-  return out;
-};
+export interface Slot {
+  letter: string;
+  x: number;
+  y: number;
+  z: number;
+}
 
 /**
- * The parts a collision check cares about: separately-authored solids on the
- * same face. Keys, lamps and sockets are excluded on purpose — they are
- * deliberately seated in their parent surface.
+ * The 26 keys and 26 lamps, measured from the split model's node centroids.
+ * Lamps sit behind their keys (smaller z), same x — the lampboard is the row
+ * grammar repeated, offset toward the rotors, not a second keyboard.
  */
-export const solids = (): Box[] => [
-  { name: 'case', at: [0, CASE.h / 2, 0], size: [CASE.w, CASE.h, CASE.d] },
-  { name: 'plinth', at: [0, PLINTH.y, PLINTH.z], size: [PLINTH.w, PLINTH.h, PLINTH.d] },
-  { name: 'plugboard', at: [0, PLUGBOARD.y, PLUGBOARD.z], size: [PLUGBOARD.w, PLUGBOARD.h, PLUGBOARD.d] },
-  { name: 'nameplate', at: [0, PLATE.y, PLATE.z], size: [PLATE.w, PLATE.h, PLATE.d] },
-  {
-    name: 'rotor-bank',
-    at: [0, ROTOR.y, ROTOR.z],
-    size: [ROTOR.gap * 2 + ROTOR.w, ROTOR.flangeR * 2, ROTOR.flangeR * 2],
-  },
-  { name: 'shroud-fascia', at: [0, DECK + SHROUD.h / 2, SHROUD.fasciaZ], size: [SHROUD.w, SHROUD.h, SHROUD.t] },
-  ...([-1, 1] as const).map((side) => ({
-    name: `shroud-cheek-${side < 0 ? 'l' : 'r'}`,
-    at: [side * (SHROUD.w / 2 - SHROUD.t / 2), DECK + SHROUD.h / 2, SHROUD.cheekZ] as [number, number, number],
-    size: [SHROUD.t, SHROUD.h, SHROUD.cheekD] as [number, number, number],
-  })),
+const SLOTS: (Slot & { kind: 'key' | 'lamp' })[] = [
+  { kind: 'key', letter: 'A', x: -1.246, y: 3.214, z: 1.5 },
+  { kind: 'key', letter: 'B', x: 0.364, y: 3.138, z: 1.902 },
+  { kind: 'key', letter: 'C', x: -0.378, y: 3.141, z: 1.902 },
+  { kind: 'key', letter: 'D', x: -0.504, y: 3.211, z: 1.5 },
+  { kind: 'key', letter: 'E', x: -0.666, y: 3.274, z: 1.085 },
+  { kind: 'key', letter: 'F', x: -0.133, y: 3.209, z: 1.5 },
+  { kind: 'key', letter: 'G', x: 0.238, y: 3.207, z: 1.5 },
+  { kind: 'key', letter: 'H', x: 0.609, y: 3.205, z: 1.5 },
+  { kind: 'key', letter: 'I', x: 1.189, y: 3.265, z: 1.085 },
+  { kind: 'key', letter: 'J', x: 0.98, y: 3.204, z: 1.5 },
+  { kind: 'key', letter: 'K', x: 1.35, y: 3.202, z: 1.5 },
+  { kind: 'key', letter: 'L', x: 1.476, y: 3.133, z: 1.902 },
+  { kind: 'key', letter: 'M', x: 1.105, y: 3.134, z: 1.902 },
+  { kind: 'key', letter: 'N', x: 0.734, y: 3.136, z: 1.902 },
+  { kind: 'key', letter: 'O', x: 1.56, y: 3.263, z: 1.085 },
+  { kind: 'key', letter: 'P', x: -1.491, y: 3.147, z: 1.902 },
+  { kind: 'key', letter: 'Q', x: -1.407, y: 3.278, z: 1.085 },
+  { kind: 'key', letter: 'R', x: -0.295, y: 3.272, z: 1.085 },
+  { kind: 'key', letter: 'S', x: -0.875, y: 3.212, z: 1.5 },
+  { kind: 'key', letter: 'T', x: 0.076, y: 3.271, z: 1.085 },
+  { kind: 'key', letter: 'U', x: 0.818, y: 3.267, z: 1.085 },
+  { kind: 'key', letter: 'V', x: -0.007, y: 3.14, z: 1.902 },
+  { kind: 'key', letter: 'W', x: -1.036, y: 3.276, z: 1.085 },
+  { kind: 'key', letter: 'X', x: -0.749, y: 3.143, z: 1.902 },
+  { kind: 'key', letter: 'Y', x: -1.12, y: 3.145, z: 1.902 },
+  { kind: 'key', letter: 'Z', x: 0.447, y: 3.269, z: 1.085 },
+  { kind: 'lamp', letter: 'A', x: -1.245, y: 3.299, z: 0.209 },
+  { kind: 'lamp', letter: 'B', x: 0.364, y: 3.292, z: 0.552 },
+  { kind: 'lamp', letter: 'C', x: -0.377, y: 3.295, z: 0.552 },
+  { kind: 'lamp', letter: 'D', x: -0.503, y: 3.295, z: 0.209 },
+  { kind: 'lamp', letter: 'E', x: -0.665, y: 3.295, z: -0.138 },
+  { kind: 'lamp', letter: 'F', x: -0.133, y: 3.293, z: 0.209 },
+  { kind: 'lamp', letter: 'G', x: 0.238, y: 3.292, z: 0.209 },
+  { kind: 'lamp', letter: 'H', x: 0.609, y: 3.29, z: 0.209 },
+  { kind: 'lamp', letter: 'I', x: 1.189, y: 3.287, z: -0.138 },
+  { kind: 'lamp', letter: 'J', x: 0.98, y: 3.288, z: 0.209 },
+  { kind: 'lamp', letter: 'L', x: 1.477, y: 3.286, z: 0.552 },
+  { kind: 'lamp', letter: 'K', x: 1.351, y: 3.286, z: 0.209 },
+  { kind: 'lamp', letter: 'M', x: 1.106, y: 3.288, z: 0.552 },
+  { kind: 'lamp', letter: 'N', x: 0.735, y: 3.29, z: 0.552 },
+  { kind: 'lamp', letter: 'O', x: 1.56, y: 3.285, z: -0.138 },
+  { kind: 'lamp', letter: 'P', x: -1.49, y: 3.3, z: 0.552 },
+  { kind: 'lamp', letter: 'Q', x: -1.407, y: 3.299, z: -0.138 },
+  { kind: 'lamp', letter: 'R', x: -0.294, y: 3.294, z: -0.138 },
+  { kind: 'lamp', letter: 'S', x: -0.874, y: 3.297, z: 0.209 },
+  { kind: 'lamp', letter: 'T', x: 0.076, y: 3.292, z: -0.138 },
+  { kind: 'lamp', letter: 'U', x: 0.818, y: 3.288, z: -0.138 },
+  { kind: 'lamp', letter: 'V', x: -0.006, y: 3.293, z: 0.552 },
+  { kind: 'lamp', letter: 'W', x: -1.036, y: 3.297, z: -0.138 },
+  { kind: 'lamp', letter: 'X', x: -0.748, y: 3.297, z: 0.552 },
+  { kind: 'lamp', letter: 'Y', x: -1.119, y: 3.299, z: 0.552 },
+  { kind: 'lamp', letter: 'Z', x: 0.447, y: 3.29, z: -0.138 },
 ];
 
-/** Axis-aligned overlap along one axis; positive means they interpenetrate. */
-export const overlap = (a: Box, b: Box, axis: 0 | 1 | 2): number => {
-  const lo = (x: Box) => x.at[axis] - x.size[axis] / 2;
-  const hi = (x: Box) => x.at[axis] + x.size[axis] / 2;
-  return Math.min(hi(a), hi(b)) - Math.max(lo(a), lo(b));
-};
+/** Every key's deck position, by letter. */
+export const keySlots = (): Slot[] => SLOTS.filter((s) => s.kind === 'key');
 
-export const intersects = (a: Box, b: Box): boolean =>
-  ([0, 1, 2] as const).every((axis) => overlap(a, b, axis) > 0);
+/** Every lamp's panel position, by letter. */
+export const lampSlots = (): Slot[] => SLOTS.filter((s) => s.kind === 'lamp');

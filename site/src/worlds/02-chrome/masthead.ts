@@ -2,9 +2,10 @@ import * as THREE from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes.js';
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 import gsap from 'gsap';
 import { mulberry32 } from '../../shared/rng';
+import { isSoftwareRenderer } from '../../shared/gpu';
 
 // THE LIVE MASTHEAD — "CHROME, and the O never sets."
 // Five milled Zodiak-700 letters + one marching-cubes molten O with a carved
@@ -39,10 +40,7 @@ export async function mountMasthead(
   } catch {
     return null; // rung 3: the CSS fallback in the DOM stays visible
   }
-  const gl = renderer.getContext();
-  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-  const glName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
-  const software = /swiftshader|llvmpipe|software/i.test(glName);
+  const software = isSoftwareRenderer(renderer.getContext());
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const still = software || reduced;
 
@@ -56,7 +54,7 @@ export async function mountMasthead(
   // ── Assets: the 5-glyph font + the studio HDRI ──
   const [font, hdr] = await Promise.all([
     new FontLoader().loadAsync('/type/zodiak-bold-chrme.typeface.json'),
-    new RGBELoader().loadAsync('/hdri/studio_small_08_1k.hdr'),
+    new HDRLoader().loadAsync('/hdri/studio_small_08_1k.hdr'),
   ]);
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envRT = pmrem.fromEquirectangular(hdr);
