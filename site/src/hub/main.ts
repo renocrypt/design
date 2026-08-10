@@ -3,8 +3,11 @@ import './fonts.css';
 import './tokens.css';
 import './hub.css';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { mountSundial, type SundialHandle } from './sundial/scene';
 import { LANES, laneEntry, type Lane } from '../worlds/registry';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // ── Doors and cards: rendered from the lane registry (single source of truth).
 // Adding a lane is one row in registry.ts — the rail, the mobile menu and the
@@ -271,11 +274,11 @@ if (import.meta.hot) {
   import.meta.hot.dispose(() => sundial?.dispose());
 }
 
-function startTicker(): void {
+function startTicker(): gsap.core.Tween | null {
   const track = document.querySelector<HTMLElement>('.ticker-track');
-  if (!track) return;
+  if (!track) return null;
   // Track holds two identical halves; sliding one half's width loops seamlessly.
-  gsap.to(track, { xPercent: -50, duration: 26, ease: 'none', repeat: -1 });
+  return gsap.to(track, { xPercent: -50, duration: 26, ease: 'none', repeat: -1 });
 }
 
 function hoverLift(selector: string, vars: gsap.TweenVars): void {
@@ -302,6 +305,48 @@ function reveal(selector: string, reduced: boolean): void {
     { threshold: 0.15 },
   );
   els.forEach((el) => io.observe(el));
+}
+
+// Scroll effects, all additive — nothing is hidden or transformed without JS,
+// and reduced-motion skips every one of them.
+function scrollEffects(ticker: gsap.core.Tween | null, reduced: boolean): void {
+  if (reduced) return;
+
+  // The hero recedes instead of scrolling away: the copy drifts up and dims
+  // while the sundial art lags behind, so the two layers part company.
+  gsap.to('.poster-copy', {
+    yPercent: -18,
+    autoAlpha: 0.25,
+    ease: 'none',
+    scrollTrigger: { trigger: '.poster', start: 'top top', end: 'bottom top', scrub: true },
+  });
+  gsap.to('.poster-art', {
+    yPercent: 10,
+    ease: 'none',
+    scrollTrigger: { trigger: '.poster', start: 'top top', end: 'bottom top', scrub: true },
+  });
+
+  // The 2×2 stamps in as one grid rather than card by card.
+  ScrollTrigger.batch('.room-card', {
+    start: 'top 85%',
+    once: true,
+    onEnter: (batch) =>
+      gsap.from(batch, { y: 34, autoAlpha: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09 }),
+  });
+
+  // The marquee borrows your scroll velocity and settles back to its own pace.
+  if (ticker) {
+    let boost = 1;
+    ScrollTrigger.create({
+      onUpdate: (self) => {
+        boost = 1 + Math.min(Math.abs(self.getVelocity()) / 900, 3.5);
+      },
+    });
+    gsap.ticker.add(() => {
+      boost = gsap.utils.interpolate(boost, 1, 0.06);
+      ticker.timeScale(boost);
+    });
+  }
 }
 
 // Preloader: five stamps, a mark, a wipe — short and punchy on purpose
@@ -346,14 +391,15 @@ function enter(): void {
   renderFirstDoor();
   stampPixels(); // after renderRooms — the cards' glyph SVGs must exist first
   initMenu(reduced);
-  startTicker();
+  const ticker = startTicker();
   mountPosterScene();
 
   reveal('.man-card', reduced);
-  reveal('.room-card', reduced);
   reveal('.bench-card', reduced);
   reveal('.big-cta', reduced);
   reveal('.foot', reduced);
+  // The 2×2 stamps as a grid inside scrollEffects, not card by card via reveal.
+  scrollEffects(ticker, reduced);
 
   const playIntro = () => {
     if (reduced) return;
