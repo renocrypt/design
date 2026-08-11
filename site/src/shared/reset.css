@@ -36,6 +36,22 @@ a {
   color: inherit;
 }
 
+/* Present for AT, crawlers and the document outline; invisible on screen.
+   Used by build-stamped headings (e.g. the rooms grid's h2) that name a
+   region the design doesn't print a label for. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

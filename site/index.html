@@ -90,7 +90,7 @@
              the .fb shapes + ::before/::after are the painted no-WebGL fallback -->
 
         <section class="manifesto">
-          <div class="man-card">
+          <div class="man-card rv">
             <span class="tag">The lab</span>
             <h2 class="man-title">Where one idea<br />gets the whole room.</h2>
             <p class="man-text">
@@ -105,18 +105,19 @@
           </div>
         </section>
 
-        <!-- Marquee halves are rendered from the lane registry (renderTicker) —
-             empty here by design, like the room grid below. -->
+        <!-- Marquee halves are stamped at build time from the lane registry
+             (tools/vite-plugin-static-hub.ts) — crawlers see the full band. -->
         <div class="band" aria-hidden="true">
           <div class="ticker-track"></div>
         </div>
 
-        <!-- Cards are rendered from the lane registry (src/worlds/registry.ts):
-             worlds first in a 2×2, then any non-world lane as a wide shelf. -->
+        <!-- Cards are stamped at build time from the lane registry
+             (tools/vite-plugin-static-hub.ts): worlds first in a 2×2, then any
+             non-world lane as a wide shelf. Client JS only enhances. -->
         <section class="rooms" id="worlds" aria-label="World previews"></section>
 
         <section class="bench">
-          <div class="bench-card bench-card--shelf">
+          <div class="bench-card bench-card--shelf rv rv--d1">
             <span class="tag">The toy shelf</span>
             <svg class="shelf-art" viewBox="0 0 480 420" aria-hidden="true">
               <!-- the five sundial shapes, off-duty: flat fills, no strokes -->
@@ -143,7 +144,7 @@
             <p class="bench-cap">Five shapes, one wall. The hero upstairs is these, poured in 3D.</p>
           </div>
 
-          <div class="bench-card bench-card--rules">
+          <div class="bench-card bench-card--rules rv rv--d2">
             <span class="tag tag--ink">House rules</span>
             <ul class="rules">
               <li>
@@ -165,16 +166,16 @@
             </ul>
           </div>
 
-          <div class="bench-card bench-card--sun">
+          <div class="bench-card bench-card--sun rv rv--d3">
             <svg class="pix pix--big" data-glyph="sun" viewBox="0 0 100 100" aria-hidden="true"></svg>
             <p class="bench-cap bench-cap--sun">Same sun, every visit — pixels seeded, not searched.</p>
           </div>
         </section>
 
-        <!-- Label and href come from the first world lane (renderFirstDoor). -->
-        <a class="big-cta"></a>
+        <!-- Label and href are stamped at build time from the first world lane. -->
+        <a class="big-cta rv rv--scale"></a>
 
-        <footer class="foot">
+        <footer class="foot rv">
           <div class="foot-grid" aria-hidden="true">
             <i class="blk blk--cobalt"></i>
             <i class="blk blk--vermilion"></i>

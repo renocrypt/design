@@ -1,0 +1,69 @@
+/* ── Scroll-driven reveals, pure CSS (the 2026 baseline) ────────────────────
+ *
+ * animation-timeline: view() ties each keyframe to the element's own entry
+ * into the viewport. The animation runs on the COMPOSITOR — no scroll
+ * listeners, no IntersectionObserver, no library, no main-thread cost.
+ *
+ * Degradation is structural, not a fallback branch:
+ *   - no @supports (older Firefox) → the animation simply doesn't exist and
+ *     content is visible, because nothing ever hides it in CSS;
+ *   - prefers-reduced-motion → animation: none, content visible;
+ *   - no JS at all → this file still works.
+ * JS (GSAP in src/hub/motion.ts) is reserved for what CSS can't express:
+ * scroll velocity, cross-section timelines, element-level stagger.
+ */
+
+@keyframes rv-up {
+  from {
+    opacity: 0;
+    transform: translateY(2.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rv-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .rv {
+    animation: rv-up linear both;
+    animation-timeline: view();
+    /* start just inside the viewport, settle by the halfway mark of entry */
+    animation-range: entry 5% entry 45%;
+  }
+
+  .rv--scale {
+    animation-name: rv-scale;
+    animation-range: entry 10% entry 60%;
+  }
+
+  /* Sibling stagger without JS: later siblings run the same keyframes over a
+     later slice of their entry. Cheaper than GSAP for static lists, and the
+     bench cards (d1→d3) read as one gesture instead of three pops. */
+  .rv--d1 {
+    animation-range: entry 8% entry 48%;
+  }
+  .rv--d2 {
+    animation-range: entry 14% entry 54%;
+  }
+  .rv--d3 {
+    animation-range: entry 20% entry 60%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv {
+    animation: none;
+  }
+}

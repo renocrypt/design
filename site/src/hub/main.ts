@@ -1,84 +1,18 @@
 import '../shared/reset.css';
+import '../shared/motion/reveal.css';
 import './fonts.css';
 import './tokens.css';
 import './hub.css';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { mountSundial, type SundialHandle } from './sundial/scene';
-import { LANES, laneEntry, type Lane } from '../worlds/registry';
+import { initHubMotion } from './motion';
 
-gsap.registerPlugin(ScrollTrigger);
-
-// ── Doors and cards: rendered from the lane registry (single source of truth).
-// Adding a lane is one row in registry.ts — the rail, the mobile menu and the
-// room-card grid all follow, and no lane's markup is hand-maintained here.
-
-function renderGates(): void {
-  const make = (lane: Lane): HTMLAnchorElement => {
-    const a = document.createElement('a');
-    a.className = `gate${lane.kind === 'world' ? '' : ' gate--compact'}`;
-    a.href = laneEntry(lane);
-    a.style.background = lane.hue;
-    a.innerHTML = `<span class="gate-no">${lane.num}</span><span class="gate-arrow" aria-hidden="true">&#8599;</span><span class="gate-name">${lane.name}</span>`;
-    return a;
-  };
-  document.querySelector('.gates')?.append(...LANES.map(make));
-  document.querySelector('.menu-gates')?.append(...LANES.map(make));
-}
-
-function renderRooms(): void {
-  const host = document.querySelector('.rooms');
-  if (!host) return;
-  // Worlds fill the 2×2; anything else takes a full-width shelf below them, so
-  // the four worlds keep the section's rhythm.
-  //
-  // This deliberately inverts the rail, where 00 sits FIRST as a compact marker
-  // above the doors. The two surfaces answer different questions: the rail is an
-  // index, so it runs in numeral order and 00 precedes 01; the grid is a pitch,
-  // so the worlds lead and a non-world lane closes the section. Same lane, both
-  // ends — by choice, not by accident.
-  const ordered = [...LANES].sort((a, b) =>
-    a.kind === b.kind ? 0 : a.kind === 'world' ? -1 : 1,
-  );
-  host.append(
-    ...ordered.map((lane) => {
-      const a = document.createElement('a');
-      a.className = `room-card${lane.kind === 'world' ? '' : ' room-card--wide'}`;
-      a.href = laneEntry(lane);
-      a.style.background = lane.hue;
-      a.innerHTML =
-        `<svg class="pix" data-glyph="${lane.glyph}" viewBox="0 0 100 100" aria-hidden="true"></svg>` +
-        `<div class="card-head"><h3 class="card-title">${lane.name}</h3><span class="card-no">${lane.num}</span></div>` +
-        `<p class="card-kicker">${lane.kicker}</p>` +
-        `<ul class="card-list">${lane.points.map((p) => `<li>${p}</li>`).join('')}</ul>` +
-        `<span class="card-cta">${lane.kind === 'world' ? 'Enter' : 'Open the lab'} <span aria-hidden="true">&#8599;</span></span>`;
-      return a;
-    }),
-  );
-}
-
-// The band names the worlds and only the worlds: it is a marquee of
-// destinations, and 00 is a door to another entrance rather than one of them.
-// Generated all the same, so that stays a rule the filter states out loud
-// instead of a gap in hand-written markup.
-function renderTicker(): void {
-  const track = document.querySelector<HTMLElement>('.ticker-track');
-  if (!track) return;
-  const half = LANES.filter((l) => l.kind === 'world')
-    .map((l, i) => `${l.num} ${l.name} <i class="${i % 2 ? 'tick-dia' : 'tick-bolt'}"></i> `)
-    .join('');
-  // Two identical halves — startTicker slides one half's width to loop seamlessly.
-  track.innerHTML = `<span>${half}</span><span>${half}</span>`;
-}
-
-// The closing call to action points at the first world, whichever that becomes.
-function renderFirstDoor(): void {
-  const cta = document.querySelector<HTMLAnchorElement>('.big-cta');
-  const first = LANES.find((l) => l.kind === 'world');
-  if (!cta || !first) return;
-  cta.href = laneEntry(first);
-  cta.innerHTML = `First door — ${first.num} ${first.name} <span aria-hidden="true">&#8599;</span>`;
-}
+// ── Doors, cards, marquee, CTA: stamped into index.html AT BUILD TIME from
+// the lane registry (tools/vite-plugin-static-hub.ts + src/worlds/lane-markup.ts).
+// They used to be appended here at runtime, but AI crawlers don't execute JS —
+// the site's substance has to exist in the served HTML. What remains in this
+// file is everything that genuinely needs a browser: glyph stamping, hover
+// physics, the menu, the preloader, the WebGL poster and scroll motion.
 
 // ── Mobile menu: the toy box as an overlay ──
 function initMenu(reduced: boolean): void {
@@ -269,16 +203,12 @@ function mountPosterScene(): void {
 }
 
 // Vite HMR re-runs this module; without disposal each reload leaks a WebGL
-// context until the browser refuses to create more.
+// context (and a Lenis/ScrollTrigger loop) until the browser refuses more.
 if (import.meta.hot) {
-  import.meta.hot.dispose(() => sundial?.dispose());
-}
-
-function startTicker(): gsap.core.Tween | null {
-  const track = document.querySelector<HTMLElement>('.ticker-track');
-  if (!track) return null;
-  // Track holds two identical halves; sliding one half's width loops seamlessly.
-  return gsap.to(track, { xPercent: -50, duration: 26, ease: 'none', repeat: -1 });
+  import.meta.hot.dispose(() => {
+    sundial?.dispose();
+    disposeMotion?.();
+  });
 }
 
 function hoverLift(selector: string, vars: gsap.TweenVars): void {
@@ -287,66 +217,6 @@ function hoverLift(selector: string, vars: gsap.TweenVars): void {
     el.addEventListener('mouseenter', () => over.play());
     el.addEventListener('mouseleave', () => over.reverse());
   });
-}
-
-// Sections below the hero enter on scroll — one quiet rise, once each.
-function reveal(selector: string, reduced: boolean): void {
-  const els = document.querySelectorAll<HTMLElement>(selector);
-  if (!els.length) return;
-  if (reduced) return; // nothing hidden by default; entrance is additive only
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        io.unobserve(entry.target);
-        gsap.from(entry.target, { y: 34, autoAlpha: 0, duration: 0.8, ease: 'power3.out' });
-      });
-    },
-    { threshold: 0.15 },
-  );
-  els.forEach((el) => io.observe(el));
-}
-
-// Scroll effects, all additive — nothing is hidden or transformed without JS,
-// and reduced-motion skips every one of them.
-function scrollEffects(ticker: gsap.core.Tween | null, reduced: boolean): void {
-  if (reduced) return;
-
-  // The hero recedes instead of scrolling away: the copy drifts up and dims
-  // while the sundial art lags behind, so the two layers part company.
-  gsap.to('.poster-copy', {
-    yPercent: -18,
-    autoAlpha: 0.25,
-    ease: 'none',
-    scrollTrigger: { trigger: '.poster', start: 'top top', end: 'bottom top', scrub: true },
-  });
-  gsap.to('.poster-art', {
-    yPercent: 10,
-    ease: 'none',
-    scrollTrigger: { trigger: '.poster', start: 'top top', end: 'bottom top', scrub: true },
-  });
-
-  // The 2×2 stamps in as one grid rather than card by card.
-  ScrollTrigger.batch('.room-card', {
-    start: 'top 85%',
-    once: true,
-    onEnter: (batch) =>
-      gsap.from(batch, { y: 34, autoAlpha: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09 }),
-  });
-
-  // The marquee borrows your scroll velocity and settles back to its own pace.
-  if (ticker) {
-    let boost = 1;
-    ScrollTrigger.create({
-      onUpdate: (self) => {
-        boost = 1 + Math.min(Math.abs(self.getVelocity()) / 900, 3.5);
-      },
-    });
-    gsap.ticker.add(() => {
-      boost = gsap.utils.interpolate(boost, 1, 0.06);
-      ticker.timeScale(boost);
-    });
-  }
 }
 
 // Preloader: five stamps, a mark, a wipe — short and punchy on purpose
@@ -381,25 +251,16 @@ function preload(done: () => void, reduced: boolean): void {
     .to(el, { yPercent: -100, duration: 0.6, ease: 'power3.inOut' }, '+=0.3');
 }
 
+let disposeMotion: (() => void) | null = null;
+
 function enter(): void {
   const heroInners = wrapHeroLines();
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  renderGates();
-  renderRooms();
-  renderTicker();
-  renderFirstDoor();
-  stampPixels(); // after renderRooms — the cards' glyph SVGs must exist first
+  stampPixels(); // the cards' glyph SVGs ship empty; pixels are enhancement
   initMenu(reduced);
-  const ticker = startTicker();
   mountPosterScene();
-
-  reveal('.man-card', reduced);
-  reveal('.bench-card', reduced);
-  reveal('.big-cta', reduced);
-  reveal('.foot', reduced);
-  // The 2×2 stamps as a grid inside scrollEffects, not card by card via reveal.
-  scrollEffects(ticker, reduced);
+  disposeMotion = initHubMotion(reduced);
 
   const playIntro = () => {
     if (reduced) return;

@@ -3,6 +3,8 @@ import { existsSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 import { buildLanes } from './src/worlds/registry';
 import { headTags } from './tools/vite-plugin-head-tags';
+import { staticHub } from './tools/vite-plugin-static-hub';
+import { seo } from './tools/vite-plugin-seo';
 
 const PUBLIC_DIR = resolve(__dirname, 'public');
 
@@ -41,7 +43,20 @@ const publicDirIndex = (): Plugin => ({
 // alongside this bundled app. That is a build fact, not a freeze: any of them
 // can become an entry here when it moves onto our stack.
 export default defineConfig({
-  plugins: [publicDirIndex(), headTags({ gaId: 'G-6TMHBNWWB6' })],
+  plugins: [
+    publicDirIndex(),
+    // Stamps gates/rooms/ticker/CTA into index.html at transform time (dev too) —
+    // the hub's content must exist without client JS, or AI crawlers see nothing.
+    staticHub(),
+    // Build-only: canonical/OG/JSON-LD per page + sitemap.xml, robots.txt, llms.txt.
+    seo({
+      siteUrl: 'https://design.renocrypt.com',
+      siteName: 'Worlds — a design sketchbook',
+      description:
+        'One entrance, four worlds and the lab they grew from. Each its own vibe, all the same bar.',
+    }),
+    headTags({ gaId: 'G-6TMHBNWWB6' }),
+  ],
   build: {
     rollupOptions: {
       input: {
