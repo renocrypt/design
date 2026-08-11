@@ -5,7 +5,7 @@ import { LANES, laneEntry } from '../src/worlds/registry';
 
 // SEO/GEO stamping — every page leaves the build with a canonical URL, Open
 // Graph / Twitter cards, a robots meta and JSON-LD, and the dist gets a
-// sitemap.xml, robots.txt and llms.txt derived from what actually shipped.
+// sitemap.xml derived from the files that actually shipped.
 //
 // Same architecture as head-tags (and the same reason): files in public/
 // never pass Vite's html pipeline, so template-level tags would miss /lab/
@@ -18,11 +18,10 @@ import { LANES, laneEntry } from '../src/worlds/registry';
 //   - JSON-LD gives machines the site graph: hub = WebSite + ItemList of
 //     lanes, each world = CreativeWork, anything else = WebPage, all linked by
 //     @id back to the site.
-//   - robots.txt explicitly ALLOWS the AI crawlers (GPTBot, ClaudeBot,
-//     PerplexityBot, …) — the default allow is implicit; stating it documents
-//     intent and survives future tightening of the wildcard rule.
-//   - llms.txt is the emerging GEO convention: a markdown map of the site for
-//     LLM consumers, generated from the same lane registry as the hub itself.
+//   - robots.txt and llms.txt stay HAND-AUTHORED in public/ (llms.txt especially:
+//     curated descriptions beat registry templates for LLM consumption, and a
+//     generated thin one would quietly replace the good one). This plugin owns
+//     what must be generated to stay true: the head tags and sitemap.xml.
 
 export interface SeoOptions {
   /** Absolute origin, no trailing slash — e.g. 'https://design.renocrypt.com'. */
@@ -104,8 +103,8 @@ export function seo({ siteUrl, siteName, description }: SeoOptions): Plugin {
   };
 
   const ogImage = (): { path: string; width: number; height: number } =>
-    // Drop a 1200×630 og.png into public/ and every card upgrades on the next
-    // build; until then the square icon is the honest fallback.
+    // public/og.png is the shared 1200×630 card image (the hub hero shot);
+    // if it's ever missing the square icon is the honest fallback.
     existsSync(join(root, 'public', 'og.png'))
       ? { path: '/og.png', width: 1200, height: 630 }
       : { path: '/icon-512.png', width: 512, height: 512 };
@@ -164,42 +163,6 @@ export function seo({ siteUrl, siteName, description }: SeoOptions): Plugin {
       .join('\n') +
     `\n</urlset>\n`;
 
-  const robots = (): string =>
-    `User-agent: *\nAllow: /\n\n` +
-    `# GEO: AI crawlers explicitly welcome — every page is static, readable\n` +
-    `# without JavaScript by design. See llms.txt for the machine map.\n` +
-    ['GPTBot', 'OAI-SearchBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'Applebot-Extended']
-      .map((bot) => `User-agent: ${bot}\nAllow: /`)
-      .join('\n') +
-    `\n\nSitemap: ${abs('/sitemap.xml')}\n`;
-
-  const llms = (): string => {
-    const worlds = LANES.filter((l) => l.kind === 'world');
-    const others = LANES.filter((l) => l.kind !== 'world');
-    return (
-      `# ${siteName}\n\n` +
-      `> ${description}\n\n` +
-      `A personal design lab: one entrance, four worlds, each built around one hard\n` +
-      `visual idea — its own typeface, palette and physics. All pages are static\n` +
-      `HTML and readable without JavaScript.\n\n` +
-      `## Worlds\n` +
-      worlds
-        .map(
-          (l) =>
-            `- [${l.num} ${l.name}](${abs(laneEntry(l))}): ${l.kicker}. ${l.points.join('; ')}.`,
-        )
-        .join('\n') +
-      `\n\n## Also\n` +
-      others
-        .map(
-          (l) =>
-            `- [${l.num} ${l.name}](${abs(laneEntry(l))}): ${l.kicker}. ${l.points.join('; ')}.`,
-        )
-        .join('\n') +
-      `\n- [Type specimen](${abs('/type/')}): the hub's own faces, set live.\n`
-    );
-  };
-
   let root = process.cwd();
   let outDir = '';
 
@@ -225,9 +188,7 @@ export function seo({ siteUrl, siteName, description }: SeoOptions): Plugin {
         .map((f) => urlPath(relative(outDir, f)))
         .sort((a, b) => (a === '/' ? -1 : b === '/' ? 1 : a.localeCompare(b)));
       writeFileSync(join(outDir, 'sitemap.xml'), sitemap(paths));
-      writeFileSync(join(outDir, 'robots.txt'), robots());
-      writeFileSync(join(outDir, 'llms.txt'), llms());
-      console.log(`[seo] stamped ${files.length} pages; sitemap.xml, robots.txt, llms.txt written`);
+      console.log(`[seo] stamped ${files.length} pages; sitemap.xml written`);
     },
   };
 }

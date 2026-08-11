@@ -48,7 +48,8 @@ export default defineConfig({
     // Stamps gates/rooms/ticker/CTA into index.html at transform time (dev too) —
     // the hub's content must exist without client JS, or AI crawlers see nothing.
     staticHub(),
-    // Build-only: canonical/OG/JSON-LD per page + sitemap.xml, robots.txt, llms.txt.
+    // Build-only: canonical/OG/JSON-LD per page + generated sitemap.xml.
+    // (robots.txt and llms.txt are hand-authored in public/ — see tools/vite-plugin-seo.ts.)
     seo({
       siteUrl: 'https://design.renocrypt.com',
       siteName: 'Worlds — a design sketchbook',

@@ -1,4 +1,19 @@
 User-agent: *
 Allow: /
 
+# GEO: AI crawlers explicitly welcome — every page is static HTML, readable
+# without JavaScript by design. See llms.txt for the machine-readable map.
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+
 Sitemap: https://design.renocrypt.com/sitemap.xml
