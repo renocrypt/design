@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#143b3d" />
+    <meta
+      name="description"
+      content="An immersive journey through Bikini Atoll, from the sunlit reef to the historic ships resting in its lagoon."
+    />
+    <title>Bikini Atoll — A world beneath the blue</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%231b4b4c'/%3E%3Cpath d='M12 34q10-10 20 0t20 0M12 43q10-10 20 0t20 0' fill='none' stroke='%23ede9d7' stroke-width='3'/%3E%3Ccircle cx='32' cy='21' r='6' fill='%23ede9d7'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650&family=Italiana&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.webgpu.min.js",
+          "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.webgpu.min.js",
+          "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.tsl.min.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.183.2/examples/jsm/"
+        }
+      }
+    </script>
+    <script
+      type="module"
+      src="scene.js"
+      onerror="document.body.classList.add('static-mode');document.getElementById('loading-screen').classList.add('complete');document.getElementById('fallback-card').inert=false;document.getElementById('fallback-card').removeAttribute('aria-hidden')"
+    ></script>
+  </head>
+  <body>
+    <svg
+      class="svg-library"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path d="M5 12h14M13 6l6 6-6 6" />
+      </symbol>
+      <symbol id="i-down" viewBox="0 0 24 24">
+        <path d="M12 4v15m-6-6 6 6 6-6" />
+      </symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3.7" />
+        <path
+          d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"
+        />
+      </symbol>
+      <symbol id="i-wave" viewBox="0 0 24 24">
+        <path d="M3 9c3-5 6 5 9 0s6 5 9 0M3 15c3-5 6 5 9 0s6 5 9 0" />
+      </symbol>
+      <symbol id="i-expand" viewBox="0 0 24 24">
+        <path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" />
+      </symbol>
+      <symbol id="i-close" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M18 6 6 18" />
+      </symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path d="m15.5 8.5-2 5-5 2 2-5z" />
+      </symbol>
+      <symbol id="i-book" viewBox="0 0 24 24">
+        <path
+          d="M12 5c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1zm0 0v14"
+        />
+      </symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24">
+        <path d="M9 5v14M15 5v14" />
+      </symbol>
+      <symbol id="i-play" viewBox="0 0 24 24">
+        <path d="m8 5 11 7-11 7z" />
+      </symbol>
+    </svg>
+
+    <main
+      id="experience"
+      aria-label="Interactive 3D exploration of Bikini Atoll"
+    >
+      <div class="static-world" aria-hidden="true"><img src="/social/bikini-atoll.jpg" alt="" onerror="this.hidden=true" /><svg viewBox="0 0 800 600"><path d="M625 80C720 160 738 380 595 494S217 511 128 371 155 124 304 78 523 53 625 80Z"/><path d="M601 121C677 193 693 367 570 458S249 473 168 352 192 156 322 114 515 92 601 121Z"/></svg></div>
+      <canvas
+        id="world"
+        aria-label="Bikini Atoll. Drag to look around. Use W A S D to move, Q to descend, and E to ascend."
+        tabindex="0"
+      ></canvas>
+      <div class="scene-shade" aria-hidden="true"></div>
+      <div class="underwater-wash" aria-hidden="true"></div>
+      <div class="waterline" id="waterline" aria-hidden="true"></div>
+
+      <header class="masthead">
+        <button
+          class="wordmark"
+          id="home-button"
+          title="Return to the atoll overview"
+        >
+          <svg class="brand-mark" viewBox="0 0 44 44" fill="none">
+            <circle cx="22" cy="22" r="20" />
+            <path d="M9 25c5-7 9 7 14 0s8 3 12-1M11 31c5-6 9 6 14 0s5-1 8-1" />
+            <circle cx="22" cy="15" r="4" />
+          </svg>
+          <span
+            >ELSEWHERE<span class="wordmark-sub"
+              >A FIELD GUIDE TO WONDER</span
+            ></span
+          >
+        </button>
+        <nav class="main-nav" aria-label="Explore">
+          <a class="nav-link collection-return" href="/curated/">← Curated</a>
+          <button id="nav-atoll" class="nav-link active">The atoll</button>
+          <button id="nav-wrecks" class="nav-link">
+            The sunken fleet <span>↗</span>
+          </button>
+          <button id="journal-button" class="nav-link">
+            Field notes <span class="small-count">03</span>
+          </button>
+        </nav>
+        <button
+          class="round-button fullscreen-button"
+          id="fullscreen-button"
+          aria-label="Enter fullscreen"
+          title="Fullscreen"
+        >
+          <svg><use href="#i-expand" /></svg>
+        </button>
+      </header>
+      <a class="curated-breadcrumb" href="/curated/">← Curated</a>
+
+      <section class="fallback-card" id="fallback-card" aria-label="Illustrated Bikini Atoll" aria-hidden="true" inert>
+        <p class="eyebrow">THE QUIET VIEW</p><h2>Bikini Atoll.</h2><p>The live lagoon is taking a pause.<br>There’s still a story worth exploring.</p>
+        <details><summary>Read the field notes</summary><p>Bikini Atoll is the ancestral home of the Bikinian people in the Marshall Islands. Its coral islands surround a lagoon where USS Saratoga, IJN Nagato, and USS Arkansas rest after the 1946 nuclear tests.</p><p>This original artistic interpretation pairs the beauty of the lagoon with the history of displacement and nuclear testing.</p><a href="https://whc.unesco.org/en/list/1339/" target="_blank" rel="noopener noreferrer">Read the UNESCO account ↗</a></details>
+        <div class="fallback-links"><a href="./">Try live exploration ↗</a><a href="/curated/">Back to Curated ↗</a></div>
+      </section>
+
+      <section class="hero" id="hero" aria-labelledby="page-title">
+        <div class="eyebrow">
+          <span class="tiny-line"></span> THE MARSHALL ISLANDS
+          <span class="coordinate-dot">·</span> 11°36′ N 165°24′ E
+        </div>
+        <h1 id="page-title">Bikini<br /><span>Atoll.</span></h1>
+        <p class="hero-description">
+          Far from everything.<br />Closer to another world.
+        </p>
+        <button class="primary-button" id="explore-button">
+          <span>Explore the lagoon</span
+          ><span class="button-icon"
+            ><svg><use href="#i-arrow" /></svg
+          ></span>
+        </button>
+        <button class="text-button dive-link" id="hero-dive-button">
+          <svg><use href="#i-down" /></svg> There’s a world beneath the blue
+        </button>
+      </section>
+
+      <aside class="location-note" id="location-note">
+        <span class="location-line"></span
+        ><span
+          >BIKINI ISLAND<small>A little land. An endless ocean.</small></span
+        >
+      </aside>
+
+      <section
+        class="wreck-card"
+        id="wreck-card"
+        aria-label="Current shipwreck"
+        hidden
+      >
+        <div class="eyebrow">
+          <span class="tiny-line"></span
+          ><span id="wreck-index">01 / THE SUNKEN FLEET</span>
+        </div>
+        <h2 id="wreck-title">USS Saratoga</h2>
+        <p class="wreck-type" id="wreck-type">CV-3 · AIRCRAFT CARRIER · 1927</p>
+        <p class="wreck-description" id="wreck-description">
+          A floating airfield, now a world of its own. Follow the flight deck
+          into the quiet.
+        </p>
+        <div class="wreck-facts">
+          <span><strong id="wreck-length">270</strong> m long</span
+          ><span><strong id="wreck-depth">52</strong> m below</span>
+        </div>
+        <div class="wreck-actions">
+          <button class="text-button" id="wreck-story">
+            Read its story <svg><use href="#i-arrow" /></svg></button
+          ><button
+            class="round-button"
+            id="next-wreck"
+            aria-label="Visit the next wreck"
+          >
+            <svg><use href="#i-arrow" /></svg>
+          </button>
+        </div>
+      </section>
+
+      <aside class="depth-gauge" aria-label="Current depth">
+        <span class="depth-label">DEPTH</span>
+        <div class="depth-scale">
+          <span>00</span><i></i><i></i><span>20</span><i></i><i></i
+          ><span>40</span><i></i><i></i><span>60</span>
+          <div class="depth-indicator" id="depth-indicator"><b></b></div>
+        </div>
+        <span class="depth-number"
+          ><strong id="depth-value">0.0</strong> <small>m</small></span
+        >
+      </aside>
+
+      <div class="explore-hint" id="explore-hint" hidden>
+        <span class="hint-dot"></span>Take your time. There’s no wrong
+        direction.
+      </div>
+      <div class="center-reticle" aria-hidden="true"></div>
+
+      <footer class="hud-footer">
+        <div class="chapter">
+          <span class="chapter-number" id="chapter-number">01</span>
+          <div>
+            <span id="chapter-name">THE LAGOON</span
+            ><small id="chapter-caption">Above the ordinary.</small>
+          </div>
+        </div>
+        <div class="mode-controls">
+          <div class="mode-switch" role="group" aria-label="Choose your world">
+            <button id="surface-button" class="selected" aria-pressed="true">
+              <svg><use href="#i-sun" /></svg> Above the surface</button
+            ><button id="dive-button" aria-pressed="false">
+              <svg><use href="#i-wave" /></svg> Dive below <span>↓</span>
+            </button>
+          </div>
+          <div class="movement-hint">
+            <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move</span
+            ><span class="hint-divider"></span><span>drag to look</span
+            ><span class="hint-divider"></span
+            ><span><kbd>Q</kbd> / <kbd>E</kbd> depth</span>
+          </div>
+        </div>
+        <div class="utility-controls">
+          <button
+            class="sound-button"
+            id="sound-button"
+            aria-label="Sound off. Enable ocean sound"
+            aria-pressed="false"
+          >
+            <span class="sound-bars"><i></i><i></i><i></i><i></i><i></i></span
+            ><span id="sound-label">SOUND OFF</span></button
+          ><button
+            class="round-button"
+            id="settings-button"
+            aria-label="Open experience settings"
+            title="Experience settings"
+          >
+            <svg><use href="#i-compass" /></svg>
+          </button>
+        </div>
+      </footer>
+
+      <button class="mini-map" id="map-button" title="Open the lagoon map">
+        <span class="map-north">N</span
+        ><canvas
+          id="mini-map"
+          width="280"
+          height="220"
+          aria-hidden="true"
+        ></canvas
+        ><span class="map-caption"
+          >YOUR LITTLE CORNER OF THE PACIFIC <span>↗</span></span
+        >
+      </button>
+      <div class="heritage-note">
+        <span class="heritage-symbol">◇</span> UNESCO WORLD HERITAGE
+        <span class="heritage-year">INSCRIBED 2010</span>
+      </div>
+      <div class="toast" id="toast" role="status"></div>
+
+      <div
+        class="mobile-controls"
+        id="mobile-controls"
+        aria-label="Movement controls"
+      >
+        <button data-move="KeyW" aria-label="Move forward">↑</button>
+        <div>
+          <button data-move="KeyA" aria-label="Move left">←</button
+          ><button data-move="KeyS" aria-label="Move backward">↓</button
+          ><button data-move="KeyD" aria-label="Move right">→</button>
+        </div>
+        <div>
+          <button data-move="KeyQ" aria-label="Descend">−</button
+          ><button data-move="KeyE" aria-label="Ascend">+</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="loading-screen" id="loading-screen">
+      <div class="loading-inner">
+        <span class="eyebrow">ELSEWHERE / THE MARSHALL ISLANDS</span>
+        <h2>Somewhere,<br />the world slows down.</h2>
+        <div class="loading-line"><span id="loading-progress"></span></div>
+        <p id="loading-label" role="status">Finding our way to the lagoon…</p>
+        <button id="retry-button" class="text-button" hidden>
+          Try again ↗
+        </button>
+      </div>
+      <span class="loading-coordinate">11°36′ N &nbsp; 165°24′ E</span>
+    </div>
+
+    <dialog
+      class="journal-dialog"
+      id="journal-dialog"
+      aria-labelledby="journal-title"
+    >
+      <button
+        class="round-button dialog-close"
+        data-close
+        aria-label="Close field notes"
+      >
+        <svg><use href="#i-close" /></svg>
+      </button>
+      <div class="eyebrow">ELSEWHERE — FIELD NOTES / 001</div>
+      <h2 id="journal-title">More than<br />a beautiful place.</h2>
+      <p class="journal-intro">
+        Pikinni. A home, a history, and an ocean that remembers.
+      </p>
+      <div class="journal-tabs" role="tablist" aria-label="Field notes">
+        <button
+          role="tab"
+          id="tab-atoll"
+          aria-controls="note-atoll"
+          aria-selected="true"
+          data-note="atoll"
+        >
+          01 &nbsp; The atoll</button
+        ><button
+          role="tab"
+          id="tab-history"
+          aria-controls="note-history"
+          aria-selected="false"
+          data-note="history"
+        >
+          02 &nbsp; The history</button
+        ><button
+          role="tab"
+          id="tab-fleet"
+          aria-controls="note-fleet"
+          aria-selected="false"
+          data-note="fleet"
+        >
+          03 &nbsp; The fleet
+        </button>
+      </div>
+      <article id="note-atoll" role="tabpanel" aria-labelledby="tab-atoll">
+        <h3>A small ring in a very big ocean.</h3>
+        <p>
+          In the northern Marshall Islands, a necklace of coral islands
+          surrounds Bikini’s vast lagoon. Coconut palms meet white coral sand;
+          the reef gives way to water in a hundred shades of blue.
+        </p>
+        <p>
+          Its Marshallese name is Pikinni. This is the ancestral home of the
+          Bikinian people, whose relationship with these islands reaches far
+          beyond the view.
+        </p>
+        <a
+          href="https://en.wikipedia.org/wiki/Bikini_Atoll"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Explore the geography ↗</a
+        >
+      </article>
+      <article
+        id="note-history"
+        role="tabpanel"
+        aria-labelledby="tab-history"
+        hidden
+      >
+        <h3>Beauty doesn’t erase the past.</h3>
+        <p>
+          In 1946, the United States displaced Bikini’s community to make way
+          for nuclear testing. Operation Crossroads sank ships in the lagoon
+          that July. Further testing left an enduring mark on the land and on
+          generations of Marshallese people.
+        </p>
+        <p>
+          Inscribed in 2010, the UNESCO World Heritage site preserves evidence
+          of the beginning of the nuclear age. The story of Bikini is also a
+          continuing story of home, displacement, and the resilience of its
+          people.
+        </p>
+        <a
+          href="https://whc.unesco.org/en/list/1339/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Read the UNESCO account ↗</a
+        ><a
+          href="https://www.bikiniatoll.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Hear the Bikinian story ↗</a
+        >
+      </article>
+      <article
+        id="note-fleet"
+        role="tabpanel"
+        aria-labelledby="tab-fleet"
+        hidden
+      >
+        <h3>A fleet, held in time.</h3>
+        <p>
+          The aircraft carrier USS Saratoga, the Japanese battleship Nagato, and
+          USS Arkansas rest in Bikini’s lagoon after the 1946 tests. Saratoga
+          lies upright; Nagato and Arkansas are overturned. Marine life now
+          inhabits their weathered structures.
+        </p>
+        <div class="fleet-list">
+          <button data-wreck="0">
+            <span>01</span> USS Saratoga
+            <small>Aircraft carrier</small> ↗</button
+          ><button data-wreck="1">
+            <span>02</span> IJN Nagato <small>Battleship</small> ↗</button
+          ><button data-wreck="2">
+            <span>03</span> USS Arkansas <small>Battleship</small> ↗
+          </button>
+        </div>
+        <p class="interpretation-note">
+          This is an artistic exploration. The landscape, wreck details,
+          distances, and depths are simplified; it is not a navigation or
+          dive-planning chart.
+        </p>
+        <a
+          href="https://bikiniatoll.com/divetour1.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Discover the ships of Bikini ↗</a
+        ><a
+          href="https://www.history.navy.mil/browse-by-topic/wars-conflicts-and-operations/cold-war/crossroads.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          >The naval history of Crossroads ↗</a
+        >
+      </article>
+    </dialog>
+
+    <dialog
+      class="settings-dialog"
+      id="settings-dialog"
+      aria-labelledby="settings-title"
+    >
+      <button
+        class="round-button dialog-close"
+        data-close
+        aria-label="Close settings"
+      >
+        <svg><use href="#i-close" /></svg>
+      </button>
+      <div class="eyebrow">MAKE YOURSELF AT HOME</div>
+      <h2 id="settings-title">Your own pace.</h2>
+      <label class="setting-row"
+        ><span>Light<small>Find your favorite hour.</small></span
+        ><select id="light-select">
+          <option value="day">Pacific morning</option>
+          <option value="golden">Golden hour</option>
+        </select></label
+      ><label class="setting-row"
+        ><span>Detail<small>A balance of clarity and flow.</small></span
+        ><select id="quality-select">
+          <option value="auto">Adaptive</option>
+          <option value="high">High</option>
+          <option value="low">Light</option>
+        </select></label
+      ><button class="setting-row" id="drift-button">
+        <span>Gentle drift<small>Let the lagoon move around you.</small></span
+        ><span id="drift-state">On</span></button
+      ><button class="setting-row" id="motion-button">
+        <span>Camera journeys<small>Animate travel between places.</small></span
+        ><span id="motion-state">On</span>
+      </button>
+      <div class="controls-guide">
+        <span><kbd>W A S D</kbd> Move around</span
+        ><span><kbd>Q / E</kbd> Descend / ascend</span
+        ><span><kbd>SHIFT</kbd> Move faster</span
+        ><span><kbd>H</kbd> Hide the interface</span
+        ><span><kbd>SPACE</kbd> Surface / dive</span
+        ><span><kbd>ESC</kbd> Close a panel</span>
+      </div>
+      <p class="render-status" id="render-status"></p>
+    </dialog>
+
+    <dialog class="map-dialog" id="map-dialog" aria-labelledby="map-title">
+      <button
+        class="round-button dialog-close"
+        data-close
+        aria-label="Close map"
+      >
+        <svg><use href="#i-close" /></svg>
+      </button>
+      <div class="eyebrow">A FEW PLACES TO GET LOST</div>
+      <h2 id="map-title">The lagoon.</h2>
+      <div class="map-art">
+        <canvas
+          id="large-map"
+          width="900"
+          height="620"
+          aria-label="Illustrated lagoon map with island and wreck locations"
+        ></canvas
+        ><span class="large-map-north">N ↑</span>
+      </div>
+      <div class="map-destinations">
+        <button id="map-surface">
+          <span>00 / ABOVE</span>The island <span>↗</span></button
+        ><button data-wreck="0">
+          <span>01 / BELOW</span>Saratoga <span>↗</span></button
+        ><button data-wreck="1">
+          <span>02 / BELOW</span>Nagato <span>↗</span></button
+        ><button data-wreck="2">
+          <span>03 / BELOW</span>Arkansas <span>↗</span>
+        </button>
+      </div>
+      <p class="interpretation-note">
+        An illustrated world inspired by Bikini Atoll. Locations are composed
+        for exploration.
+      </p>
+    </dialog>
+    <noscript><style>#loading-screen,#world,.hero,.hud-footer,.depth-gauge,.mini-map,.location-note,.heritage-note,.main-nav,.fullscreen-button,.fallback-card{display:none!important}.static-world{display:block!important}</style><section class="no-script-notes"><h1>Bikini Atoll</h1><p>A coral lagoon in the Marshall Islands, ancestral home of the Bikinian people and a UNESCO World Heritage site. This artistic exploration visits the islands and the historic wrecks of USS Saratoga, IJN Nagato, and USS Arkansas.</p><p>Enable JavaScript for the live 3D journey.</p><a href="/curated/">Back to the curated collection ↗</a><a href="https://whc.unesco.org/en/list/1339/">Read the UNESCO account ↗</a></section></noscript>
+  </body>
+</html>

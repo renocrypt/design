@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Curated explorations — Worlds</title>
+    <meta name="description" content="Explore original immersive experiences from the Worlds design sketchbook. Begin with Bikini Atoll: a living lagoon, palm-lined islands, and historic shipwrecks beneath the blue." />
+    <link rel="preload" href="/fonts/CabinetGrotesk-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/GeneralSans-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('hub-theme')||'day'}catch{}</script>
+  </head>
+  <body class="collection-page">
+    <header class="collection-header">
+      <a class="collection-logo" href="/" aria-label="Worlds home">worlds<span>.</span></a>
+      <nav aria-label="Site navigation"><a href="/">All worlds <span aria-hidden="true">↗</span></a><a href="/lab/">The lab <span aria-hidden="true">↗</span></a></nav>
+      <button id="collection-theme" type="button" aria-label="Switch between day and night"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button>
+    </header>
+    <main>
+      <section class="collection-intro" aria-labelledby="collection-title">
+        <div><p class="collection-eyebrow">WORLDS / CURATED EXPLORATIONS</p><h1 id="collection-title">Take the<br>long way<span>.</span></h1></div>
+        <div class="collection-lede"><p>Places worth a little time.</p><p>Each exploration has its own landscape, its own pace, and a reason to look closer.</p><a href="#collection">Find your way in <span aria-hidden="true">↓</span></a></div>
+      </section>
+      <div class="collection-rule"><span><!-- curated:count --></span><span>CHOSEN WITH CURIOSITY</span></div>
+      <section class="collection-grid" id="collection" aria-label="Curated experiences"><!-- curated:entries --></section>
+      <section class="collection-colophon"><p>A collection of original front-end explorations.<br>Made to be visited, wandered through, and returned to.</p><a href="/">Back to all worlds <span aria-hidden="true">↗</span></a></section>
+    </main>
+    <footer class="collection-footer"><a class="collection-logo" href="/">worlds<span>.</span></a><p>A DESIGN SKETCHBOOK BY RENOCRYPT</p><a href="https://github.com/renocrypt/design" target="_blank" rel="noopener noreferrer">Behind the scenes ↗</a></footer>
+    <script type="module" src="/src/curated/main.ts"></script>
+  </body>
+</html>

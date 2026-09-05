@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:site": "node --experimental-strip-types --import ./tools/ts-resolve.mjs --test tools/seo.test.mjs tools/catalog.test.mjs",
+    "verify:site": "node --experimental-strip-types --import ./tools/ts-resolve.mjs tools/site.verify.mjs"
   },
   "devDependencies": {
+    "@types/node": "^24.13.3",
     "@types/three": "^0.180.0",
     "opentype.js": "^2.0.0",
     "typescript": "^5.6.0",

@@ -1,9 +1,9 @@
 import { defineConfig, type Plugin } from 'vite';
 import { existsSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
-import { buildLanes } from './src/worlds/registry';
+import { SITE, buildLanes } from './src/catalog/registry';
 import { headTags } from './tools/vite-plugin-head-tags';
-import { staticHub } from './tools/vite-plugin-static-hub';
+import { staticCatalog } from './tools/vite-plugin-catalog';
 import { seo } from './tools/vite-plugin-seo';
 
 const PUBLIC_DIR = resolve(__dirname, 'public');
@@ -47,14 +47,13 @@ export default defineConfig({
     publicDirIndex(),
     // Stamps gates/rooms/ticker/CTA into index.html at transform time (dev too) —
     // the hub's content must exist without client JS, or AI crawlers see nothing.
-    staticHub(),
+    staticCatalog(),
     // Build-only: canonical/OG/JSON-LD per page + generated sitemap.xml.
     // (robots.txt and llms.txt are hand-authored in public/ — see tools/vite-plugin-seo.ts.)
     seo({
-      siteUrl: 'https://design.renocrypt.com',
-      siteName: 'Worlds — a design sketchbook',
-      description:
-        'One entrance, four worlds and the lab they grew from. Each its own vibe, all the same bar.',
+      siteUrl: SITE.origin,
+      siteName: SITE.name,
+      description: SITE.description,
     }),
     headTags({ gaId: 'G-6TMHBNWWB6' }),
   ],
@@ -63,6 +62,7 @@ export default defineConfig({
       input: {
         hub: resolve(__dirname, 'index.html'),
         type: resolve(__dirname, 'type/index.html'),
+        curated: resolve(__dirname, 'curated/index.html'),
         // World 00's stack-native pages. They keep their URLs — dist/lab/index.html,
         // dist/lab/s5-cipher-engine.html — while s1/s2/s4 stay copied from
         // public/, so public/ and lab/ must never both provide the same filename.

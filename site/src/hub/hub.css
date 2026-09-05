@@ -238,7 +238,11 @@ body {
   line-height: 1.15;
 }
 
-/* Gate hues come from the lane registry (inline style) — see src/worlds/registry.ts. */
+.gate-status { display: block; font-size: .62rem; font-weight: 500; margin-top: .3rem; }
+.card-status { font-size: .66rem; font-weight: 500; border: 1px solid currentColor; border-radius: 99px; padding: .3rem .5rem; margin-right: .7rem; vertical-align: middle; white-space: nowrap; }
+
+
+/* Gate hues come from the lane registry (inline style) — see src/catalog/registry.ts. */
 
 /* Non-world lanes stay compact so the four worlds keep the rail's full height;
    00 reads as a marker above the doors, not a fifth door. The markup
@@ -1026,4 +1030,11 @@ body {
     left: clamp(1rem, 3vw, 2.5rem);
     right: auto;
   }
+}
+
+@media(min-width: 761px) and (max-height: 780px) {
+  .gate { min-height: 4.5rem; }
+  .gate--compact { min-height: 0; height: 2.8rem; }
+  .gate--util { min-height: 0; height: 3rem; }
+  .gates { overflow-y: auto; scrollbar-width: thin; }
 }

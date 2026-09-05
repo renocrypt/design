@@ -8,7 +8,7 @@ import { mountSundial, type SundialHandle } from './sundial/scene';
 import { initHubMotion } from './motion';
 
 // ── Doors, cards, marquee, CTA: stamped into index.html AT BUILD TIME from
-// the lane registry (tools/vite-plugin-static-hub.ts + src/worlds/lane-markup.ts).
+// the lane registry (tools/vite-plugin-catalog.ts + src/catalog/markup.ts).
 // They used to be appended here at runtime, but AI crawlers don't execute JS —
 // the site's substance has to exist in the served HTML. What remains in this
 // file is everything that genuinely needs a browser: glyph stamping, hover
@@ -56,6 +56,18 @@ function initMenu(reduced: boolean): void {
 // Pixel glyphs — the "what defines us" grammar, drawn not downloaded.
 // Bitmaps are ASCII art so future agents can add a glyph by drawing one.
 const GLYPHS: Record<string, string[]> = {
+  atoll: [
+    '..........',
+    '...XXXX...',
+    '..XX..XX..',
+    '.XX....XX.',
+    '.X......X.',
+    '.X......X.',
+    '.XX....XX.',
+    '..XX..XX..',
+    '...X..X...',
+    '..........',
+  ],
   crescent: [
     '...XXXX...',
     '..XXXXXX..',

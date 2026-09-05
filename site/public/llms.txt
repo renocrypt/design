@@ -1,18 +1,23 @@
 # worlds. — a design sketchbook
 
-One entrance, four worlds and the lab they grew from. A personal design lab:
-each world is built around one hard visual idea — its own typeface, its own
-palette, its own physics — all finished to the same bar.
+A personal design sketchbook with distinct worlds, curated explorations, and a workshop of interactive studies.
+Each experience has its own typeface, palette, and motion.
+The hub marks studies that are still in progress.
 
 ## Pages
 
 - [Hub](https://design.renocrypt.com/): the entrance. Warm cream paper, toy-box color cards as numbered nav, a live 3D sundial hero.
 - [00 — Lab](https://design.renocrypt.com/lab/): the WebGL studies the build grew out of, monitored as channels on one phosphor console (near-black #0c0c0e, phosphor mint #62e6c8).
-- [01 — Noir](https://design.renocrypt.com/worlds/01-noir/): dark cinema. Charcoal & bone two-color commitment, light as the only color. A night drive rendered live in WebGL.
+- [01 — Noir](https://design.renocrypt.com/worlds/01-noir/): a night-drive study in progress. Charcoal and bone, light as the only color, rendered in WebGL.
 - [02 — Chrome](https://design.renocrypt.com/worlds/02-chrome/): liquid editorial. Warm-stone serif with a live-rendered liquid-chrome masthead; vermilion, pistachio and jade accents.
 - [03 — Monument](https://design.renocrypt.com/worlds/03-monument/): a white void. One colossal condensed face sliced by hairlines, 32 seeded exhibits, wry museum labeling.
 - [04 — Pulse](https://design.renocrypt.com/worlds/04-pulse/): a guided journey. One red, weight does the talking; one click's life told in five stations.
 - [Type specimen](https://design.renocrypt.com/type/): hub type casting — Clash Display, Cabinet Grotesk and General Sans compared as display candidates.
+- [Curated explorations](https://design.renocrypt.com/curated/): a collection of original immersive experiences, with readable introductions, context, and links to the work.
+
+## Curated explorations
+
+- [Bikini Atoll](https://design.renocrypt.com/curated/bikini-atoll/): an original 3D journey through a Marshall Islands lagoon, with WebGPU water, palm-lined islands, and underwater visits to USS Saratoga, IJN Nagato, and USS Arkansas. Free movement, ambient ocean sound, and changing light support the exploration. Field notes acknowledge the displacement of the Bikinian people and nuclear testing. Geography and ship models are artistic reconstructions, not a navigation or dive-planning chart.
 
 ## Lab studies
 
@@ -23,6 +28,6 @@ palette, its own physics — all finished to the same bar.
 
 ## Notes
 
-- Everything is static HTML/CSS/JS built with Vite + TypeScript + Three.js + GSAP; there is no backend and no API.
-- Type is self-hosted woff2; icons are hand-drawn SVG; media is generated (shaders, seeded fields, live 3D), not stock.
+- The site publishes static HTML/CSS/JS through GitHub Pages. Vite builds the shared site; curated experiences can retain their own standalone HTML, CSS, and JavaScript. There is no backend or application API.
+- Site fonts are self-hosted; standalone experiences may use CDN fonts and libraries. Icons are drawn SVG, and the 3D scenes are generated in code.
 - Random-looking details are seeded and stable between visits.

@@ -25,13 +25,17 @@ These are the ones that cost us when broken; everything else lives behind a poin
 - `research/LESSONS.md` — what building taught us.
 - `site/` — the build: one Vite app (TS + Three.js + GSAP), static output.
 - `site/public/lab/` — world 00's studies as authored, copied verbatim; `site/lab/` holds the ones that have moved onto our stack as build entries. Both serve under `/lab/`, live work like any other world.
-- `site/src/worlds/registry.ts` — the lane registry; adding anything the hub opens is one row here.
+- `site/src/catalog/registry.ts` — site identity, primary destinations, and curated experiences.
+- `docs/ARCHITECTURE.md` — source ownership, standalone curation, metadata, and publishing checks.
+- `site/public/curated/<slug>/` — self-contained experiences, each with one HTML, CSS, and JavaScript file.
 
 ## Commands
 
 ```sh
 cd site && npm run dev      # http://localhost:5173
 cd site && npm run build    # static output in site/dist
+cd site && npm run test:site # catalog and metadata behavior
+cd site && npm run verify:site # built routes, assets, and discovery output
 
 # Checks. The verifier builds the real scene graph, poses it the way the scroll
 # actually poses it, and projects it to site/.verify/*.svg, so 3D geometry can be

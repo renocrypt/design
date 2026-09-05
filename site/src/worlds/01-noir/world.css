@@ -114,6 +114,7 @@ body {
   gap: 1.5rem;
   padding: 110px 40px;
   pointer-events: none;
+  background: radial-gradient(ellipse at 13% 78%, rgb(0 0 0 / 78%), transparent 62%);
 }
 
 .statement {
