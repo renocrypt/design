@@ -49,7 +49,7 @@ A world enters the queue only with a one-line vibe statement this sharp.
 - **Palette**: a designed artifact, never a default ramp — derived from a material, photo, HDRI or print reference. Named tokens in the target's folder.
 - **Motion**: each target has a signature easing/physics feel; motion vocabulary is identity, not decoration.
 - **Icons/glyphs are drawn, not downloaded** — hand-made SVG in each world's language.
-- **The hub keeps its own identity** — it is the fifth design, not a frame.
+- **The hub keeps its own identity** — a designed entrance in its own right.
 - **Contrast**: AA is the floor for accidents, not a veto on authored dimness. Pin ink to the fill (`--ink-on-hue`) so a theme flip cannot invert it. A faint tier stays if it is deliberate and traceable to a pole; a new one has to be a decision, not a leftover.
 - **Un-replicable media gets a stand-in, never an imitation** — reference photography/footage is rebuilt from what we own: shaders, generated fields, live 3D, drawn SVG.
 

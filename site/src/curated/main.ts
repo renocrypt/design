@@ -6,5 +6,9 @@ import './curated.css';
 document.querySelector<HTMLButtonElement>('#collection-theme')?.addEventListener('click', () => {
   const theme = document.documentElement.dataset.theme === 'night' ? 'day' : 'night';
   document.documentElement.dataset.theme = theme;
-  try { localStorage.setItem('hub-theme', theme); } catch { /* Theme still works without storage. */ }
+  try {
+    localStorage.setItem('hub-theme', theme);
+  } catch {
+    /* Theme still works without storage. */
+  }
 });

@@ -20,7 +20,8 @@ test('curated entries retain one HTML, CSS, and JavaScript file', () => {
 });
 
 test('the hub and collection contain working links and editorial content without JavaScript', () => {
-  const hub = roomsMarkup(), gallery = curatedMarkup();
+  const hub = roomsMarkup(),
+    gallery = curatedMarkup();
   assert.match(hub, /href="\/curated\/"/);
   assert.match(hub, /Explore the collection/);
   assert.match(hub, /In progress/);

@@ -179,3 +179,29 @@ Curtain reveal: full-screen red slides y 0→140% over 2s linear while a 512×12
 **Motion.** Framer: 1.4s easeInOut screen fades, 2s linear curtain, backOut `(.34,1.56,.64,1)` pops, anticipation bezier `(.36,0,.66,−1.2)` exits, delays quantized to 300ms.
 
 **3D.** All glTF (1.06MB draco map + character with wave/walk/idle/sit/drink clips + NPCs), baked lightmap+AO webp, forest.exr env, ONE directional shadow light; follow cam fov 40 at +(0,8,8) with lerp `1−0.96^(60·dt)`; walk 3 u/s.
+
+---
+
+## Bikini Atoll — curated exploration
+
+An original immersive landscape, informed by the user’s references to [UNESCO’s Bikini Atoll record](https://whc.unesco.org/en/list/1339/), [the atoll’s geography](https://en.wikipedia.org/wiki/Bikini_Atoll), and [Bikini’s own ship guide](https://bikiniatoll.com/divetour1.html).
+The institutional pages supply geographical and historical context; the experience has its own visual composition.
+
+**Visual identity.** Italiana carries the large, quiet display type; DM Sans carries the field-guide controls.
+Cream typography sits over a lagoon in teal and blue, with a palm-lined sand edge crossing the frame.
+The interface stays at the margins: location, depth, a small map, and the surface/dive switch.
+The underwater view keeps that language while introducing the wreck descriptions and a darker water column.
+
+**Interaction.** Free movement and guided camera journeys share one world.
+The three destinations distinguish Saratoga’s upright carrier silhouette from the overturned battleships Nagato and Arkansas.
+Field notes keep the Bikinian community and the nuclear-testing history present alongside the scene.
+The shapes and distances are artistic reconstructions.
+
+**Measured integration check.** A Chrome WebGPU tour through the three guided wreck views reached a sampled peak of 36 draw calls at pixel ratio 1.65, with 60 fps reported at the stops.
+Light shafts are instanced together; the high-detail setting caps pixel ratio at 1.75.
+Destroying the page’s WebGPU device switched to a visible illustrated view with working reference and return links.
+A browser frame with scripts disabled showed the static artwork, a readable atoll summary, and the collection link.
+
+**Collection handoff.** The curated gallery uses the hub’s Cabinet Grotesk, General Sans, warm paper, and rounded cards.
+The atoll keeps its own type and palette after the handoff.
+Its public route is `/curated/bikini-atoll/`, and its authored experience remains one HTML, one CSS, and one JavaScript file.

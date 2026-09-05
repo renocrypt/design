@@ -760,7 +760,7 @@ body {
   font-weight: 550;
 }
 
-/* Card fills come from the registry's `hue` (set inline by main.ts) — no
+/* Card fills come from the registry's `hue` (rendered by the catalog) — no
    per-lane CSS rule to forget when a lane is added. */
 
 /* A non-world lane reads as a shelf under the four doors:

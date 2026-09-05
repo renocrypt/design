@@ -1,21 +1,11 @@
-// Lane markup builders — pure string functions, no DOM.
-//
-// These exist so the hub's lane-derived content can be stamped into index.html
-// AT BUILD TIME (tools/vite-plugin-catalog.ts) instead of being appended by
-// client JS. The reason is GEO, not nostalgia: Google's renderer executes JS,
-// but GPTBot / ClaudeBot / PerplexityBot and friends do not — for them, and for
-// anyone with scripting off, the gates, room cards, marquee and closing CTA
-// must exist in the served HTML. Client JS keeps only the jobs that genuinely
-// require it (pixel-glyph stamping, hover physics, scroll motion).
-//
-// The markup here mirrors what src/hub/main.ts used to render at runtime —
-// same classes, same order, same aria — so the existing CSS applies untouched.
-// If you change a card's structure, change it HERE; the stylesheet and the
-// crawlers see only this version.
+// Pure HTML builders for the hub and curated collection.
+// Content and navigation ship in the document, including for visitors and
+// crawlers that do not execute browser JavaScript. Motion enhances that HTML.
 
 import { CURATED, LANES, curatedEntry, laneEntry, type Lane } from './registry';
 
-const esc = (s: string): string => s.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
+const esc = (s: string): string =>
+  s.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
 
 /** One rail / menu door. `gate--compact` marks non-world lanes, as before. */
 export const gateMarkup = (lane: Lane): string =>
@@ -35,7 +25,10 @@ export const gatesMarkup = (): string => LANES.map(gateMarkup).join('');
  * the grid is a pitch. Same lanes, both ends, by choice.)
  */
 export const roomsMarkup = (): string => {
-  const ordered = [...LANES.filter((lane) => lane.kind === 'world'), ...LANES.filter((lane) => lane.kind !== 'world')];
+  const ordered = [
+    ...LANES.filter((lane) => lane.kind === 'world'),
+    ...LANES.filter((lane) => lane.kind !== 'world'),
+  ];
   return ordered
     .map(
       (lane) =>
@@ -51,9 +44,11 @@ export const roomsMarkup = (): string => {
 };
 
 /** The collection is readable and navigable before any browser JavaScript runs. */
-export const curatedMarkup = (): string => CURATED.map((experience) => `
+export const curatedMarkup = (): string =>
+  CURATED.map(
+    (experience) => `
   <article class="curated-card" aria-labelledby="${experience.id}-title">
-    <a class="curated-image" href="${curatedEntry(experience)}" aria-label="Explore ${esc(experience.name)}">
+    <a class="curated-image" href="${curatedEntry(experience)}" aria-label="Curated ${experience.num} — Explore ${esc(experience.name)}">
       <img src="${experience.image}" width="1200" height="630" alt="${esc(experience.imageAlt)}" fetchpriority="high" />
       <span class="image-caption">CURATED ${experience.num}<span aria-hidden="true">↗</span></span>
     </a>
@@ -67,7 +62,8 @@ export const curatedMarkup = (): string => CURATED.map((experience) => `
     <div class="curated-story"><h3>A little context.</h3><p>${esc(experience.story)}</p>
       <nav class="curated-sources" aria-label="References for ${esc(experience.name)}">${experience.sources.map((s) => `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${esc(s.name)} ↗</a>`).join('')}</nav>
     </div>
-  </article>`).join('');
+  </article>`,
+  ).join('');
 
 /**
  * Two identical marquee halves — sliding one half's width loops seamlessly.

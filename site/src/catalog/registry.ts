@@ -1,9 +1,8 @@
 // Site identity, navigation, and curated experiences share this catalog.
 //
-// A lane is any destination the entrance can hand you: a world we build here
-// ('world'), a static page Vite copies verbatim ('static'), or something living
-// at another URL entirely ('external'). Only 'world' lanes become build entries;
-// the rest are doors the hub renders identically and links elsewhere.
+// LANES describes primary destinations: world studies, collection entrances,
+// standalone pages, and external links. CURATED describes individual
+// experiences inside the collection, so its growth does not crowd the rail.
 //
 // `kind` says where a lane's files sit, never how finished or how editable it is.
 // Nothing in this repo is frozen — a 'static' lane is live work that happens not
@@ -12,14 +11,14 @@
 // ADDING A LANE (the whole checklist lives in docs/CONCEPT.md § Adding a lane):
 // 1. Add a row here. `hue` accepts a token reference ('var(--cobalt)') or a hex.
 // 2. kind 'world'    → create worlds/<id>/index.html + src/worlds/<id>/…
+//    kind 'collection' → create a collection entry and register it in vite.config.ts
 //    kind 'static'   → drop the files in site/public/<path>/ and set `href`
 //    kind 'external' → set `href` to the absolute URL
 // 3. Add the lane's token(s) to src/hub/tokens.css if you referenced new ones.
 // 4. Draw the pixel `glyph` in src/hub/main.ts GLYPHS if it isn't there yet.
-// The vite build inputs, the rail gates, the mobile menu, the room cards, the
-// marquee band and the closing call to action all generate from this array — no
-// other file needs touching for a lane to exist. Two of those consumers filter:
-// the band and the CTA speak for `kind: 'world'` only.
+// World build inputs and hub navigation are derived here. Collection entrances
+// are explicit Vite entries, like the hub and type specimen. The marquee and
+// closing CTA use world studies; the gallery uses the CURATED entries below.
 
 export interface Lane {
   id: string; // directory name / slug, e.g. '01-noir'
@@ -28,7 +27,7 @@ export interface Lane {
   hue: string; // door background: 'var(--cobalt)' or '#62e6c8'
   kind: 'world' | 'collection' | 'static' | 'external';
   status: 'live' | 'building';
-  href?: string; // required for 'static' and 'external'; ignored for 'world'
+  href?: string; // collection/static/external URL; world URLs come from the id
   glyph: string; // pixel-glyph key (GLYPHS in src/hub/main.ts)
   kicker: string; // room-card kicker line
   points: [string, string]; // the two room-card bullets
@@ -38,7 +37,8 @@ export interface Lane {
 export const SITE = {
   origin: 'https://design.renocrypt.com',
   name: 'Worlds — a design sketchbook',
-  description: 'A personal design sketchbook of immersive worlds, curated explorations, and interactive studies. Each has its own visual identity.',
+  description:
+    'A personal design sketchbook of immersive worlds, curated explorations, and interactive studies. Each has its own visual identity.',
 };
 
 export const LANES: Lane[] = [
@@ -144,11 +144,14 @@ export const CURATED: CuratedExperience[] = [
     num: '01',
     name: 'Bikini Atoll',
     location: 'The Marshall Islands · Pacific Ocean',
-    description: 'An immersive journey from palm-lined islands and turquoise shallows to the historic shipwrecks beneath Bikini’s lagoon.',
-    story: 'Explore an original 3D interpretation of Bikini Atoll, then descend to USS Saratoga, IJN Nagato, and USS Arkansas. Moving water, marine life, and changing light set the pace. The field notes also remember the Bikinian community displaced for nuclear testing in 1946. The landscape and ships are artistic reconstructions, not a navigation or dive-planning chart.',
+    description:
+      'An immersive journey from palm-lined islands and turquoise shallows to the historic shipwrecks beneath Bikini’s lagoon.',
+    story:
+      'Explore an original 3D interpretation of Bikini Atoll, then descend to USS Saratoga, IJN Nagato, and USS Arkansas. Moving water, marine life, and changing light set the pace. The field notes also remember the Bikinian community displaced for nuclear testing in 1946. The landscape and ships are artistic reconstructions, not a navigation or dive-planning chart.',
     features: ['Living water', 'Free exploration', 'Three historic wrecks'],
     image: '/social/bikini-atoll.jpg',
-    imageAlt: 'Turquoise lagoon water and a palm-lined coral island in the Bikini Atoll 3D experience.',
+    imageAlt:
+      'Turquoise lagoon water and a palm-lined coral island in the Bikini Atoll 3D experience.',
     sources: [
       { name: 'UNESCO World Heritage', url: 'https://whc.unesco.org/en/list/1339/' },
       { name: 'The people and ships of Bikini', url: 'https://bikiniatoll.com/divetour1.html' },
