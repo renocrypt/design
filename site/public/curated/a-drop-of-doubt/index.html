@@ -3,15 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#171815" />
+    <meta name="theme-color" content="#141c2a" />
     <meta
       name="description"
       content="An interactive court drama in three dimensions. Enter Jingren Palace and follow an accusation through the assembled court."
     />
     <title>A Drop of Doubt — The Accusation</title>
     <link rel="icon" href="./assets/mark.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://api.fontshare.com" />
-    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
     <link rel="stylesheet" href="./css/typography.css" />
     <link
       rel="stylesheet"
@@ -20,9 +18,8 @@
     <link rel="stylesheet" href="./css/base.css" />
     <link rel="stylesheet" href="./css/theatre.css" />
     <link rel="stylesheet" href="./css/panels.css" />
-    <link rel="stylesheet" href="./css/identity.css" />
-    <link rel="stylesheet" href="./css/dark.css" />
     <link rel="stylesheet" href="./css/collection.css" />
+    <link rel="stylesheet" href="./css/after-hours.css" />
     <script type="importmap">
       {
         "imports": {
@@ -70,34 +67,13 @@
     </svg>
 
     <div class="app" id="app">
-      <nav class="collection-navigation" aria-label="Collection navigation">
-        <a href="/curated/">← Back to Curated</a>
-        <a href="https://github.com/renocrypt/design/blob/main/site/public/curated/a-drop-of-doubt/index.html" target="_blank" rel="noopener noreferrer" aria-label="View this page’s HTML source on GitHub (opens in a new tab)">Source code <span aria-hidden="true">↗</span></a>
-      </nav>
       <header class="masthead">
-        <a
-          class="signature"
-          href="./"
-          aria-label="A Drop of Doubt, return to the beginning"
-          ><span class="signature-prefix">a drop of</span
-          ><span class="signature-word" aria-hidden="true"
-            ><span>d</span><span class="signature-o">o</span
-            ><span class="signature-u">u</span><span>b</span
-            ><span class="signature-t">t</span
-            ><i class="signature-dot"></i></span
-          ><svg class="signature-swipe" viewBox="0 0 180 24" aria-hidden="true">
-            <path d="M3 18C36 13 64 7 96 10s49 9 67 2c8-3 10-7 8-8" /></svg
-        ></a>
-        <span class="edition"
-          ><span class="edition-number">01</span
-          ><span class="edition-line"></span> THE ACCUSATION</span
-        >
+        <a class="collection-return" href="/curated/" aria-label="Back to Curated">← Curated</a>
+        <a class="signature" href="./" aria-label="A Drop of Doubt, return to the beginning">A DROP OF DOUBT</a>
         <nav aria-label="Main navigation">
-          <button class="nav-link" data-open="cast-dialog" disabled>
-            The court</button
-          ><button class="nav-link" data-open="about-dialog">
-            About the scene
-          </button>
+          <button class="nav-link" data-open="cast-dialog" disabled>The court</button>
+          <button class="nav-link" data-open="about-dialog">About</button>
+          <a class="nav-link" href="https://github.com/renocrypt/design/blob/main/site/public/curated/a-drop-of-doubt/index.html" target="_blank" rel="noopener noreferrer" aria-label="View this page’s HTML source on GitHub (opens in a new tab)">Source code <span aria-hidden="true">↗</span></a>
         </nav>
       </header>
 
@@ -105,20 +81,17 @@
         <section class="editorial" aria-label="Story and dialogue">
           <div class="intro-copy" id="intro-copy">
             <p class="eyebrow">
-              <span class="fine-diamond"></span> JINGREN PALACE
+              JINGREN PALACE <span class="opening-index">01 / 15</span>
             </p>
-            <h1>A drop<br />of <em>doubt.</em></h1>
             <div class="title-rule">
               <span></span><span>滴血验亲 · 序</span>
             </div>
-            <p class="introduction">
-              In Jingren Palace, an accusation changes the meaning of every
-              glance.
-            </p>
+            <h1>The accusation<span>.</span></h1>
+            <p class="intro-lede">A charge against Zhen Huan.<br />Fifteen moments before the first witness.</p>
             <button class="enter-button" id="enter-button" disabled>
-              <span>Enter the scene</span><svg><use href="#arrow-mark" /></svg>
+              <span>Begin the scene</span><svg><use href="#arrow-mark" /></svg>
             </button>
-            <p class="entry-detail">ONE ROOM <span>·</span> FIFTEEN MOMENTS</p>
+            <p class="entry-detail">FIFTEEN MOMENTS <span>·</span> 2 MIN 02 SEC</p>
           </div>
           <div class="live-copy" id="live-copy" hidden>
             <p class="eyebrow">
@@ -148,17 +121,12 @@
               </button>
             </div>
           </div>
-          <div class="editorial-foot">
-            <span class="foot-rule"></span>
-            <p>Inspired by<br /><em>Empresses in the Palace</em></p>
-            <span class="scene-index">62</span>
-          </div>
         </section>
 
         <section class="stage" aria-label="The court in three dimensions">
           <div class="stage-top">
             <span class="stage-location"
-              >THE ACCUSATION <span>／</span> 景仁宫</span
+              >景仁宫</span
             ><button
               class="explore-button"
               id="explore-button"
@@ -172,8 +140,7 @@
           <div class="canvas-wrap" id="canvas-wrap"></div>
           <div class="stage-vignette" aria-hidden="true"></div>
           <div class="stage-caption">
-            <span id="shot-label">The assembled court</span
-            ><span class="frame-signature">doubt.</span>
+            <span id="shot-label">The assembled court</span>
           </div>
           <div class="explore-note" id="explore-note" hidden>
             Drag to look around <span>·</span> Scroll to move closer<button
@@ -183,8 +150,8 @@
             </button>
           </div>
           <div class="loading" id="loading" role="status">
-            <p>The court is assembling.</p>
-            <span id="loading-count">00</span>
+            <p>Preparing the court</p>
+            <span class="loading-percent"><span id="loading-count">00</span><small>%</small></span>
             <div class="loading-line"><span id="loading-progress"></span></div>
           </div>
           <div class="load-error" id="load-error" role="alert" hidden>

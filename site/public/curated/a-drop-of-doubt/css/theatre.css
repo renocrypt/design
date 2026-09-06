@@ -16,7 +16,7 @@
   margin: 37px 0 29px;
 }
 .intro-copy h1 em {
-  color: var(--red);
+  color: var(--accent);
 }
 .title-rule {
   display: flex;
@@ -30,14 +30,14 @@
 .title-rule > span:first-child {
   width: 45px;
   height: 1px;
-  background: var(--red);
+  background: var(--accent);
 }
 .introduction {
   font-size: 13px;
   line-height: 1.85;
   max-width: 270px;
   margin-top: 29px;
-  color: #645f53;
+  color: var(--muted);
 }
 .enter-button {
   display: flex;
@@ -46,12 +46,12 @@
   gap: 28px;
   width: 100%;
   max-width: 273px;
-  border-bottom: 1px solid var(--red);
+  border-bottom: 1px solid var(--accent);
   margin-top: 34px;
   padding: 12px 0 14px;
   font-size: 12px;
   letter-spacing: 0.035em;
-  color: var(--red);
+  color: var(--accent);
   transition: color 0.25s;
 }
 .enter-button svg {
@@ -82,7 +82,7 @@
 .foot-rule {
   height: 29px;
   width: 1px;
-  background: var(--gold);
+  background: var(--detail);
 }
 .editorial-foot p {
   font-size: 9px;
@@ -94,7 +94,7 @@
 }
 .scene-index {
   font: 400 52px/0.9 var(--serif);
-  color: #b0a48f;
+  color: var(--muted);
   margin-left: auto;
   letter-spacing: -0.04em;
 }
@@ -102,7 +102,7 @@
   position: relative;
   min-width: 0;
   min-height: 570px;
-  background: #c1b9a7;
+  background: var(--paper);
   overflow: hidden;
 }
 .canvas-wrap {
@@ -123,7 +123,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #f0e8d7;
+  color: var(--ink);
   pointer-events: none;
 }
 .stage-location {
@@ -157,7 +157,7 @@
   transform: rotate(90deg);
 }
 .explore-button[aria-pressed="true"] {
-  color: #fff6ce;
+  color: var(--ink);
 }
 .stage-vignette {
   position: absolute;
@@ -177,7 +177,7 @@
   bottom: 25px;
   left: 28px;
   right: 27px;
-  color: #eee6d5;
+  color: var(--ink);
   display: flex;
   justify-content: space-between;
   pointer-events: none;
@@ -212,7 +212,7 @@
   font-size: 10px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--red);
+  color: var(--accent);
   margin: 50px 0 20px;
 }
 .dialogue-content {
@@ -226,8 +226,8 @@
 .chinese-line {
   font: 400 15px/1.85 var(--chinese);
   margin-top: 25px;
-  color: #7c7161;
-  border-left: 1px solid var(--gold);
+  color: var(--muted);
+  border-left: 1px solid var(--detail);
   padding-left: 14px;
 }
 .dialogue-content.changing {
@@ -257,7 +257,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #e5dece;
+  background: var(--paper-light);
   transition:
     opacity 0.8s var(--ease),
     visibility 0.8s;
@@ -282,14 +282,14 @@
 .loading-line {
   height: 1px;
   width: 110px;
-  background: #c5baa5;
+  background: var(--line);
   margin-top: 20px;
 }
 .loading-line span {
   display: block;
   width: 0;
   height: 1px;
-  background: var(--red);
+  background: var(--accent);
   transition: width 0.3s;
 }
 .load-error {
@@ -320,23 +320,23 @@
   bottom: 64px;
   transform: translateX(-50%);
   padding: 14px 22px;
-  background: #efe7d7ee;
-  color: #403b31;
+  background: #1b2738ee;
+  color: var(--ink);
   font-size: 10px;
   text-align: center;
   white-space: nowrap;
-  border: 1px solid #dbd0bc;
+  border: 1px solid var(--line);
 }
 .explore-note > span {
   margin-inline: 7px;
-  color: var(--gold);
+  color: var(--detail);
 }
 .explore-note button {
   display: block;
   margin: 9px auto 0;
-  border-bottom: 1px solid var(--red);
+  border-bottom: 1px solid var(--accent);
   padding-bottom: 3px;
-  color: var(--red);
+  color: var(--accent);
 }
 .score {
   height: 102px;
@@ -364,21 +364,21 @@
   height: 30px;
 }
 .icon-button:hover {
-  color: var(--red);
+  color: var(--accent);
 }
 .play-button {
   width: 39px;
   height: 39px;
-  border: 1px solid #ac8c7b;
+  border: 1px solid var(--line);
   display: grid;
   place-items: center;
-  color: var(--red);
+  color: var(--accent);
   transition:
     background 0.2s,
     color 0.2s;
 }
 .play-button:hover {
-  background: var(--red);
+  background: var(--accent);
   color: var(--paper);
 }
 .play-button svg {
@@ -394,7 +394,7 @@
 }
 .time-divider {
   margin: 0 9px;
-  color: #ac9c85;
+  color: var(--muted);
 }
 .score-track {
   align-self: center;
@@ -414,10 +414,10 @@
   white-space: nowrap;
 }
 .chapter-button.is-active {
-  color: var(--red);
+  color: var(--accent);
 }
 .chapter-button:hover {
-  color: var(--red);
+  color: var(--accent);
 }
 #progress {
   --position: 0%;
@@ -430,7 +430,7 @@
   border-radius: 0;
   background: linear-gradient(
     to right,
-    var(--red) var(--position),
+    var(--accent) var(--position),
     var(--line) var(--position)
   );
   margin: 0;
@@ -443,7 +443,7 @@
   height: 6px;
   border-radius: 0;
   transform: rotate(45deg);
-  background: var(--red);
+  background: var(--accent);
   border: 0;
 }
 #progress::-moz-range-thumb {
@@ -451,7 +451,7 @@
   height: 6px;
   border: 0;
   border-radius: 0;
-  background: var(--red);
+  background: var(--accent);
 }
 .score-ticks {
   height: 5px;
@@ -484,7 +484,7 @@
   color: var(--muted);
 }
 .language-button[aria-pressed="true"] > [lang] {
-  color: var(--red);
+  color: var(--accent);
 }
 .sound-button {
   display: flex;
@@ -500,7 +500,7 @@
   stroke-width: 0.9;
 }
 .sound-button[aria-pressed="true"] {
-  color: var(--red);
+  color: var(--accent);
 }
 .sound-button[aria-pressed="true"] svg {
   animation: sound-breathe 3.5s ease-in-out infinite;

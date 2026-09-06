@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <rect width="48" height="48" fill="#171815" />
+  <rect width="48" height="48" fill="#141c2a" />
   <path
-    fill="#e8dfca"
+    fill="#e7eaf0"
     fill-rule="evenodd"
     d="M32 5 38 3c-4 13-6 23-7 30-.4 3 .8 4 3 3l1 1c-6 5-10 2-9-3-3 4-6 6-10 6-8 0-10-7-7-14 3-8 11-13 20-12ZM27 17c-7-1-12 4-14 11-2 6 0 10 3 10 5 0 8-6 9-11Z"
   />
   <path
     d="M7 44c11-4 23-5 33-3"
     fill="none"
-    stroke="#c5a16e"
+    stroke="#b7b2e0"
     stroke-width=".8"
   />
   <ellipse
@@ -16,7 +16,7 @@
     cy="36"
     rx="1.6"
     ry="2.5"
-    fill="#c5a16e"
+    fill="#b7b2e0"
     transform="rotate(20 38 36)"
   />
 </svg>

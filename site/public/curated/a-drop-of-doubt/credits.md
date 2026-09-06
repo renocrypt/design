@@ -18,6 +18,6 @@ The head topology derives from the MediaPipe canonical face model under Apache 2
 See the [model credits](assets/models/README.md) and [included license](assets/models/mediapipe-LICENSE.txt).
 Materials, architecture, costumes, and interface artwork were authored for the experience.
 
-- [Boska](https://www.fontshare.com/fonts/boska) and [Switzer](https://www.fontshare.com/fonts/switzer), from Fontshare.
+- [Playfair Display](https://fonts.google.com/specimen/Playfair+Display) for scene headings and dialogue, paired with [Switzer](https://www.fontshare.com/fonts/switzer) for controls and supporting text.
 - [LXGW WenKai](https://github.com/lxgw/LxgwWenKai), for the Chinese comparison text.
 - [Three.js](https://threejs.org/), for the rendered scene.
