@@ -172,7 +172,7 @@ export const CURATED: CuratedExperience[] = [
     imageAlt:
       'The assembled court in a modeled Jingren Palace, with richly colored robes, carved chairs, and warm light.',
     shareImage: {
-      path: '/social/a-drop-of-doubt-og.jpg',
+      path: '/social/a-drop-of-doubt-after-hours.jpg',
       alt: 'A Drop of Doubt, an interactive court drama inspired by 甄嬛传, over a view of the modeled Jingren Palace.',
     },
     sources: [

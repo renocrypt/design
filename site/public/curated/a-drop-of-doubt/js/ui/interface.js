@@ -195,7 +195,7 @@ export function createUI(timeline, callbacks) {
       lastIndex = timeline.index;
       const cue = timeline.cue,
         person = people.find((p) => p.id === cue.speaker);
-      setDesignVoice(cue.speaker, lastIndex, CUES.length);
+      setDesignVoice(cue.speaker);
       $("moment-index").textContent = String(lastIndex + 1).padStart(2, "0");
       $("chapter-name").textContent = cue.chapter;
       $("speaker").textContent = person?.name || "The court";

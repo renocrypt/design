@@ -1,28 +1,8 @@
-/* The collection's navigation borrows the scene's own ink and paper. */
-.collection-navigation {
-  height: 44px;
-  padding: 0 38px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: .035em;
-}
-.collection-navigation a { min-height: 44px; display: inline-flex; align-items: center; gap: 7px; }
-.collection-navigation a:is(:hover, :focus-visible) { color: var(--ink); }
-.theatre { min-height: calc(100svh - 224px); }
+/* A still and reading path remain available without live graphics. */
 .court-still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 [data-scene-ready="true"] .court-still { visibility: hidden; }
 [data-scene-ready="error"] .canvas-wrap { visibility: hidden; }
-.load-error { background: #171815dd; padding: 28px; overflow-y: auto; justify-content: flex-start; gap: 14px; }
+.load-error { padding: 28px; overflow-y: auto; justify-content: flex-start; gap: 14px; }
 .load-error .fallback-story { max-width: 360px; font: 400 12px/1.7 var(--sans); margin: 14px 0; }
-.scene-without-scripts { padding: 24px 38px; color: var(--muted); font: 400 13px/1.7 var(--sans); }
+.scene-without-scripts { padding: 24px 0; color: var(--muted); font: 400 13px/1.7 var(--sans); }
 .scene-without-scripts a { text-decoration: underline; text-underline-offset: 3px; }
-@media (max-width: 980px) {
-  .collection-navigation { padding-inline: 24px; }
-}
-@media (max-width: 520px) {
-  .collection-navigation { padding-inline: 19px; }
-}

@@ -1,12 +1,14 @@
 :root {
-  --paper: #f0e9dc;
-  --paper-light: #f7f1e6;
-  --ink: #292720;
-  --muted: #827a6b;
-  --line: #d6cbbb;
-  --red: #702e36;
-  --gold: #a78b5f;
-  --serif: "Boska", Georgia, serif;
+  color-scheme: dark;
+  --paper: #141c2a;
+  --paper-light: #1b2738;
+  --ink: #e7eaf0;
+  --muted: #9ba7ba;
+  --line: #354051;
+  --speaker-accent: #b7b2e0;
+  --accent: var(--speaker-accent);
+  --detail: #9ba7ba;
+  --serif: "Playfair Display", Georgia, serif;
   --sans: "Switzer", Arial, sans-serif;
   --chinese: "LXGW WenKai Screen", "Songti SC", serif;
   --ease: cubic-bezier(0.22, 0.7, 0.22, 1);
@@ -48,7 +50,7 @@ a {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
-  outline: 2px solid var(--red);
+  outline: 2px solid var(--accent);
   outline-offset: 6px;
 }
 button,
@@ -76,8 +78,8 @@ em {
   font-style: normal;
 }
 ::selection {
-  background: #722e36;
-  color: var(--paper-light);
+  background: var(--accent);
+  color: var(--paper);
 }
 [hidden] {
   display: none !important;
@@ -104,7 +106,7 @@ em {
 .fine-diamond {
   width: 6px;
   height: 6px;
-  background: var(--red);
+  background: var(--accent);
   transform: rotate(45deg);
   display: inline-block;
   flex: none;
@@ -150,7 +152,7 @@ em {
   right: 0;
   bottom: 3px;
   height: 1px;
-  background: var(--red);
+  background: var(--accent);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.3s;
@@ -162,15 +164,15 @@ em {
   display: inline-flex;
   align-items: center;
   gap: 24px;
-  border-bottom: 1px solid var(--red);
+  border-bottom: 1px solid var(--accent);
   padding: 8px 0;
   font-size: 12px;
-  color: var(--red);
+  color: var(--accent);
 }
 .noscript {
   position: fixed;
   inset: auto 0 0;
-  background: var(--red);
+  background: var(--accent);
   color: white;
   padding: 24px;
   text-align: center;

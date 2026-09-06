@@ -65,6 +65,10 @@ CDN fonts and libraries are permitted for these self-contained experiences; they
 Bikini Atoll keeps its three-file application.
 A Drop of Doubt retains its `css/`, `js/`, and `assets/` folders, including model credits and licensing.
 Its collection preview also supplies the still shown without graphics or JavaScript.
+The After hours presentation pairs Playfair Display and Switzer with a blue-black, pearl, and lilac palette.
+The opening places a compact scene heading above the complete court, while playback opens a separate dialogue column.
+On small screens the picture precedes the dialogue and playback controls stay fixed at the bottom.
+Speaker accents stay within the cool palette; the brand signature appears once in the header.
 The optional `shareImage` catalog field selects a separate social card; otherwise the collection preview is used.
 Both use 1200 × 630 images, and the build verifier checks each experience's Open Graph and Twitter image selection.
 

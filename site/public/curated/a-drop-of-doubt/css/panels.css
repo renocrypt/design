@@ -41,7 +41,7 @@ dialog[open] {
 dialog h2 {
   font: 400 clamp(47px, 4.5vw, 70px) / 1 var(--serif);
   letter-spacing: -0.035em;
-  color: var(--red);
+  color: var(--accent);
 }
 .cast-dialog {
   height: 100svh;
@@ -93,12 +93,12 @@ dialog h2 {
   font-family: var(--chinese);
   font-size: 12px;
   margin-top: 5px;
-  color: #8a7d68;
+  color: var(--muted);
 }
 .cast-card > svg {
   width: 25px;
   height: 24px;
-  color: var(--red);
+  color: var(--accent);
   opacity: 0.5;
   transition: transform 0.4s;
 }
@@ -123,7 +123,7 @@ dialog h2 {
   line-height: 1.85;
   margin-top: 24px;
   max-width: 610px;
-  color: #68604f;
+  color: var(--muted);
 }
 .about-rule {
   height: 1px;
@@ -138,7 +138,7 @@ dialog h2 {
 .instructions span {
   font-size: 9px;
   letter-spacing: 0.12em;
-  color: var(--red);
+  color: var(--accent);
 }
 .instructions p {
   font-size: 11px;
@@ -160,11 +160,11 @@ dialog h2 {
 }
 .source-links a {
   font-size: 10px;
-  border-bottom: 1px solid var(--gold);
+  border-bottom: 1px solid var(--detail);
   padding-bottom: 5px;
 }
 .source-links a:hover {
-  color: var(--red);
+  color: var(--accent);
 }
 @keyframes panel-in {
   from {
