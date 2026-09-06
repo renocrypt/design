@@ -6,7 +6,7 @@ The hub marks studies that are still in progress.
 
 ## Pages
 
-- [Hub](https://design.renocrypt.com/): the entrance. Warm cream paper, toy-box color cards as numbered nav, a live 3D sundial hero.
+- [Hub](https://design.renocrypt.com/): the entrance. Warm cream paper, expanding colored navigation, original animated SVG illustrations, and an architectural Three.js lounge with daylight and evening lighting.
 - [00 — Lab](https://design.renocrypt.com/lab/): the WebGL studies the build grew out of, monitored as channels on one phosphor console (near-black #0c0c0e, phosphor mint #62e6c8).
 - [01 — Noir](https://design.renocrypt.com/worlds/01-noir/): a night-drive study in progress. Charcoal and bone, light as the only color, rendered in WebGL.
 - [02 — Chrome](https://design.renocrypt.com/worlds/02-chrome/): liquid editorial. Warm-stone serif with a live-rendered liquid-chrome masthead; vermilion, pistachio and jade accents.

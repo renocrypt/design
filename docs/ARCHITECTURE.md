@@ -23,6 +23,27 @@ CTA wording belongs to its catalog entry, so a collection never inherits a lab-o
 The catalog is not inside a particular world because the hub, collection, build configuration, and metadata all consume it.
 Existing public URLs remain stable when source files move.
 
+## Hub rendering and artwork
+
+`site/src/hub/lounge/scene.ts` loads the compressed room and its paired lighting atlases from `site/public/hero/`.
+The same camera frames the initial stills and live geometry, including on narrow screens.
+Fine wirework, floor joints, and opal lights use separate material batches to avoid artifacts from tiny texture islands.
+The remaining surfaces share one lighting atlas per appearance.
+The appearance control blends the daylight and evening lighting without rebuilding the room.
+
+The renderer uses the shared GSAP clock and stops when the hero is offscreen, the tab is hidden, the menu is open, or motion is paused.
+Reduced motion, data-saving preferences, software rendering, and graphics failure retain a visible still.
+The content fingerprint in `site/src/hub/lounge/revision.ts` keeps the mesh and matching atlases on the same asset revision.
+The optional Blender and image-packing commands are documented in `site/tools/hero/README.md`.
+
+The catalog names each SVG through its `art` field.
+`vite-plugin-catalog.ts` embeds the artwork into the served HTML, and `illustrations.ts` runs its animations only while visible.
+The world strip supports native horizontal scrolling, keyboard focus, and explicit previous/next controls.
+
+The GitHub and App Automaton utilities emit `outbound_navigation` through the existing Google tag, with `destination`, `placement`, and `link_url` parameters.
+The links work without analytics and never wait for tracking.
+App Automaton also receives referral campaign parameters.
+
 ## Adding a curated experience
 
 1. Put `index.html`, `style.css`, and `scene.js` in `site/public/curated/<slug>/`.

@@ -1,0 +1,13 @@
+<svg viewBox="0 0 480 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs><pattern id="pulse-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0v24" stroke="#a2362d" stroke-opacity=".15"/></pattern></defs>
+  <path d="M0 0h480v320H0z" fill="#f6d6bb"/><path d="M0 0h480v320H0z" fill="url(#pulse-grid)"/>
+  <path d="M120 186v58h127V76h111v75" stroke="#ad5f49" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M120 186v58h127V76h111v75" stroke="#fff5df" stroke-width="6" stroke-linejoin="round"/>
+  <path class="art-signal" d="M120 186v58h127V76h111v75" stroke="#e22f29" stroke-width="6" stroke-linejoin="round" stroke-dasharray="14 420"/>
+  <path d="m54 153 62-30 73 39v31l-65 32-70-40z" fill="#293b45"/><path d="m54 153 71 38 64-29-73-39z" fill="#657a7b" stroke="#293b45" stroke-width="2"/>
+  <path d="m125 191-1 34m12-21 36-16" stroke="#a9c2b3" stroke-width="2"/>
+  <g class="art-push"><ellipse cx="120" cy="151" rx="42" ry="23" fill="#84241e"/><path d="M78 138v13c0 13 19 23 42 23s42-10 42-23v-13" fill="#ae2d22"/><ellipse cx="120" cy="138" rx="42" ry="23" fill="#f14332"/><path d="m103 133 17 8 17-8" stroke="#fff3d4" stroke-width="3" stroke-linecap="round"/></g>
+  <g class="art-output"><path d="M302 126h121v106H302z" fill="#cda588" stroke="#293b45" stroke-width="2"/><path d="M311 137h103v68H311z" fill="#263d43"/><path d="m329 188 21-35 21 25 14-15 15 25z" fill="#96c9a4"/><circle cx="394" cy="151" r="5" fill="#f6d55d"/><path d="M321 218h67m12 0h7" stroke="#293b45" stroke-width="3"/><path d="M344 233v20h36v-20m-56 21h76" stroke="#293b45" stroke-width="3"/></g>
+  <g stroke="#293b45" stroke-width="2" stroke-linecap="round"><path d="M110 85V65m-26 29-12-15m65 13 12-15M325 35l8 9m31-13v12m28-7-7 9"/></g>
+  <path d="M31 283h41m-41 6h22" stroke="#a75f48"/>
+</svg>

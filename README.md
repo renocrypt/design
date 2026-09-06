@@ -1,62 +1,67 @@
-# Worlds — the RenoCrypt design sketchbook
+<div align="center">
 
-Live at **[design.renocrypt.com](https://design.renocrypt.com/)**.
+# worlds.
 
-One entrance for distinct worlds, curated explorations, and a workshop of interactive studies.
-Each experience keeps its own visual identity; the catalog, navigation, and publishing are shared.
-The site is a static front end, hosted on GitHub Pages.
+**Different worlds. One place to explore.**
 
-## What's here
+An independent collection of interactive experiences, each with its own atmosphere, visual identity, and way to play.
 
-| Route | What it is |
+[![Explore Worlds](docs/assets/explore.svg)](https://design.renocrypt.com/)
+[![Deploy to Pages](https://github.com/renocrypt/design/actions/workflows/pages.yml/badge.svg)](https://github.com/renocrypt/design/actions/workflows/pages.yml)
+[![Three.js](docs/assets/threejs.svg)](https://threejs.org/)
+
+</div>
+
+[![The Worlds lounge, with a blue coffered ceiling, green columns, warm daylight, and yellow modular seating.](site/public/hero/lounge-still.webp)](https://design.renocrypt.com/)
+
+## Find your world
+
+Follow a passing light, step inside a typographic gallery, or take the long way through an island lagoon.
+Every destination starts with a different idea.
+
+| World | What awaits |
 | --- | --- |
-| `/` | The entrance hub — warm paper, toy-box doors, a live Three.js relief hero with a day/night solstice |
-| `/worlds/01-noir/` | A night-drive study in progress — charcoal and bone, light as the only colour |
-| `/worlds/02-chrome/` | Liquid editorial — chrome rendered live, not baked |
-| `/worlds/03-monument/` | White room — one colossal condensed face as architecture |
-| `/worlds/04-pulse/` | Guided journey — a five-station click-through, no scrolling |
-| `/lab/` | The lab — an entrance of its own (dark, phosphor mint) opening into the WebGL studies this all grew from; live work, rebuilt as their turn comes |
-| `/type/` | Type specimen for the cast faces |
-| [`/curated/`](https://design.renocrypt.com/curated/) | Curated explorations, with introductions, context, and links to each experience |
-| [`/curated/bikini-atoll/`](https://design.renocrypt.com/curated/bikini-atoll/) | Bikini Atoll — a WebGPU lagoon and three historic shipwrecks to explore |
+| [Noir](https://design.renocrypt.com/worlds/01-noir/) | A night drive in charcoal and bone, guided by pools of light (in progress). |
+| [Chrome](https://design.renocrypt.com/worlds/02-chrome/) | Liquid lettering, warm stone, and a little unexpected shine. |
+| [Monument](https://design.renocrypt.com/worlds/03-monument/) | An exhibition of the unfinished, with type as its architecture. |
+| [Pulse](https://design.renocrypt.com/worlds/04-pulse/) | One button starts a journey through the life of a click. |
+| [The lab](https://design.renocrypt.com/lab/) | Interactive studies and ideas taking shape. |
+| [Curated](https://design.renocrypt.com/curated/) | Immersive places worth a closer look, beginning with Bikini Atoll. |
 
-## Layout
+## Made to explore
 
-```
-docs/                       design direction, architecture, and asset guidance
-research/                   reference anatomy and standing lessons
-site/                       one static site and its build
-  index.html                the entrance hub
-  curated/index.html        the collection entrance
-  worlds/<id>/              HTML entries for the four world studies
-  src/catalog/              site identity, route registry, curated entries, and static markup
-  src/hub/                  the hub's visual system and interactions
-  src/curated/              the collection's visual system
-  src/worlds/<id>/          each world's independent implementation
-  public/curated/<slug>/    standalone experiences: index.html, style.css, scene.js
-  public/social/            authored images for the collection and sharing
-  public/lab/               standalone lab studies
-  tools/                    build plugins, metadata tests, and output verification
-```
+The entrance brings the collection together through a colorful architectural scene, an expanding index, and original animated illustrations.
+Each world keeps its own character.
 
-## Running it
+Motion responds to the way you explore.
+Keyboard navigation and responsive layouts keep the collection approachable, while still imagery remains available when motion or graphics are unavailable.
+
+## Run locally
+
+Use Node.js 24, the version used by this repository's build workflow.
 
 ```sh
 cd site
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # static output in site/dist
-npm run test:site
-npm run verify:site  # checks the output after a build
+npm ci
+npm run dev
 ```
 
-## How it grows
+Open [localhost:5173](http://localhost:5173/).
+The site is a static Vite application with TypeScript, Three.js, and GSAP.
+It does not need a backend.
 
-Primary destinations live in `LANES`, and individual curated experiences live in `CURATED`, both in [`site/src/catalog/registry.ts`](site/src/catalog/registry.ts).
-To add a standalone experience, place its three files in `site/public/curated/<slug>/` and add its catalog entry.
-The gallery publishes its description and link in HTML, and the build adds page metadata, breadcrumbs, and a sitemap entry.
-The experience keeps its own JavaScript and CSS; it does not need a package manifest or a separate build.
+To check the production output:
 
-Read [the architecture](docs/ARCHITECTURE.md) for route ownership and the publishing checks, and [the design direction](docs/CONCEPT.md) for the visual rules.
+```sh
+npm run test:site
+npm run build
+npm run verify:site
+```
 
-On push to `main`, GitHub Actions tests the catalog and SEO behavior, builds `site/`, verifies the complete output, and publishes `site/dist` to Pages.
+## Make something new
+
+The [design direction](docs/CONCEPT.md) describes the collection's visual principles.
+The [architecture guide](docs/ARCHITECTURE.md) explains how to add an experience and verify its routes, assets, and publishing metadata.
+The [asset guide](docs/ASSETS.md) covers type, imagery, and source material.
+
+GitHub Actions checks and publishes the site when changes reach `main`.

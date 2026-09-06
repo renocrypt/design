@@ -1,15 +1,5 @@
-// Hub scroll choreography — everything scroll-driven that CSS can't express.
-//
-// The split of labour, decided once and applied everywhere:
-//   CSS view() timelines (shared/motion/reveal.css): one-shot entry reveals
-//     for static blocks — man-card, bench cards, big-cta, footer.
-//   HERE (GSAP + ScrollTrigger on the Lenis clock): scroll VELOCITY (the
-//     marquee reacts to how fast you move), layered scrub (the poster's art
-//     and copy part at different rates), and element-level stagger (cards,
-//     rules) — the three things view() timelines don't do.
-//
-// Everything here is additive: nothing in CSS or HTML hides this content, so a
-// JS failure leaves a fully readable page, and `reduced` skips it all.
+// The hub shares one GSAP clock for its scroll treatment and live room.
+// Static content stays readable when motion is unavailable or disabled.
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -17,15 +7,8 @@ import { initScroll } from '../shared/motion/scroll';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Leaving the poster: the WebGL art drifts up slower than the page while the
-// copy lifts faster and dims. Two rates plus opacity is what reads as depth;
-// one rate reads as "a thing is moving".
+// The copy eases away while the room keeps its own camera movement.
 function heroParallax(): void {
-  gsap.to('.poster-art', {
-    yPercent: -16,
-    ease: 'none',
-    scrollTrigger: { trigger: '.poster', start: 'top top', end: 'bottom top', scrub: 0.5 },
-  });
   gsap.to('.poster-copy', {
     yPercent: 26,
     autoAlpha: 0,
@@ -76,18 +59,6 @@ function roomCards(): void {
   });
 }
 
-// House rules: the icon rows read as a checklist being dealt onto the shelf.
-function rulesList(): void {
-  gsap.from('.rules li', {
-    scrollTrigger: { trigger: '.rules', start: 'top 85%', once: true },
-    y: 26,
-    autoAlpha: 0,
-    duration: 0.6,
-    ease: 'power2.out',
-    stagger: 0.1,
-  });
-}
-
 // In-page anchors ride the Lenis easing instead of the browser's jump, so
 // "Pick a door" and "Back to top" feel like the same physical page the rest
 // of the scroll does. '#top' has no element — it maps to scroll position 0.
@@ -110,7 +81,6 @@ export function initHubMotion(reduced: boolean): () => void {
     heroParallax();
     velocityTicker();
     roomCards();
-    rulesList();
     anchorScrolling(scroll.scrollTo);
     // Late fonts and images shift what ScrollTrigger measured at init.
     addEventListener('load', () => ScrollTrigger.refresh(), { once: true });

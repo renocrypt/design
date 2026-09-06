@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
 import type { Plugin } from 'vite';
 import {
   bigCtaMarkup,
@@ -6,8 +7,10 @@ import {
   gatesMarkup,
   roomsMarkup,
   tickerMarkup,
+  utilitiesMarkup,
 } from '../src/catalog/markup';
 import { CURATED } from '../src/catalog/registry';
+import { HERO_REVISION } from '../src/hub/lounge/revision';
 
 // Stamp catalog content into the hub and collection in development and builds.
 // Missing template markers fail the build so navigation cannot silently vanish.
@@ -20,22 +23,23 @@ interface Shell {
 }
 
 const SHELLS: Shell[] = [
+  { find: '<!-- hub:sidebar-utilities -->', fill: () => utilitiesMarkup('sidebar') },
+  { find: '<!-- hub:menu-utilities -->', fill: () => utilitiesMarkup('menu') },
   {
     // Rail doors (desktop) and menu doors (mobile) share the same markup.
     find: '<nav class="gates" aria-label="Worlds"></nav>',
-    fill: () => `<nav class="gates" aria-label="Worlds">${gatesMarkup()}</nav>`,
+    fill: () => `<nav class="gates" aria-label="Worlds" data-lenis-prevent>${gatesMarkup()}</nav>`,
   },
   {
     find: '<nav class="menu-gates" aria-label="Worlds"></nav>',
     fill: () => `<nav class="menu-gates" aria-label="Worlds">${gatesMarkup()}</nav>`,
   },
   {
-    // The grid gets a visually-hidden h2 as well: aria-label names the region
-    // for AT, but crawlers and the document outline want a real heading.
+    // The illustrated collection includes a visible heading and native links.
     find: '<section class="rooms" id="worlds" aria-label="World previews"></section>',
     fill: () =>
       `<section class="rooms" id="worlds" aria-label="World previews">` +
-      `<h2 class="visually-hidden">World previews</h2>${roomsMarkup()}</section>`,
+      `${roomsMarkup()}</section>`,
   },
   {
     find: '<div class="ticker-track"></div>',
@@ -82,6 +86,12 @@ export function staticCatalog(): Plugin {
           }
           html = html.replace(shell.find, shell.fill());
         }
+        if (file === resolve(root, 'index.html')) {
+          html = html.replace(/<!-- hub:art=([a-z-]+) -->/g, (_marker, name: string) =>
+            readFileSync(resolve(root, 'src/hub/art', `${name}.svg`), 'utf8'),
+          );
+        }
+        html = html.replace(/(src="\/hero\/lounge-still(?:-night)?\.webp)(")/g, `$1?v=${HERO_REVISION}$2`);
         return html;
       },
     },

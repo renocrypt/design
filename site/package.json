@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test:site": "node --experimental-strip-types --import ./tools/ts-resolve.mjs --test tools/seo.test.mjs tools/catalog.test.mjs",
+    "test:site": "node --experimental-strip-types --import ./tools/ts-resolve.mjs --test tools/seo.test.mjs tools/catalog.test.mjs tools/hero.test.mjs",
     "verify:site": "node --experimental-strip-types --import ./tools/ts-resolve.mjs tools/site.verify.mjs"
   },
   "devDependencies": {

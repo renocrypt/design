@@ -1,0 +1,12 @@
+<svg viewBox="0 0 360 240" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs><pattern id="lab-graticule" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0v20" stroke="#62e6c8" stroke-opacity=".19"/></pattern><clipPath id="lab-screen"><rect x="54" y="50" width="196" height="111" rx="13"/></clipPath></defs>
+  <path d="M0 0h360v240H0z" fill="#d7eedc"/><ellipse cx="182" cy="206" rx="133" ry="13" fill="#223f3d" opacity=".13"/>
+  <path d="m35 38 24-17h250l18 18v152l-20 14H51l-16-17z" fill="#718983" stroke="#183e39" stroke-width="2"/>
+  <rect x="35" y="38" width="273" height="151" rx="14" fill="#adc0ab" stroke="#183e39" stroke-width="2"/>
+  <rect x="48" y="44" width="208" height="124" rx="18" fill="#526f65"/>
+  <rect x="54" y="50" width="196" height="111" rx="13" fill="#112f31"/>
+  <g clip-path="url(#lab-screen)"><path d="M54 50h196v111H54z" fill="url(#lab-graticule)"/><path class="art-trace" d="M44 103h27l9-18 17 43 16-65 19 79 14-45h18l10 14 13-40 14 57 14-23h40" stroke="#72efd0" stroke-width="2.7" stroke-linecap="round"/><path d="M152 55v101M60 105h184" stroke="#62e6c8" stroke-opacity=".32" stroke-dasharray="2 4"/></g>
+  <g fill="#e8e6c9" stroke="#183e39" stroke-width="2"><circle cx="280" cy="70" r="12"/><circle cx="280" cy="109" r="12"/><circle cx="280" cy="148" r="12"/></g><g class="art-dials" stroke="#183e39" stroke-width="2"><path d="m280 70 7-6m-7 45-7-7m7 46 8 1"/></g>
+  <path d="M55 178h70m8 0h20m17 0h5m7 0h5m7 0h5" stroke="#183e39" stroke-width="3"/><path d="M58 190v13m231-13v13" stroke="#183e39" stroke-width="9"/>
+  <path d="M325 96h13v52c0 43-38 50-59 68" stroke="#183e39" stroke-width="3"/><path d="m280 213-6 7" stroke="#183e39" stroke-width="7"/>
+</svg>

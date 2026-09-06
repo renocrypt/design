@@ -4,296 +4,141 @@ import './fonts.css';
 import './tokens.css';
 import './hub.css';
 import gsap from 'gsap';
-import { mountSundial, type SundialHandle } from './sundial/scene';
 import { initHubMotion } from './motion';
+import { initNavigation } from './navigation';
+import { initIllustrations } from './illustrations';
+import type { LoungeHandle } from './lounge/scene';
 
-// ── Doors, cards, marquee, CTA: stamped into index.html AT BUILD TIME from
-// the lane registry (tools/vite-plugin-catalog.ts + src/catalog/markup.ts).
-// They used to be appended here at runtime, but AI crawlers don't execute JS —
-// the site's substance has to exist in the served HTML. What remains in this
-// file is everything that genuinely needs a browser: glyph stamping, hover
-// physics, the menu, the preloader, the WebGL poster and scroll motion.
+const events = new AbortController();
+const { signal } = events;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const animation = gsap.context(() => {});
+const media = gsap.matchMedia();
+let lounge: LoungeHandle | null = null;
+let mounting = false, paused = false, menuOpen = false;
+const host = document.querySelector<HTMLElement>('.poster-art')!;
+const pauseButton = document.querySelector<HTMLButtonElement>('.hero-motion')!;
+const themeButton = document.querySelector<HTMLButtonElement>('.theme-toggle')!;
+const syncPaused = () => lounge?.setPaused(paused || menuOpen || reduced.matches);
 
-// ── Mobile menu: the toy box as an overlay ──
-function initMenu(reduced: boolean): void {
-  const btn = document.querySelector<HTMLButtonElement>('.menu-btn');
-  const menu = document.querySelector<HTMLElement>('.menu');
-  if (!btn || !menu) return;
-  let open = false;
-  const D = (s: number) => (reduced ? 0 : s);
-  const setOpen = (v: boolean) => {
-    open = v;
-    btn.classList.toggle('is-open', v);
-    btn.setAttribute('aria-expanded', String(v));
-    menu.setAttribute('aria-hidden', String(!v));
-    document.body.classList.toggle('menu-open', v);
-    if (v) {
-      gsap.set(menu, { visibility: 'visible' });
-      gsap.fromTo(menu, { yPercent: -102 }, { yPercent: 0, duration: D(0.55), ease: 'power3.inOut' });
-      gsap.fromTo(
-        menu.querySelectorAll('.gate, .menu-foot'),
-        { autoAlpha: 0, y: 18 },
-        { autoAlpha: 1, y: 0, duration: D(0.4), ease: 'power2.out', stagger: reduced ? 0 : 0.05, delay: D(0.18) },
-      );
-    } else {
-      gsap.to(menu, {
-        yPercent: -102,
-        duration: D(0.45),
-        ease: 'power3.inOut',
-        onComplete: () => gsap.set(menu, { visibility: 'hidden' }),
-      });
-    }
-  };
-  btn.addEventListener('click', () => setOpen(!open));
-  menu.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).closest('a')) setOpen(false);
-  });
-  addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && open) setOpen(false);
-  });
-}
-
-// Pixel glyphs — the "what defines us" grammar, drawn not downloaded.
-// Bitmaps are ASCII art so future agents can add a glyph by drawing one.
-const GLYPHS: Record<string, string[]> = {
-  atoll: [
-    '..........',
-    '...XXXX...',
-    '..XX..XX..',
-    '.XX....XX.',
-    '.X......X.',
-    '.X......X.',
-    '.XX....XX.',
-    '..XX..XX..',
-    '...X..X...',
-    '..........',
-  ],
-  crescent: [
-    '...XXXX...',
-    '..XXXXXX..',
-    '..XXXXX...',
-    '.XXXX.....',
-    '.XXXX.....',
-    '.XXXX.....',
-    '.XXXX.....',
-    '..XXXXX...',
-    '..XXXXXX..',
-    '...XXXX...',
-  ],
-  droplet: [
-    '....XX....',
-    '...XXXX...',
-    '...XXXX...',
-    '..XXXXXX..',
-    '..XXXXXX..',
-    '.XXXXXXXX.',
-    '.XXXXXXXX.',
-    '.XXXXXXXX.',
-    '..XXXXXX..',
-    '...XXXX...',
-  ],
-  monolith: [
-    '...XXXX...',
-    '..XXXXXX..',
-    '..XXXXXX..',
-    '..XXXXXX..',
-    '..XXXXXX..',
-    '..XXXXXX..',
-    '..XXXXXX..',
-    '..XXXXXX..',
-    '.XXXXXXXX.',
-    '.XXXXXXXX.',
-  ],
-  heart: [
-    '..........',
-    '.XXX..XXX.',
-    'XXXXXXXXXX',
-    'XXXXXXXXXX',
-    'XXXXXXXXXX',
-    '.XXXXXXXX.',
-    '..XXXXXX..',
-    '...XXXX...',
-    '....XX....',
-    '..........',
-  ],
-  // 00 Lab — four stacked slabs: the studies, seen edge-on.
-  stack: [
-    '..........',
-    '.XXXXXXXX.',
-    '.XXXXXXXX.',
-    '..........',
-    '.XXXXXXXX.',
-    '.XXXXXXXX.',
-    '..........',
-    '.XXXXXXXX.',
-    '.XXXXXXXX.',
-    '..........',
-  ],
-  sun: [
-    '...XXXX...',
-    '.XXXXXXXX.',
-    '.XXXXXXXX.',
-    'XXXXXXXXXX',
-    'XXXXXXXXXX',
-    'XXXXXXXXXX',
-    'XXXXXXXXXX',
-    '.XXXXXXXX.',
-    '.XXXXXXXX.',
-    '...XXXX...',
-  ],
+// The page and the two lighting atlases respond to the same appearance control.
+const syncTheme = () => {
+  const night = document.documentElement.dataset.theme === 'night';
+  themeButton.setAttribute('aria-label', `Switch to ${night ? 'day' : 'night'} appearance`);
+  themeButton.setAttribute('aria-pressed', String(night));
+  lounge?.setTheme(night, !reduced.matches);
 };
+syncTheme();
+themeButton.addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'night' ? 'day' : 'night';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('hub-theme', next); } catch { /* Appearance works without storage. */ }
+  syncTheme();
+}, { signal });
+pauseButton.addEventListener('click', () => {
+  paused = !paused;
+  pauseButton.setAttribute('aria-pressed', String(paused));
+  pauseButton.textContent = paused ? 'Resume motion ▷' : 'Pause motion Ⅱ';
+  syncPaused();
+}, { signal });
+host.addEventListener('lounge-still', () => { pauseButton.hidden = true; }, { signal });
+host.addEventListener('lounge-unavailable', () => { pauseButton.hidden = true; }, { signal });
+host.addEventListener('lounge-available', () => { pauseButton.hidden = false; }, { signal });
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
-
-function stampPixels(): void {
-  document.querySelectorAll<SVGSVGElement>('svg.pix').forEach((svg) => {
-    const rows = GLYPHS[svg.dataset.glyph ?? ''];
-    if (!rows) return;
-    const big = svg.classList.contains('pix--big');
-    const fill = big ? '#ffb200' : '#0e0d0b'; // amber sun on cobalt; ink elsewhere
-    const gridColor = big ? '#f4ebe0' : '#0e0d0b';
-    rows.forEach((row, y) => {
-      [...row].forEach((cell, x) => {
-        if (cell !== 'X') return;
-        const r = document.createElementNS(SVG_NS, 'rect');
-        r.setAttribute('x', String(x * 10));
-        r.setAttribute('y', String(y * 10));
-        r.setAttribute('width', '10');
-        r.setAttribute('height', '10');
-        r.setAttribute('fill', fill);
-        svg.append(r);
-      });
-    });
-    // Graph-paper lines run OVER the blocks, exactly like the reference cards.
-    let d = '';
-    for (let i = 0; i <= 10; i++) d += `M${i * 10} 0V100M0 ${i * 10}H100`;
-    const grid = document.createElementNS(SVG_NS, 'path');
-    grid.setAttribute('d', d);
-    grid.setAttribute('stroke', gridColor);
-    grid.setAttribute('stroke-width', '1');
-    grid.setAttribute('opacity', '0.3');
-    grid.setAttribute('fill', 'none');
-    svg.append(grid);
-  });
-}
-
-function wrapHeroLines(): HTMLElement[] {
-  const lines = Array.from(document.querySelectorAll<HTMLElement>('.hero-line'));
-  return lines.map((line) => {
-    const inner = document.createElement('span');
-    inner.className = 'split-inner';
-    inner.append(...line.childNodes);
-    line.append(inner);
-    return inner;
-  });
-}
-
-let sundial: SundialHandle | null = null;
-
-function mountPosterScene(): void {
-  const host = document.querySelector<HTMLElement>('.poster-art');
-  if (!host) return;
+async function mountArt(): Promise<void> {
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  if (lounge || mounting || signal.aborted || reduced.matches || connection?.saveData) return;
+  mounting = true;
   try {
-    sundial = mountSundial(host);
+    const { mountLounge } = await import('./lounge/scene');
+    if (signal.aborted || reduced.matches) return;
+    lounge = await mountLounge(host, signal);
+    if (lounge) { lounge.setTheme(document.documentElement.dataset.theme === 'night', false); pauseButton.hidden = false; syncPaused(); }
   } catch {
-    // No WebGL: the CSS mini-solstice painted on .poster-art is the fallback;
-    // keep the toggle working against the DOM theme.
-    document.documentElement.dataset.theme =
-      localStorage.getItem('hub-theme') ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day');
+    host.dataset.ready = 'false';
+    host.dataset.mode = 'fallback';
+    host.querySelector('canvas')?.remove();
+  } finally { mounting = false; }
+}
+const artObserver = new IntersectionObserver(([entry]) => {
+  if (entry.isIntersecting) { void mountArt(); artObserver.disconnect(); }
+});
+requestAnimationFrame(() => { if (!signal.aborted) artObserver.observe(host); });
+reduced.addEventListener('change', () => {
+  if (reduced.matches) { lounge?.dispose(); lounge = null; pauseButton.hidden = true; }
+  else void mountArt();
+}, { signal });
+
+// The overlay keeps focus on its navigation and releases the page on resize.
+const menu = document.querySelector<HTMLElement>('.menu')!;
+const menuButton = document.querySelector<HTMLButtonElement>('.menu-btn')!;
+const hub = document.querySelector<HTMLElement>('.hub')!;
+menu.inert = true;
+const setMenu = (open: boolean, immediate = false) => {
+  menuOpen = open;
+  menuButton.classList.toggle('is-open', open);
+  menuButton.setAttribute('aria-expanded', String(open));
+  menuButton.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  menu.setAttribute('aria-hidden', String(!open));
+  menu.inert = !open; hub.inert = open;
+  document.body.classList.toggle('menu-open', open);
+  syncPaused();
+  gsap.killTweensOf(menu);
+  const duration = reduced.matches || immediate ? 0 : .4;
+  if (open) {
+    animation.add(() => {
+      gsap.set(menu, { visibility: 'visible' });
+      gsap.fromTo(menu, { yPercent: -102 }, { yPercent: 0, duration, ease: 'power3.inOut' });
+    });
+  } else {
+    animation.add(() => gsap.to(menu, { yPercent: -102, duration, ease: 'power3.inOut', onComplete: () => gsap.set(menu, { visibility: 'hidden' }) }));
   }
-  const toggle = document.querySelector<HTMLButtonElement>('.theme-toggle');
-  toggle?.addEventListener('click', () => {
-    const cur = document.documentElement.dataset.theme === 'night' ? 'night' : 'day';
-    const next = cur === 'night' ? 'day' : 'night';
-    if (sundial) {
-      sundial.setTheme(next, true);
-    } else {
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem('hub-theme', next);
-    }
-  });
-}
-
-// Vite HMR re-runs this module; without disposal each reload leaks a WebGL
-// context (and a Lenis/ScrollTrigger loop) until the browser refuses more.
-if (import.meta.hot) {
-  import.meta.hot.dispose(() => {
-    sundial?.dispose();
-    disposeMotion?.();
-  });
-}
-
-function hoverLift(selector: string, vars: gsap.TweenVars): void {
-  document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
-    const over = gsap.to(el, { ...vars, duration: 0.35, ease: 'power3.out', paused: true });
-    el.addEventListener('mouseenter', () => over.play());
-    el.addEventListener('mouseleave', () => over.reverse());
-  });
-}
-
-// Preloader: five stamps, a mark, a wipe — short and punchy on purpose
-// (the pole's intro overstays; ours is out of the way in ~1.6s, and skipped
-// entirely on repeat visits this session).
-function preload(done: () => void, reduced: boolean): void {
-  const el = document.querySelector<HTMLElement>('.preloader');
-  if (!el) {
-    done();
-    return;
+};
+menuButton.addEventListener('click', () => setMenu(!menuOpen), { signal });
+menu.addEventListener('click', (event) => {
+  if ((event.target as HTMLElement).closest('a')) setMenu(false);
+}, { signal });
+const desktop = matchMedia('(min-width: 761px)');
+desktop.addEventListener('change', () => { if (desktop.matches && menuOpen) setMenu(false, true); }, { signal });
+document.addEventListener('keydown', (event) => {
+  if (!menuOpen) return;
+  if (event.key === 'Escape') { setMenu(false); menuButton.focus(); }
+  if (event.key === 'Tab') {
+    const last = [...menu.querySelectorAll<HTMLAnchorElement>('a[href]')].at(-1)!;
+    if (event.shiftKey && document.activeElement === menuButton) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); menuButton.focus(); }
   }
-  if (reduced || sessionStorage.getItem('hub-seen')) {
-    el.remove();
-    done();
-    return;
-  }
-  sessionStorage.setItem('hub-seen', '1');
-  const tl = gsap.timeline({
-    onComplete: () => {
-      el.remove();
-      done();
-    },
-  });
-  tl.from('.pre-shape', {
-    scale: 0,
-    rotate: -14,
-    duration: 0.45,
-    ease: 'back.out(1.8)',
-    stagger: 0.08,
-  })
-    .from('.pre-mark', { autoAlpha: 0, y: 14, duration: 0.35, ease: 'power2.out' }, 0.35)
-    .to(el, { yPercent: -100, duration: 0.6, ease: 'power3.inOut' }, '+=0.3');
-}
+}, { signal });
 
-let disposeMotion: (() => void) | null = null;
-
-function enter(): void {
-  const heroInners = wrapHeroLines();
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  stampPixels(); // the cards' glyph SVGs ship empty; pixels are enhancement
-  initMenu(reduced);
-  mountPosterScene();
-  disposeMotion = initHubMotion(reduced);
-
-  const playIntro = () => {
-    if (reduced) return;
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-    tl.from('.poster', { autoAlpha: 0, scale: 0.985, duration: 0.8 }, 0)
-      .from(heroInners, { yPercent: 110, duration: 0.9, stagger: 0.09 }, 0.25)
-      .from('.poster-sub', { autoAlpha: 0, y: 16, duration: 0.6 }, 0.6)
-      .from('.poster-cta', { autoAlpha: 0, y: 12, duration: 0.5 }, 0.75)
-      .from('.gate', { autoAlpha: 0, x: -18, duration: 0.5, stagger: 0.06 }, 0.35)
-      .add(() => {
-        hoverLift('.gate', { scale: 1.04, rotate: -0.6 });
-        hoverLift('.room-card', { y: -6, rotate: 0.4 });
-        hoverLift('.bench-card', { y: -6 });
-      });
+const disposeNavigation = initNavigation();
+const disposeIllustrations = initIllustrations();
+let disposeMotion = initHubMotion(reduced.matches);
+reduced.addEventListener('change', () => { disposeMotion(); disposeMotion = initHubMotion(reduced.matches); }, { signal });
+const lines = [...document.querySelectorAll<HTMLElement>('.hero-line')].map((line) => {
+  if (line.firstElementChild?.classList.contains('split-inner')) return line.firstElementChild;
+  const inner = document.createElement('span'); inner.className = 'split-inner';
+  inner.append(...line.childNodes); line.append(inner); return inner;
+});
+media.add('(prefers-reduced-motion: no-preference)', () => {
+  const intro = () => {
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .from(lines, { yPercent: 110, duration: .85, stagger: .08 }, 0)
+      .from('.poster-sub, .poster-cta', { y: 14, autoAlpha: 0, duration: .65, stagger: .12 }, .25)
+      .from('.rail .gate', { x: -12, autoAlpha: 0, duration: .4, stagger: .04 }, .15);
   };
+  const preloader = document.querySelector<HTMLElement>('.preloader');
+  let seen = false;
+  try { seen = Boolean(sessionStorage.getItem('hub-seen')); sessionStorage.setItem('hub-seen', '1'); } catch { seen = true; }
+  if (preloader && !seen) {
+    gsap.timeline({ onComplete: () => { preloader.remove(); intro(); } })
+      .from('.pre-shape', { scale: 0, duration: .3, stagger: .07, ease: 'back.out(1.6)' })
+      .to(preloader, { yPercent: -100, duration: .5, ease: 'power3.inOut' }, '+=.1');
+  } else { preloader?.remove(); intro(); }
+});
+if (reduced.matches) document.querySelector('.preloader')?.remove();
 
-  preload(playIntro, reduced);
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', enter);
-} else {
-  enter();
-}
+if (import.meta.hot) import.meta.hot.dispose(() => {
+  events.abort(); artObserver.disconnect(); lounge?.dispose(); media.revert(); animation.revert();
+  disposeNavigation(); disposeIllustrations(); disposeMotion();
+  document.body.classList.remove('menu-open'); hub.inert = false;
+});

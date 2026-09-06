@@ -33,3 +33,12 @@ test('the hub and collection contain working links and editorial content without
     assert.ok(gallery.includes(entry.sources[0].url));
   }
 });
+
+test('the index has one initial selection and every illustrated destination has its artwork', () => {
+  const gates = gatesMarkup();
+  assert.equal((gates.match(/is-expanded/g) ?? []).length, 1);
+  for (const lane of LANES) {
+    assert.ok(existsSync(resolve('src/hub/art', `${lane.art}.svg`)));
+    assert.ok(gates.includes(`href="${laneEntry(lane)}"`));
+  }
+});

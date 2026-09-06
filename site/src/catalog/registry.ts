@@ -15,7 +15,7 @@
 //    kind 'static'   → drop the files in site/public/<path>/ and set `href`
 //    kind 'external' → set `href` to the absolute URL
 // 3. Add the lane's token(s) to src/hub/tokens.css if you referenced new ones.
-// 4. Draw the pixel `glyph` in src/hub/main.ts GLYPHS if it isn't there yet.
+// 4. Draw the lane's SVG in src/hub/art/ and reference it in `art`.
 // World build inputs and hub navigation are derived here. Collection entrances
 // are explicit Vite entries, like the hub and type specimen. The marquee and
 // closing CTA use world studies; the gallery uses the CURATED entries below.
@@ -28,7 +28,7 @@ export interface Lane {
   kind: 'world' | 'collection' | 'static' | 'external';
   status: 'live' | 'building';
   href?: string; // collection/static/external URL; world URLs come from the id
-  glyph: string; // pixel-glyph key (GLYPHS in src/hub/main.ts)
+  art: string; // authored SVG in src/hub/art/, stamped into the hub at build time
   kicker: string; // room-card kicker line
   points: [string, string]; // the two room-card bullets
   cta: string;
@@ -50,9 +50,9 @@ export const LANES: Lane[] = [
     kind: 'static',
     status: 'live',
     href: '/lab/',
-    glyph: 'stack',
+    art: 'lab',
     kicker: 'The workshop',
-    points: ['WebGL studies, still in progress', 'Where this began, and keeps going'],
+    points: ['Interactive studies and ideas in motion', 'Explore the work as it takes shape'],
     cta: 'Open the lab',
   },
   {
@@ -62,9 +62,9 @@ export const LANES: Lane[] = [
     hue: 'var(--cobalt)',
     kind: 'world',
     status: 'building',
-    glyph: 'crescent',
+    art: 'noir',
     kicker: 'Dark cinema',
-    points: ['Charcoal & bone, nothing else', 'Light as the only color'],
+    points: ['A quiet drive through the dark', 'Follow the pools of light'],
     cta: 'Explore the study',
   },
   {
@@ -74,9 +74,9 @@ export const LANES: Lane[] = [
     hue: 'var(--vermilion)',
     kind: 'world',
     status: 'live',
-    glyph: 'droplet',
+    art: 'chrome',
     kicker: 'Liquid editorial',
-    points: ['Chrome rendered live, not baked', 'Warm stone, scalpel accents'],
+    points: ['Liquid lettering against warm stone', 'Watch the metal move'],
     cta: 'Enter',
   },
   {
@@ -86,9 +86,9 @@ export const LANES: Lane[] = [
     hue: 'var(--violet)',
     kind: 'world',
     status: 'live',
-    glyph: 'monolith',
+    art: 'monument',
     kicker: 'White room',
-    points: ['One colossal condensed face', 'Type is the architecture'],
+    points: ['A gallery with type at its center', 'An exhibition of the unfinished'],
     cta: 'Enter',
   },
   {
@@ -98,9 +98,9 @@ export const LANES: Lane[] = [
     hue: 'var(--red)',
     kind: 'world',
     status: 'live',
-    glyph: 'heart',
+    art: 'pulse',
     kicker: 'Guided journey',
-    points: ['One red, weight does the talking', 'Flat charm over live 3D'],
+    points: ['A small action starts a bigger story', 'Follow the life of a single click'],
     cta: 'Enter',
   },
   {
@@ -111,9 +111,9 @@ export const LANES: Lane[] = [
     kind: 'collection',
     status: 'live',
     href: '/curated/',
-    glyph: 'atoll',
+    art: 'curated',
     kicker: 'Places worth a little time',
-    points: ['Immersive experiences with a point of view', 'Begin in the blue of Bikini Atoll'],
+    points: ['Immersive places with a story to tell', 'Start with the blue of Bikini Atoll'],
     cta: 'Explore the collection',
   },
 ];

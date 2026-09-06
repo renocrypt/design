@@ -19,6 +19,11 @@ Three levels: entrance → lab entrance → studies.
 The curated collection follows the same clear handoff: entrance → curated gallery → experience.
 Its first exploration is Bikini Atoll at `/curated/bikini-atoll/`.
 The hub's `--mint` quotes the lab's accent.
+The desktop index keeps one colored door expanded and gives every other door the same resting height.
+Pointer hover or keyboard focus transfers the extra height within a fixed stack.
+The last selected door stays open.
+The last navigation item opens by default, reduced motion makes the exchange immediate, and touch navigation uses equal-height links that open on the first tap.
+The type specimen remains a development page at `/type/` and is not promoted on the hub.
 
 `kind: 'static'` describes where a lane's files sit today, never how much it is allowed to change.
 
@@ -53,6 +58,19 @@ A world enters the queue only with a one-line vibe statement this sharp.
 - **Contrast**: AA is the floor for accidents, not a veto on authored dimness. Pin ink to the fill (`--ink-on-hue`) so a theme flip cannot invert it. A faint tier stays if it is deliberate and traceable to a pole; a new one has to be a decision, not a leftover.
 - **Un-replicable media gets a stand-in, never an imitation** — reference photography/footage is rebuilt from what we own: shaders, generated fields, live 3D, drawn SVG.
 
+
+## Hub media
+
+The entrance follows Units through its warm paper, colored doors, bold type, rounded media cards, and staggered collection rhythm.
+The hero is an original architectural lounge with a blue coffered ceiling, green columns, yellow modular seating, and layered planting.
+Blender supplies the geometry, lighting atlases, and matching stills.
+Three.js supplies restrained camera movement and a transition between daylight and warm practical lighting.
+The page and room share the same appearance control.
+
+The illustrations in `site/src/hub/art/` are original SVG compositions for the individual worlds, the Lab, Curated, and the workshop.
+Their motion belongs to the subject and stops outside the viewport.
+The black utility tray links to GitHub and App Automaton, with outbound clicks attributed to their destination and placement.
+
 ## Stack
 
 Vite + TypeScript + vanilla Three.js + GSAP.
@@ -76,15 +94,17 @@ World entries and collection entrances are built by Vite; standalone experiences
 ## Adding a lane
 
 1. **Registry row** — add a primary destination to `LANES` in `site/src/catalog/registry.ts`, with its own CTA and readiness status.
-   Build inputs, rail doors, mobile menu, room-card grid, marquee band and closing CTA all generate from this list.
+   Build inputs, rail doors, mobile menu, illustrated world strip, marquee band and closing CTA all generate from this list.
    The band and the CTA speak for `kind: 'world'` only, filtered in `renderTicker`/`renderFirstDoor`, never by hand-written markup.
-   The rail is an index and runs in numeral order; the grid is a pitch, so worlds lead and non-world lanes close as a wide shelf.
+   The rail is an index and runs in numeral order.
+   The illustrated world strip leads the collection, followed by the Lab and Curated entrances.
    `kind` decides the rest: `'world'` becomes a build entry under `worlds/<id>/`; `'collection'` is a built entrance; `'static'` lives in `site/public/<path>/` and needs an `href`; `'external'` is an absolute URL.
 2. **World folder** — `site/worlds/<id>/index.html` + `site/src/worlds/<id>/main.ts` + `world.css` (+ optional `scene.ts`).
    Never import another world's CSS.
 3. **Theme policy** — decide day/night stance up front. If dual-mode: read `localStorage('hub-theme')` pre-paint in an inline head script and write back on toggle.
    Theme changes colour only — it must not decide which representation is on screen.
-4. **Pixel glyph** — draw the lane's `glyph` as a 10×10 ASCII bitmap in `GLYPHS` in `src/hub/main.ts`.
+4. **Illustration**: draw the lane's SVG in `site/src/hub/art/` and name it in the registry's `art` field.
+   The build embeds it into the page, and `illustrations.ts` controls when its animation can run.
 5. **Hue token** — add the hue to `site/src/hub/tokens.css` if the registry references a new `var(...)`.
 6. **The hard rules**: measured-anatomy pole filed in `research/POLES.md` first; degrade ladder (live → still frame → art-directed DOM) with ≤40 draw calls and dpr ≤1.75, and the ladder's trigger has to be one that actually fires; `webglcontextlost` guard that restores a visible fallback; GSAP owns every transform it touches; icons drawn, never stock; assets pass the `ASSETS.md` slop filter.
 

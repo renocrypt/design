@@ -17,3 +17,7 @@ research/shots/
 .DS_Store
 Thumbs.db
 *.log
+
+# Offline asset-authoring caches.
+__pycache__/
+*.pyc

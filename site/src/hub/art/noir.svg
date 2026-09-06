@@ -1,0 +1,16 @@
+<svg viewBox="0 0 480 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs><linearGradient id="noir-light" x1="271" y1="103" x2="166" y2="319" gradientUnits="userSpaceOnUse"><stop stop-color="#fff4da" stop-opacity=".75"/><stop offset="1" stop-color="#fff4da" stop-opacity="0"/></linearGradient><pattern id="noir-windows" width="18" height="23" patternUnits="userSpaceOnUse"><path d="M5 5h6v11H5z" fill="#f9f0d2" opacity=".14"/></pattern></defs>
+  <path d="M0 0h480v320H0z" fill="#172124"/>
+  <path d="M0 91h78V48h68v43h26v229H0zM338 50h88v45h54v225H338z" fill="#253336"/>
+  <path d="M0 91h78V48h68v43h26v229H0zM338 50h88v45h54v225H338z" fill="url(#noir-windows)"/>
+  <path d="m253 97-50 223H48L236 97zM276 97l149 223h55L289 97z" fill="#4c5956"/>
+  <path d="M253 97h23l149 223H110z" fill="#101718"/>
+  <path d="m255 103-91 217M276 102l129 218" stroke="#f9f0d2" stroke-opacity=".4"/>
+  <path class="art-road" d="m265 113 1 11m2 10 2 18m3 13 4 26m5 15 8 43m8 24 13 47" stroke="#f9f0d2" stroke-width="3"/>
+  <g stroke="#e9dfc5" stroke-width="2" stroke-linecap="round"><path d="M214 212V94q0-9 8-9h25M331 245V116q0-9-8-9h-18M249 140V78h16"/><path d="M211 213h6M327 246h8"/></g>
+  <path d="m249 91-52 160 102-12z" fill="url(#noir-light)"/>
+  <path d="M236 83h16v6h-16zM298 105h14v6h-14zM259 75h10v4h-10z" fill="#f9efcf"/>
+  <g class="art-car"><path d="m278 225 24-10 28 16 3 25-42 16-23-18z" fill="#9cb8b9" stroke="#101718" stroke-width="2"/><path d="m282 224 19-6 19 12-25 9z" fill="#1c333b"/><path d="m269 247 21 14 39-15M290 261v10" stroke="#101718" stroke-width="2"/><path d="m272 250 8 5m33-2 9-4" stroke="#faf0ca" stroke-width="3"/><path d="m292 238 27-9" stroke="#dbe2d4"/></g>
+  <g fill="#f9f0d2"><circle cx="93" cy="32" r="1.5"/><circle cx="345" cy="24" r="1"/><circle cx="227" cy="40" r="1"/></g>
+  <path d="M24 294h36m-18-4v8" stroke="#f9f0d2" stroke-opacity=".5"/>
+</svg>
