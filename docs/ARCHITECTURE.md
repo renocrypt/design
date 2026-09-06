@@ -1,6 +1,6 @@
 # Site architecture
 
-The site has one deployment and three editorial areas: world studies, the lab, and curated explorations.
+The site has one deployment and three editorial areas: world studies, the lab, and a curated collection of interactive stories, places, and experiments.
 Their visual identities are independent; their routes and publishing checks are shared.
 
 ## Source and route ownership
@@ -40,13 +40,17 @@ The catalog names each SVG through its `art` field.
 `vite-plugin-catalog.ts` embeds the artwork into the served HTML, and `illustrations.ts` runs its animations only while visible.
 The world strip supports native horizontal scrolling, keyboard focus, and explicit previous/next controls.
 
+Lab and Curated share the line-art source indicator in `site/public/icons/source.svg`.
+Individual curated experiences use a quiet return link and a text source link to their own HTML file on GitHub's `main` branch.
+
 The GitHub and App Automaton utilities emit `outbound_navigation` through the existing Google tag, with `destination`, `placement`, and `link_url` parameters.
 The links work without analytics and never wait for tracking.
 App Automaton also receives referral campaign parameters.
 
 ## Adding a curated experience
 
-1. Put `index.html`, `style.css`, and `scene.js` in `site/public/curated/<slug>/`.
+1. Put the standalone `index.html` and its runtime CSS, JavaScript, and assets in `site/public/curated/<slug>/`.
+   Keep an existing modular project structure when present; research captures and local authoring caches stay outside the published folder.
 2. Add a `CURATED` entry with its name, description, context, preview, and reference links.
 3. Add an optimized preview under `site/public/social/`.
 4. Include a visible route back to `/curated/`, desktop and touch controls, and a usable graphics fallback.
@@ -57,6 +61,12 @@ The standalone files use relative references to their own CSS and JavaScript.
 Shared site assets and navigation use paths from the domain root.
 The collection page is generated from the catalog as static HTML and stays useful without JavaScript.
 CDN fonts and libraries are permitted for these self-contained experiences; they do not need another npm project.
+
+Bikini Atoll keeps its three-file application.
+A Drop of Doubt retains its `css/`, `js/`, and `assets/` folders, including model credits and licensing.
+Its collection preview also supplies the still shown without graphics or JavaScript.
+The optional `shareImage` catalog field selects a separate social card; otherwise the collection preview is used.
+Both use 1200 × 630 images, and the build verifier checks each experience's Open Graph and Twitter image selection.
 
 ## Publishing pipeline
 

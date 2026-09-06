@@ -11,10 +11,13 @@ test('every registered destination has one unique, intentional URL', () => {
   for (const route of routes) assert.match(route, /^\/[\w/-]+\/$|^https:\/\//);
 });
 
-test('curated entries retain one HTML, CSS, and JavaScript file', () => {
+test('curated entries have a standalone HTML entrance, styles, scripts, and a preview', () => {
   for (const entry of CURATED) {
     const dir = resolve('public', `.${curatedEntry(entry)}`);
-    assert.deepEqual(readdirSync(dir).sort(), ['index.html', 'scene.js', 'style.css']);
+    assert.ok(existsSync(resolve(dir, 'index.html')));
+    const files = readdirSync(dir, { recursive: true });
+    assert.ok(files.some((name) => name.endsWith('.css')), 'the experience includes its styles');
+    assert.ok(files.some((name) => name.endsWith('.js')), 'the experience includes its scripts');
     assert.ok(existsSync(resolve('public', `.${entry.image}`)), 'the authored preview exists');
   }
 });

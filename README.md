@@ -26,7 +26,7 @@ Every destination starts with a different idea.
 | [Monument](https://design.renocrypt.com/worlds/03-monument/) | An exhibition of the unfinished, with type as its architecture. |
 | [Pulse](https://design.renocrypt.com/worlds/04-pulse/) | One button starts a journey through the life of a click. |
 | [The lab](https://design.renocrypt.com/lab/) | Interactive studies and ideas taking shape. |
-| [Curated](https://design.renocrypt.com/curated/) | Immersive places worth a closer look, beginning with Bikini Atoll. |
+| [Curated](https://design.renocrypt.com/curated/) | Interactive stories, places, and experiments: Bikini Atoll and the palace intrigue of A Drop of Doubt. |
 
 ## Made to explore
 

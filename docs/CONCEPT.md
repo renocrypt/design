@@ -17,7 +17,8 @@ Alongside them sits **00 — Lab** at `/lab/`: the WebGL studies this build grew
 It opens into S1, S2, S4, S5 — the gap is real, S3 was cut.
 Three levels: entrance → lab entrance → studies.
 The curated collection follows the same clear handoff: entrance → curated gallery → experience.
-Its first exploration is Bikini Atoll at `/curated/bikini-atoll/`.
+The collection welcomes interactive stories, places, and experiments: Bikini Atoll at `/curated/bikini-atoll/` and A Drop of Doubt at `/curated/a-drop-of-doubt/`.
+Its framing is curiosity and participation, with room for both landscape exploration and palace drama.
 The hub's `--mint` quotes the lab's accent.
 The desktop index keeps one colored door expanded and gives every other door the same resting height.
 Pointer hover or keyboard focus transfers the extra height within a fixed stack.

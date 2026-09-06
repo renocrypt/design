@@ -7,6 +7,7 @@
 // the mini monitors and the solo screen share one recipe.
 
 import './entrance.css';
+import '../../shared/source-link.css';
 import { gsap } from 'gsap';
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;

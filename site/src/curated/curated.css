@@ -71,7 +71,7 @@
 }
 .collection-eyebrow,
 .collection-rule,
-.curated-location,
+.curated-context,
 .image-caption {
   font-size: 10px;
   font-weight: 550;
@@ -118,6 +118,10 @@
   border-top: 1px solid color-mix(in srgb, var(--ink) 25%, transparent);
   color: var(--ink-soft);
   font-size: 9px;
+}
+.collection-grid {
+  display: grid;
+  gap: 36px;
 }
 .curated-card {
   display: grid;
@@ -170,7 +174,7 @@
   flex-direction: column;
   align-items: flex-start;
 }
-.curated-location {
+.curated-context {
   font-size: 8px;
   letter-spacing: 1.1px;
 }
@@ -272,9 +276,6 @@
   letter-spacing: 1.4px;
   color: var(--ink-soft);
 }
-.collection-footer > a:last-child {
-  font-size: 11px;
-}
 @media (max-width: 760px) {
   .collection-header {
     min-height: 86px;
@@ -354,16 +355,12 @@
     margin-top: 25px;
   }
   .collection-footer {
-    flex-wrap: wrap;
-    gap: 18px;
+    gap: 12px;
   }
   .collection-footer p {
-    width: calc(100% - 110px);
-    text-align: right;
+    flex: 1;
+    text-align: center;
     font-size: 6px;
-  }
-  .collection-footer > a:last-child {
-    font-size: 10px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,202 @@
+dialog {
+  border: 0;
+  color: var(--ink);
+  background: var(--paper-light);
+  padding: 0;
+  max-height: 100svh;
+  overscroll-behavior: contain;
+}
+dialog::backdrop {
+  background: #201e17a6;
+  backdrop-filter: blur(5px);
+}
+dialog[open] {
+  animation: panel-in 0.45s var(--ease);
+}
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.dialog-header .eyebrow {
+  font-size: 8px;
+}
+.close-button {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.close-button span {
+  font-size: 24px;
+  font-weight: 300;
+  transition: transform 0.3s;
+}
+.close-button:hover span {
+  transform: rotate(90deg);
+}
+dialog h2 {
+  font: 400 clamp(47px, 4.5vw, 70px) / 1 var(--serif);
+  letter-spacing: -0.035em;
+  color: var(--red);
+}
+.cast-dialog {
+  height: 100svh;
+  width: min(540px, 100%);
+  max-width: 100%;
+  margin: 0 0 0 auto;
+  padding: 33px 40px 40px;
+}
+.dialog-intro {
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 21px 0 30px;
+  color: var(--muted);
+}
+.cast-list {
+  display: flex;
+  flex-direction: column;
+}
+.cast-card {
+  display: grid;
+  grid-template-columns: 69px 1fr 25px;
+  align-items: center;
+  gap: 21px;
+  padding: 15px 0;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  width: 100%;
+}
+.cast-card img {
+  width: 69px;
+  height: 82px;
+  object-fit: cover;
+  filter: saturate(0.7);
+  transition: filter 0.4s;
+}
+.cast-card:hover img {
+  filter: saturate(1);
+}
+.cast-card h3 {
+  font: 400 26px/1.1 var(--serif);
+  margin: 0 0 5px;
+}
+.cast-card p {
+  font-size: 9px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.cast-card .cast-chinese {
+  font-family: var(--chinese);
+  font-size: 12px;
+  margin-top: 5px;
+  color: #8a7d68;
+}
+.cast-card > svg {
+  width: 25px;
+  height: 24px;
+  color: var(--red);
+  opacity: 0.5;
+  transition: transform 0.4s;
+}
+.cast-card:hover > svg {
+  transform: translateX(4px);
+  opacity: 1;
+}
+.dialog-caption {
+  font-size: 10px;
+  line-height: 1.8;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  margin-top: 7px;
+  padding-top: 20px;
+}
+.about-dialog {
+  width: min(780px, calc(100% - 50px));
+  padding: 34px 50px 38px;
+}
+.about-dialog > p {
+  font-size: 13px;
+  line-height: 1.85;
+  margin-top: 24px;
+  max-width: 610px;
+  color: #68604f;
+}
+.about-rule {
+  height: 1px;
+  background: var(--line);
+  margin: 30px 0;
+}
+.instructions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 34px;
+}
+.instructions span {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--red);
+}
+.instructions p {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.about-dialog .keyboard-note {
+  font-size: 9px;
+  margin-top: 28px;
+}
+.keyboard-note span {
+  padding-inline: 7px;
+}
+.source-links {
+  display: flex;
+  gap: 27px;
+  margin-top: 24px;
+}
+.source-links a {
+  font-size: 10px;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 5px;
+}
+.source-links a:hover {
+  color: var(--red);
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 600px) {
+  .cast-dialog {
+    padding: 25px 27px;
+  }
+  .about-dialog {
+    width: calc(100% - 24px);
+    padding: 26px;
+  }
+  .about-dialog h2 {
+    font-size: 48px;
+  }
+  .about-dialog > p {
+    font-size: 12px;
+  }
+  .instructions {
+    gap: 20px;
+  }
+  .keyboard-note span {
+    padding-inline: 3px;
+  }
+  .dialog-header {
+    margin-bottom: 24px;
+  }
+}

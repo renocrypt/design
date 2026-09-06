@@ -115,7 +115,6 @@
           >
         </button>
         <nav class="main-nav" aria-label="Explore">
-          <a class="nav-link collection-return" href="/curated/">← Curated</a>
           <button id="nav-atoll" class="nav-link active">The atoll</button>
           <button id="nav-wrecks" class="nav-link">
             The sunken fleet <span>↗</span>
@@ -133,7 +132,13 @@
           <svg><use href="#i-expand" /></svg>
         </button>
       </header>
-      <a class="curated-breadcrumb" href="/curated/">← Curated</a>
+      <nav class="collection-links" aria-label="Collection navigation">
+        <a class="collection-return" href="/curated/">
+          <svg aria-hidden="true"><use href="#i-arrow" /></svg>
+          Back to Curated
+        </a>
+        <a class="source-link" href="https://github.com/renocrypt/design/blob/main/site/public/curated/bikini-atoll/index.html" target="_blank" rel="noopener noreferrer" aria-label="View this page’s HTML source on GitHub (opens in a new tab)">Source code <span aria-hidden="true">↗</span></a>
+      </nav>
 
       <section class="fallback-card" id="fallback-card" aria-label="Illustrated Bikini Atoll" aria-hidden="true" inert>
         <p class="eyebrow">THE QUIET VIEW</p><h2>Bikini Atoll.</h2><p>The live lagoon is taking a pause.<br>There’s still a story worth exploring.</p>

@@ -242,6 +242,7 @@ h1 em {
 .bottom {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 1rem;
   padding: 1.2rem 1.5rem;
   border-top: 1px solid var(--bone-12);
@@ -253,6 +254,13 @@ h1 em {
 }
 .bottom a { color: var(--bone); text-decoration: none; }
 .bottom a:hover { color: var(--phosphor); }
+.bottom a:focus-visible {
+  color: var(--phosphor);
+  outline: 1px solid var(--phosphor);
+  outline-offset: 4px;
+}
+
+.bottom .source-link { margin-block: -0.6rem; }
 
 /* ---------- small screens ---------- */
 

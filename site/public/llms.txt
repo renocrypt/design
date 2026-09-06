@@ -13,11 +13,13 @@ The hub marks studies that are still in progress.
 - [03 — Monument](https://design.renocrypt.com/worlds/03-monument/): a white void. One colossal condensed face sliced by hairlines, 32 seeded exhibits, wry museum labeling.
 - [04 — Pulse](https://design.renocrypt.com/worlds/04-pulse/): a guided journey. One red, weight does the talking; one click's life told in five stations.
 - [Type specimen](https://design.renocrypt.com/type/): hub type casting — Clash Display, Cabinet Grotesk and General Sans compared as display candidates.
-- [Curated explorations](https://design.renocrypt.com/curated/): a collection of original immersive experiences, with readable introductions, context, and links to the work.
+- [Curated explorations](https://design.renocrypt.com/curated/): interactive stories, places, and experiments, with readable introductions, context, and links to the work.
 
 ## Curated explorations
 
 - [Bikini Atoll](https://design.renocrypt.com/curated/bikini-atoll/): an original 3D journey through a Marshall Islands lagoon, with WebGPU water, palm-lined islands, and underwater visits to USS Saratoga, IJN Nagato, and USS Arkansas. Free movement, ambient ocean sound, and changing light support the exploration. Field notes acknowledge the displacement of the Bikinian people and nuclear testing. Geography and ship models are artistic reconstructions, not a navigation or dive-planning chart.
+
+- [A Drop of Doubt](https://design.renocrypt.com/curated/a-drop-of-doubt/): a playable 3D court scene inspired by episode 62 of Empresses in the Palace (甄嬛传). Fifteen moments follow the opening accusation through the summons for the first witness, before the blood test begins. English dialogue, Chinese comparison text, and an explorable Jingren Palace accompany the condensed adaptation.
 
 ## Lab studies
 

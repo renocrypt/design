@@ -112,8 +112,8 @@ export const LANES: Lane[] = [
     status: 'live',
     href: '/curated/',
     art: 'curated',
-    kicker: 'Places worth a little time',
-    points: ['Immersive places with a story to tell', 'Start with the blue of Bikini Atoll'],
+    kicker: 'Curiosity at play',
+    points: ['Interactive stories, places, and experiments', 'A lagoon to wander. A court full of suspicion.'],
     cta: 'Explore the collection',
   },
 ];
@@ -129,12 +129,13 @@ export interface CuratedExperience {
   id: string;
   num: string;
   name: string;
-  location: string;
+  context: string;
   description: string;
   story: string;
   features: string[];
   image: string;
   imageAlt: string;
+  shareImage?: { path: string; alt: string };
   sources: { name: string; url: string }[];
 }
 
@@ -143,7 +144,7 @@ export const CURATED: CuratedExperience[] = [
     id: 'bikini-atoll',
     num: '01',
     name: 'Bikini Atoll',
-    location: 'The Marshall Islands · Pacific Ocean',
+    context: 'Island exploration · Marshall Islands',
     description:
       'An immersive journey from palm-lined islands and turquoise shallows to the historic shipwrecks beneath Bikini’s lagoon.',
     story:
@@ -155,6 +156,28 @@ export const CURATED: CuratedExperience[] = [
     sources: [
       { name: 'UNESCO World Heritage', url: 'https://whc.unesco.org/en/list/1339/' },
       { name: 'The people and ships of Bikini', url: 'https://bikiniatoll.com/divetour1.html' },
+    ],
+  },
+  {
+    id: 'a-drop-of-doubt',
+    num: '02',
+    name: 'A Drop of Doubt',
+    context: 'Palace intrigue · 甄嬛传',
+    description:
+      'One accusation. A room full of shifting loyalties. Step into Jingren Palace for a playable retelling of the opening to Empresses in the Palace’s blood-test drama.',
+    story:
+      'Inspired by episode 62 of 《甄嬛传》, this 3D scene follows the Empress’s opening question through Qi’s summons for the first witness. Fifteen moments unfold in just over two minutes. Follow the English retelling, reveal its Chinese adaptation, or pause to explore the assembled court. The scene ends before the witness enters and the blood test begins; the dialogue is a condensed retelling rather than an episode transcript.',
+    features: ['Fifteen dramatic moments', 'English + 中文', 'Explore the court'],
+    image: '/social/a-drop-of-doubt.webp',
+    imageAlt:
+      'The assembled court in a modeled Jingren Palace, with richly colored robes, carved chairs, and warm light.',
+    shareImage: {
+      path: '/social/a-drop-of-doubt-og.jpg',
+      alt: 'A Drop of Doubt, an interactive court drama inspired by 甄嬛传, over a view of the modeled Jingren Palace.',
+    },
+    sources: [
+      { name: 'Original scene · episode 62', url: 'https://www.youtube.com/watch?v=OIKZAj9lpNA&t=1958s' },
+      { name: 'Adaptation and asset credits', url: '/curated/a-drop-of-doubt/credits.md' },
     ],
   },
 ];
