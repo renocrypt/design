@@ -1,0 +1,262 @@
+:root {
+  color-scheme: dark;
+  --paper: #171815;
+  --paper-light: #20231f;
+  --ink: #eee7d9;
+  --muted: #aaa390;
+  --gold: #9d8966;
+  --speaker-accent: #c5a16e;
+  --line: color-mix(in oklab, var(--speaker-accent) 22%, var(--paper));
+  --accent-wash: color-mix(in oklab, var(--speaker-accent) 8%, var(--paper));
+}
+html,
+body {
+  background: var(--paper);
+}
+.masthead {
+  background: var(--paper);
+}
+.signature-prefix {
+  color: var(--muted);
+}
+.signature-word {
+  color: var(--ink);
+}
+.signature-dot {
+  box-shadow: 0 0 17px color-mix(in srgb, var(--red) 13%, transparent);
+}
+.signature-swipe {
+  opacity: 0.86;
+}
+.edition {
+  color: var(--muted);
+}
+.edition-number {
+  color: var(--red);
+}
+.masthead nav {
+  color: #d4cbbb;
+}
+.nav-link:after {
+  height: 1px;
+  background: var(--red);
+}
+.editorial {
+  background:
+    radial-gradient(ellipse at 0% 5%, var(--accent-wash), transparent 62%),
+    var(--paper);
+}
+.intro-copy h1 {
+  color: var(--ink);
+}
+.intro-copy h1 em {
+  color: var(--red);
+}
+.title-rule {
+  color: #a79b87;
+}
+.introduction {
+  color: #b5ad9e;
+  font-size: 13px;
+  line-height: 1.9;
+}
+.enter-button {
+  border-bottom-color: color-mix(in srgb, var(--red) 60%, transparent);
+  color: var(--ink);
+}
+.enter-button svg {
+  color: var(--red);
+}
+.enter-button:hover {
+  color: var(--red);
+}
+.entry-detail {
+  color: #918876;
+}
+.editorial-foot p {
+  color: #97907e;
+}
+.editorial-foot em {
+  color: #c7beab;
+}
+.scene-index {
+  color: color-mix(in srgb, var(--red) 54%, var(--paper));
+}
+.live-copy > .eyebrow {
+  color: #a69c87;
+}
+.speaker {
+  color: var(--red);
+  font-size: 10px;
+}
+.english-line {
+  color: #ede5d6;
+}
+.chinese-line {
+  color: #b8ae9b;
+  border-left-color: color-mix(in srgb, var(--red) 50%, var(--paper));
+  font-size: 16px;
+}
+.ending-copy p {
+  color: #b8ac96;
+}
+.text-action {
+  color: var(--red);
+  border-color: var(--red);
+}
+.score {
+  background: var(--paper);
+}
+.transport .icon-button {
+  color: #b8ac96;
+}
+.transport .icon-button:hover {
+  color: var(--red);
+}
+.play-button {
+  outline-color: #695c47;
+  color: var(--red);
+}
+.play-button:hover {
+  color: var(--paper);
+}
+.time {
+  color: #cfc3ad;
+}
+.time-divider {
+  color: #736a58;
+}
+.chapter-button {
+  color: #b0a68e;
+}
+.chapter-button.is-active {
+  color: var(--red);
+}
+#progress {
+  background: linear-gradient(
+    to right,
+    var(--red) var(--position),
+    #494435 var(--position)
+  );
+}
+.score-ticks {
+  opacity: 0.42;
+}
+.language-button {
+  color: #d6c9b4;
+}
+.language-slash {
+  color: #746853;
+}
+.language-button > [lang] {
+  color: #a99c86;
+}
+.language-button[aria-pressed="true"] > [lang] {
+  color: var(--red);
+}
+.sound-button {
+  color: #a89981;
+}
+.sound-button[aria-pressed="true"] {
+  color: var(--red);
+}
+.loading {
+  background: var(--paper);
+  color: var(--ink);
+}
+.loading-line {
+  background: #4c4232;
+}
+.load-error {
+  background: var(--paper);
+}
+.load-error > span {
+  color: #b6a991;
+}
+.explore-note {
+  background: #1a201bee;
+  color: #e2d7bf;
+  border-color: #72644c;
+  box-shadow: 0 9px 30px #0002;
+}
+.explore-note button {
+  color: var(--red);
+}
+dialog {
+  background: #20231f;
+  color: var(--ink);
+}
+dialog::backdrop {
+  background: #090c0cba;
+}
+.cast-card {
+  border-color: #3c4137;
+}
+.cast-card h3 {
+  color: #e4d8c3;
+}
+.cast-card p,
+.dialog-intro,
+.dialog-caption {
+  color: #aaa18c;
+}
+.cast-card .cast-chinese {
+  color: #b6a78e;
+}
+.dialog-header .eyebrow {
+  color: var(--red);
+}
+.close-button {
+  color: #b6a991;
+}
+.about-dialog > p {
+  color: #c6baa5;
+}
+.about-rule {
+  background: #434437;
+}
+.instructions span {
+  color: var(--red);
+}
+.instructions p {
+  color: #b1a58d;
+}
+.about-dialog .keyboard-note {
+  color: #a69a83;
+}
+.source-links a {
+  color: #d4c6aa;
+  border-bottom-color: #7b6b4d;
+}
+.source-links a:hover {
+  color: var(--red);
+}
+.dialog-caption {
+  border-color: #414135;
+}
+.noscript {
+  color: var(--paper-light);
+  background: #5d392b;
+}
+::selection {
+  background: var(--red);
+  color: #151a16;
+}
+:focus-visible {
+  outline-color: var(--red);
+}
+@media (max-width: 650px) {
+  .introduction {
+    font-size: 11px;
+  }
+  .chinese-line {
+    font-size: 15px;
+  }
+  .speaker {
+    font-size: 9px;
+  }
+  .signature-dot {
+    width: 5px;
+    height: 8px;
+  }
+}

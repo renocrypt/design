@@ -2,6 +2,7 @@ import '../shared/reset.css';
 import '../hub/fonts.css';
 import '../hub/tokens.css';
 import './curated.css';
+import '../shared/source-link.css';
 
 document.querySelector<HTMLButtonElement>('#collection-theme')?.addEventListener('click', () => {
   const theme = document.documentElement.dataset.theme === 'night' ? 'day' : 'night';

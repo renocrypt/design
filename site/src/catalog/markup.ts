@@ -59,14 +59,14 @@ export const roomsMarkup = (): string => {
 /** The collection is readable and navigable before any browser JavaScript runs. */
 export const curatedMarkup = (): string =>
   CURATED.map(
-    (experience) => `
+    (experience, index) => `
   <article class="curated-card" aria-labelledby="${experience.id}-title">
     <a class="curated-image" href="${curatedEntry(experience)}" aria-label="Curated ${experience.num} — Explore ${esc(experience.name)}">
-      <img src="${experience.image}" width="1200" height="630" alt="${esc(experience.imageAlt)}" fetchpriority="high" />
+      <img src="${experience.image}" width="1200" height="630" alt="${esc(experience.imageAlt)}" loading="${index === 0 ? 'eager' : 'lazy'}" fetchpriority="${index === 0 ? 'high' : 'auto'}" />
       <span class="image-caption">CURATED ${experience.num}<span aria-hidden="true">↗</span></span>
     </a>
     <div class="curated-content">
-      <p class="curated-location">${esc(experience.location)}</p>
+      <p class="curated-context">${esc(experience.context)}</p>
       <h2 id="${experience.id}-title"><a href="${curatedEntry(experience)}">${esc(experience.name)}</a></h2>
       <p class="curated-description">${esc(experience.description)}</p>
       <ul class="curated-features">${experience.features.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>

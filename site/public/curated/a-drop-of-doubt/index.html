@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#171815" />
+    <meta
+      name="description"
+      content="An interactive court drama in three dimensions. Enter Jingren Palace and follow an accusation through the assembled court."
+    />
+    <title>A Drop of Doubt — The Accusation</title>
+    <link rel="icon" href="./assets/mark.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+    <link rel="stylesheet" href="./css/typography.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.1.0/style.css"
+    />
+    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/theatre.css" />
+    <link rel="stylesheet" href="./css/panels.css" />
+    <link rel="stylesheet" href="./css/identity.css" />
+    <link rel="stylesheet" href="./css/dark.css" />
+    <link rel="stylesheet" href="./css/collection.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.webgpu.js",
+          "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.webgpu.js",
+          "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.tsl.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <svg
+      class="svg-library"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <symbol id="play-mark" viewBox="0 0 32 32">
+          <path d="M9 5v22l19-11Z M3 10V4h6M3 22v6h6" />
+        </symbol>
+        <symbol id="pause-mark" viewBox="0 0 32 32">
+          <path d="M11 6v20M21 6v20M5 6h6m10 20h6" />
+        </symbol>
+        <symbol id="next-mark" viewBox="0 0 32 32">
+          <path d="m10 7 11 9-11 9M26 7v18" />
+        </symbol>
+        <symbol id="previous-mark" viewBox="0 0 32 32">
+          <path d="m22 7-11 9 11 9M6 7v18" />
+        </symbol>
+        <symbol id="orbit-mark" viewBox="0 0 36 36">
+          <path d="M18 4v6m0 16v6M4 18h6m16 0h6M18 12l6 6-6 6-6-6Z" />
+          <path
+            class="orbit-ring"
+            d="M8 9a13 13 0 0 1 20 18M8 27A13 13 0 0 1 28 9"
+          />
+        </symbol>
+        <symbol id="arrow-mark" viewBox="0 0 38 28">
+          <path d="M2 14h30M23 4l11 10-11 10M2 9v10" />
+        </symbol>
+        <symbol id="sound-mark" viewBox="0 0 32 32">
+          <path d="M5 13v6m6-10v14m6-18v22m6-18v14m5-10v6" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div class="app" id="app">
+      <nav class="collection-navigation" aria-label="Collection navigation">
+        <a href="/curated/">← Back to Curated</a>
+        <a href="https://github.com/renocrypt/design/blob/main/site/public/curated/a-drop-of-doubt/index.html" target="_blank" rel="noopener noreferrer" aria-label="View this page’s HTML source on GitHub (opens in a new tab)">Source code <span aria-hidden="true">↗</span></a>
+      </nav>
+      <header class="masthead">
+        <a
+          class="signature"
+          href="./"
+          aria-label="A Drop of Doubt, return to the beginning"
+          ><span class="signature-prefix">a drop of</span
+          ><span class="signature-word" aria-hidden="true"
+            ><span>d</span><span class="signature-o">o</span
+            ><span class="signature-u">u</span><span>b</span
+            ><span class="signature-t">t</span
+            ><i class="signature-dot"></i></span
+          ><svg class="signature-swipe" viewBox="0 0 180 24" aria-hidden="true">
+            <path d="M3 18C36 13 64 7 96 10s49 9 67 2c8-3 10-7 8-8" /></svg
+        ></a>
+        <span class="edition"
+          ><span class="edition-number">01</span
+          ><span class="edition-line"></span> THE ACCUSATION</span
+        >
+        <nav aria-label="Main navigation">
+          <button class="nav-link" data-open="cast-dialog" disabled>
+            The court</button
+          ><button class="nav-link" data-open="about-dialog">
+            About the scene
+          </button>
+        </nav>
+      </header>
+
+      <main class="theatre" id="theatre">
+        <section class="editorial" aria-label="Story and dialogue">
+          <div class="intro-copy" id="intro-copy">
+            <p class="eyebrow">
+              <span class="fine-diamond"></span> JINGREN PALACE
+            </p>
+            <h1>A drop<br />of <em>doubt.</em></h1>
+            <div class="title-rule">
+              <span></span><span>滴血验亲 · 序</span>
+            </div>
+            <p class="introduction">
+              In Jingren Palace, an accusation changes the meaning of every
+              glance.
+            </p>
+            <button class="enter-button" id="enter-button" disabled>
+              <span>Enter the scene</span><svg><use href="#arrow-mark" /></svg>
+            </button>
+            <p class="entry-detail">ONE ROOM <span>·</span> FIFTEEN MOMENTS</p>
+          </div>
+          <div class="live-copy" id="live-copy" hidden>
+            <p class="eyebrow">
+              <span id="moment-index">01</span><span class="moment-rule"></span
+              ><span id="chapter-name">The accusation</span>
+            </p>
+            <div
+              class="dialogue-content"
+              id="dialogue-content"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <p class="speaker" id="speaker"></p>
+              <p class="english-line" id="english-line"></p>
+              <p
+                class="chinese-line"
+                id="chinese-line"
+                lang="zh-Hans"
+                hidden
+              ></p>
+            </div>
+            <div class="ending-copy" id="ending-copy" hidden>
+              <span class="fine-diamond"></span>
+              <p>The first witness awaits.</p>
+              <button class="text-action" id="replay-button">
+                Replay the scene <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </div>
+          <div class="editorial-foot">
+            <span class="foot-rule"></span>
+            <p>Inspired by<br /><em>Empresses in the Palace</em></p>
+            <span class="scene-index">62</span>
+          </div>
+        </section>
+
+        <section class="stage" aria-label="The court in three dimensions">
+          <div class="stage-top">
+            <span class="stage-location"
+              >THE ACCUSATION <span>／</span> 景仁宫</span
+            ><button
+              class="explore-button"
+              id="explore-button"
+              disabled
+              aria-pressed="false"
+            >
+              <svg><use href="#orbit-mark" /></svg><span>Explore</span>
+            </button>
+          </div>
+          <img class="court-still" src="/social/a-drop-of-doubt.webp" alt="The assembled court in the modeled Jingren Palace." />
+          <div class="canvas-wrap" id="canvas-wrap"></div>
+          <div class="stage-vignette" aria-hidden="true"></div>
+          <div class="stage-caption">
+            <span id="shot-label">The assembled court</span
+            ><span class="frame-signature">doubt.</span>
+          </div>
+          <div class="explore-note" id="explore-note" hidden>
+            Drag to look around <span>·</span> Scroll to move closer<button
+              id="return-button"
+            >
+              Return to the scene
+            </button>
+          </div>
+          <div class="loading" id="loading" role="status">
+            <p>The court is assembling.</p>
+            <span id="loading-count">00</span>
+            <div class="loading-line"><span id="loading-progress"></span></div>
+          </div>
+          <div class="load-error" id="load-error" role="alert" hidden>
+            <p>The court could not be opened.</p>
+            <p class="fallback-story">This scene follows an accusation through Jingren Palace, from the Empress’s opening question to Qi’s summons for the first witness. The still shows the assembled court.</p>
+            <button class="text-action" id="retry-button">Try again</button
+            ><span id="error-detail"></span>
+            <a class="text-action" href="/curated/">Back to Curated</a>
+          </div>
+        </section>
+      </main>
+
+      <footer class="score" aria-label="Scene controls">
+        <div class="transport">
+          <button
+            class="icon-button"
+            id="previous-button"
+            aria-label="Previous moment"
+            disabled
+          >
+            <svg><use href="#previous-mark" /></svg></button
+          ><button
+            class="play-button"
+            id="play-button"
+            aria-label="Play scene"
+            disabled
+          >
+            <svg><use id="play-symbol" href="#play-mark" /></svg></button
+          ><button
+            class="icon-button"
+            id="next-button"
+            aria-label="Next moment"
+            disabled
+          >
+            <svg><use href="#next-mark" /></svg></button
+          ><span class="time"
+            ><span id="current-time">00:00</span
+            ><span class="time-divider">/</span>02:02</span
+          >
+        </div>
+        <div class="score-track">
+          <div class="chapters" id="chapters" aria-label="Scene chapters"></div>
+          <input
+            id="progress"
+            type="range"
+            min="0"
+            max="122"
+            step="0.1"
+            value="0"
+            aria-label="Scene position"
+            disabled
+          />
+          <div class="score-ticks" aria-hidden="true"></div>
+        </div>
+        <div class="preferences">
+          <button
+            class="language-button"
+            id="language-button"
+            aria-pressed="false"
+            title="Show Chinese comparison text"
+          >
+            <span>EN</span><span class="language-slash">/</span
+            ><span lang="zh">中</span></button
+          ><button
+            class="sound-button"
+            id="sound-button"
+            aria-pressed="false"
+            aria-label="Enable quiet ambient sound"
+          >
+            <svg><use href="#sound-mark" /></svg><span>Sound off</span>
+          </button>
+        </div>
+      </footer>
+    </div>
+
+    <dialog class="cast-dialog" id="cast-dialog" aria-labelledby="cast-title">
+      <div class="dialog-header">
+        <p class="eyebrow">THE ASSEMBLED COURT</p>
+        <button class="close-button" data-close>
+          Close <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <h2 id="cast-title">Every glance<br />has a history.</h2>
+      <p class="dialog-intro">Choose a character to look closer.</p>
+      <div class="cast-list" id="cast-list"></div>
+      <p class="dialog-caption">
+        The first witness is Bin’er, known here as Chen Si’s wife. Her entrance
+        follows this scene.
+      </p>
+    </dialog>
+
+    <dialog
+      class="about-dialog"
+      id="about-dialog"
+      aria-labelledby="about-title"
+    >
+      <div class="dialog-header">
+        <p class="eyebrow">A DROP OF DOUBT</p>
+        <button class="close-button" data-close>
+          Close <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <h2 id="about-title">A private charge.<br />A public reckoning.</h2>
+      <p>
+        This scene follows an accusation from the Empress’s opening question to
+        Noble Lady Qi’s summons for the first witness. It is a condensed,
+        original retelling, with Chinese comparison text.
+      </p>
+      <p>
+        The room, costumes, and gestures take their direction from the opening
+        in episode 62 of <em>Empresses in the Palace</em>. The experience ends
+        before Bin’er enters the court.
+      </p>
+      <div class="about-rule"></div>
+      <div class="instructions">
+        <div>
+          <span>FOLLOW</span>
+          <p>Play the scene, or move between moments at your own pace.</p>
+        </div>
+        <div>
+          <span>LOOK CLOSER</span>
+          <p>
+            Pause and explore the room. Choose a portrait in The court to
+            examine a character.
+          </p>
+        </div>
+      </div>
+      <p class="keyboard-note">
+        Space: play or pause <span>·</span> ← →: previous or next moment
+        <span>·</span> Esc: close
+      </p>
+      <div class="source-links">
+        <a
+          href="https://www.youtube.com/watch?v=OIKZAj9lpNA&t=1958s"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Original scene ↗</a
+        ><a
+          href="./credits.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Adaptation and asset credits ↗</a
+        >
+      </div>
+    </dialog>
+
+    <noscript>
+      <style>.loading { display: none; } .score { display: none; }</style>
+      <p class="scene-without-scripts">The still shows the assembled court. Enable JavaScript to follow the English and Chinese retelling, or <a href="/curated/">return to Curated</a>.</p>
+    </noscript>
+    <script type="module" src="./js/main.js" onerror="document.documentElement.dataset.sceneReady='error';document.getElementById('loading').hidden=true;document.getElementById('load-error').hidden=false"></script>
+  </body>
+</html>

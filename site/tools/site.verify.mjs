@@ -63,6 +63,16 @@ for (const path of [...LANES.map(laneEntry), ...CURATED.map(curatedEntry)]) {
   );
 }
 const hub = readFileSync(join(root, 'index.html'), 'utf8');
+for (const entry of CURATED) {
+  const meta = readMetadata(readFileSync(join(root, curatedEntry(entry), 'index.html'), 'utf8'));
+  const image = entry.shareImage?.path ?? entry.image;
+  assert.ok(existsSync(join(root, image)), `${entry.id}: share image exists`);
+  assert.equal(meta.metas['og:image'], SITE.origin + image, `${entry.id}: its own Open Graph image`);
+  assert.equal(meta.metas['twitter:image'], SITE.origin + image, `${entry.id}: matching Twitter image`);
+  assert.equal(meta.metas['twitter:card'], 'summary_large_image');
+  assert.equal(meta.metas['og:image:width'], '1200');
+  assert.equal(meta.metas['og:image:height'], '630');
+}
 assert.ok(hub.includes('href="/curated/"'), 'the built hub links to the collection');
 const gallery = readFileSync(join(root, 'curated/index.html'), 'utf8');
 for (const entry of CURATED)

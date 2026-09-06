@@ -1826,7 +1826,49 @@ article a:hover {
 
 /* Site navigation and the illustrated fallback share the experience's palette. */
 .main-nav a { color: inherit; text-decoration: none; }
-.curated-breadcrumb { display: none; }
+.collection-links {
+  position: absolute;
+  top: 91px;
+  left: 44px;
+  z-index: 21;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--cream);
+}
+.collection-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  text-decoration: none;
+}
+.collection-return {
+  gap: 7px;
+  font-size: 10px;
+  letter-spacing: .3px;
+}
+.collection-return svg {
+  width: 15px;
+  height: 15px;
+  transform: rotate(180deg);
+  transition: transform 200ms ease;
+}
+.collection-return:is(:hover, :focus-visible) svg { transform: translateX(-3px) rotate(180deg); }
+.collection-links .source-link {
+  gap: 5px;
+  padding-inline: 7px;
+  font-size: 10px;
+  letter-spacing: .3px;
+}
+.collection-links .source-link span { transition: transform 200ms ease; }
+.collection-links .source-link:is(:hover, :focus-visible) span { transform: translate(1px,-1px); }
+@media (min-width: 1550px) {
+  .collection-links { top: 105px; left: 56px; }
+}
+@media (max-width: 640px) {
+  .collection-links { top: 72px; left: 23px; gap: 8px; }
+}
 .static-world { display: none; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 40%,#447e6d,#103b47 75%); }
 .static-world img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(.65) saturate(.8); z-index: 1; }
 .static-world svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #e1e9c1; stroke-width: 1; opacity: .3; }
@@ -1840,4 +1882,4 @@ article a:hover {
 .fallback-links { margin-top: 19px; padding-top: 12px; border-top: 1px solid var(--line); }
 .static-mode .static-world, .static-mode .fallback-card { display: block; }
 .static-mode #world, .static-mode .hero, .static-mode .wreck-card, .static-mode .hud-footer, .static-mode .mini-map, .static-mode .depth-gauge, .static-mode .location-note, .static-mode .explore-hint, .static-mode .heritage-note, .static-mode .main-nav, .static-mode .fullscreen-button, .static-mode .mobile-controls { display: none!important; }
-@media(max-width:640px) { .curated-breadcrumb { display:block;position:absolute;top:86px;left:23px;z-index:4;color:var(--cream);font-size:8px;text-decoration:none;letter-spacing:.5px; }.explore-hint{top:112px}.fallback-card,.no-script-notes{padding:26px}.fallback-card h2,.no-script-notes h1{font-size:49px} }
+@media(max-width:640px) { .explore-hint{top:128px}.fallback-card,.no-script-notes{padding:26px}.fallback-card h2,.no-script-notes h1{font-size:49px} }

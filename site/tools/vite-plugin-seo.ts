@@ -243,7 +243,12 @@ export function seo(options: SeoOptions): Plugin {
       CURATED.find((item) => curatedEntry(item) === path) ??
       (path === '/curated/' ? CURATED[0] : undefined);
     if (experience)
-      return { path: experience.image, width: 1200, height: 630, alt: experience.imageAlt };
+      return {
+        path: experience.shareImage?.path ?? experience.image,
+        width: 1200,
+        height: 630,
+        alt: experience.shareImage?.alt ?? experience.imageAlt,
+      };
     return existsSync(join(root, 'public', 'og.png'))
       ? { path: '/og.png', width: 1200, height: 630, alt: options.siteName }
       : { path: '/icon-512.png', width: 512, height: 512, alt: options.siteName };

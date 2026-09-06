@@ -1,0 +1,25 @@
+/* One drawn source mark, shared by the subpage footers. */
+.source-link {
+  display: grid;
+  place-items: center;
+  flex: 0 0 2.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+.source-mark {
+  display: block;
+  width: 1.75rem;
+  height: 1.75rem;
+  transform-origin: 50% 80%;
+}
+.source-link:is(:hover, :focus-visible) .source-mark {
+  animation: source-nod 600ms ease-in-out;
+}
+@keyframes source-nod {
+  0%, 100% { transform: rotate(0); }
+  35% { transform: translateY(-2px) rotate(-8deg); }
+  70% { transform: rotate(3deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .source-link:is(:hover, :focus-visible) .source-mark { animation: none; }
+}
